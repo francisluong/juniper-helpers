@@ -243,6 +243,16 @@ namespace eval ::juniperconnect {
     return $output
   }
 
+  proc grep {expression textblock} {
+    if {[string index $expression 0] ne "^"} {
+      set expression "^.*$expression"
+    }
+    if {[string index $expression end] ne {$}} {
+      set expression "$expression.*\$"
+    }
+    return [njoin [regexp -all -inline -line -- \
+      $expression $juniperconnect::output]]
+  }
 }
 
 namespace import juniperconnect::connectssh juniperconnect::disconnectssh

@@ -14,4 +14,11 @@ set commands_textblock "
 set output [juniperconnect::send_textblock $router $commands_textblock]
 puts "\n>>$line\n$output\n$line<<"
 juniperconnect::disconnectssh $router
+#
+foreach expr [list "Virtual" "^Virtual" "^FPC"] {
+puts "\n>>$line  
+  (expression: 'expr')
+[juniperconnect::grep $expr $juniperconnect::output]
+$line<<"
+}
 puts end
