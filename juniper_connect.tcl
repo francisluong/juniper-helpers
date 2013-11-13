@@ -17,6 +17,7 @@ namespace eval ::juniperconnect {
 
   variable expect_timeout 10
   variable expect_timeout_restore $expect_timeout
+  variable output {}
 
   proc connectssh {address username password} {
     variable session_array
@@ -102,8 +103,6 @@ namespace eval ::juniperconnect {
     }
     set timeout 10
     log_user 1
-    #send initial carriage-return then expect first prompt
-    send "\n"
     puts "\njuniperconnect::connectssh success"
     set session_array($address) $spawn_id
     return $spawn_id
@@ -153,8 +152,22 @@ namespace eval ::juniperconnect {
     return $lines_list
   }
 
+  proc njoin {lines_list} {
+    set result_textblock [join $lines_list "\n"]
+    return $result_textblock
+  }
+
+  proc nrange {textblock rangestart rangestop} {
+    #line lrange but for "\n" delimited textblocks
+    set lines_list [nsplit $textblock]
+    set after_lines_list [lrange $lines_list $rangestart $rangestop]
+    set result [njoin $after_lines_list]
+  }
+
   proc send_textblock {address commands_textblock} {
-    return [send_commands $address [nsplit $commands_textblock]]
+    set textblock [string trim $commands_textblock]
+    set commands_list [nsplit $textblock]
+    return [send_commands $address $commands_list]
   }
 
   proc send_commands {address commands_list} {
@@ -165,6 +178,7 @@ namespace eval ::juniperconnect {
     set tclfilename [namespace current]
 
     #initialize return output
+    variable output
     set output {}
 
     set timeout [timeout]
@@ -172,16 +186,15 @@ namespace eval ::juniperconnect {
     variable session_array
     set spawn_id $session_array($address)
 
+    #send initial carriage-return then expect first prompt
+    send "\n"
     expect {
-      -re $prompt {append output $expect_out(buffer)}
+      -re $prompt {append output [string trimleft $expect_out(buffer)]}
       timeout {
         return -code error "ERROR: $procname: TIMEOUT waiting for initial prompt"
       }
     }
-
-    set this_count 0
-    set length [llength $commands_list]
-    set final_count [llength $commands_list]
+    #loop through commands list
     foreach this_command $commands_list {
       #determine if we need to adjust the prompt based on mode switches
       # need a simpler prompt for shell
@@ -207,15 +220,16 @@ namespace eval ::juniperconnect {
           }
         }
       }
-      incr this_count
+      #send command
       send "$this_command\n"
+      #loop and look for for prompt regexp
       expect {
         -re "$prompt" {
           #got prompt - exit condition for expect-loop
           append output $expect_out(buffer)
         }
         -re ".*(\r|\n)" {
-          #reset the timeout timer using newline-continues
+          #this resets the timeout timer using newline-continues
           append output $expect_out(buffer)
           exp_continue
         }
@@ -225,13 +239,9 @@ namespace eval ::juniperconnect {
         }
       }
     }
-
-    #this sets us up for the next expect prompt
-    send "\r"
-
+    set output [string trimright [nrange $output 0 end-1]]
     return $output
   }
-
 
 }
 
