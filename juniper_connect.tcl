@@ -1,4 +1,5 @@
 package provide JuniperConnect 1.0
+package require textproc 1.0
 package require Expect  5.45
 package require Tcl     8.5
 
@@ -146,27 +147,9 @@ namespace eval ::juniperconnect {
     return $expect_timeout
   }
 
-  proc nsplit {textblock} {
-    #take a textblock and return a list
-    set lines_list [split $textblock "\n"]
-    return $lines_list
-  }
-
-  proc njoin {lines_list} {
-    set result_textblock [join $lines_list "\n"]
-    return $result_textblock
-  }
-
-  proc nrange {textblock rangestart rangestop} {
-    #line lrange but for "\n" delimited textblocks
-    set lines_list [nsplit $textblock]
-    set after_lines_list [lrange $lines_list $rangestart $rangestop]
-    set result [njoin $after_lines_list]
-  }
-
   proc send_textblock {address commands_textblock} {
     set textblock [string trim $commands_textblock]
-    set commands_list [nsplit $textblock]
+    set commands_list [textproc::nsplit $textblock]
     return [send_commands $address $commands_list]
   }
 
@@ -239,19 +222,18 @@ namespace eval ::juniperconnect {
         }
       }
     }
-    set output [string trimright [nrange $output 0 end-1]]
-    return $output
+    set output [string trimright [textproc::nrange $output 0 end-1]]
+    #trim each line of output
+    set output2_list {}
+    foreach line [textproc::nsplit $output] {
+      lappend output2_list [string trim $line]
+    }
+    set output2 [textproc::njoin $output2_list]
+    return $output2
   }
 
-  proc grep {expression textblock} {
-    if {[string index $expression 0] ne "^"} {
-      set expression "^.*$expression"
-    }
-    if {[string index $expression end] ne {$}} {
-      set expression "$expression.*\$"
-    }
-    return [njoin [regexp -all -inline -line -- \
-      $expression $juniperconnect::output]]
+  proc grep_output {expression textblock} {
+    return [textproc::linematch $expression $juniperconnect::output]
   }
 }
 
