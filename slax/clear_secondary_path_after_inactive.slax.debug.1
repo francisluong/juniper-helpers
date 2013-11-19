@@ -1,0 +1,72 @@
+/*      
+*       
+*    NAME: clear_secondary_path_after_inactive.slax
+*    PURPOSE: The requirement is that when an mpls lsp switches from
+*             secondary path to primary path, we flap the secondary path
+*             in order to reset the bandwidth (when configured with
+*             auto-bandwidth resignal-minimum-bandwidth).
+*       
+* To use, copy the file to /var/db/scripts/event and then add the following
+* configuration:
+*       
+event-options { 
+    event-script {
+        file clear_secondary_path_after_inactive.slax;
+    }
+}
+*/      
+                
+version 1.0;
+        
+ns junos = "http://xml.juniper.net/junos/*/junos";
+ns xnm = "http://xml.juniper.net/xnm/1.1/xnm";
+ns jcs = "http://xml.juniper.net/junos/commit-scripts/1.0";
+
+import "../import/junos.xsl";
+ 
+match / {
+  <event-script-input> {
+
+    /* Record the syslog message */
+    var $message = event-script-input/trigger-event/message;
+
+    /* Record the syslog facility */
+    var $facility = event-script-input/trigger-event/facility;
+
+    /* Record the syslog severity */
+    var $severity = event-script-input/trigger-event/severity;
+
+    /* Record the triggering event */
+    var $trigger = event-script-input/trigger-event/id;
+
+    /* Record the syslog interface name */
+    var $int-name = event-script-input/trigger-event/attribute-list/
+    attribute[name=="interface-name"]/value; 
+
+    /* Record the syslog hostname */
+    var $hostname = event-script-input/trigger-event/hostname;
+
+    /* DON'T do stuff 
+      var $connection = jcs:open();
+      var $rpc = <get-task-memory-information>;
+      var $out = jcs:execute($connection, $rpc);
+      var $value = $out/task-memory-in-use-size;
+
+      var $mibrpc = <request-snmp-utility-mib-set> {
+          <object-type> "integer";
+          <instance> "taskmem";
+          <object-value> $value;  
+      }
+      var $res = jcs:invoke($mibrpc);
+      expr jcs:close( $connection );
+    */
+
+  }
+  <event-script-results> {
+      <event-triggered-this-policy> {
+        expr event-script-input/trigger-event-id
+      }
+  }
+}
+
+

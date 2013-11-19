@@ -108,11 +108,7 @@ namespace eval ::textproc {
     return [njoin $result]
   }
 
-  proc grep_until {start_expression stop_expression textblock} {
-    return [grep_until_option $start_expression $stop_expression "" $textblock]
-  }
-
-  proc grep_until_option {start_expression stop_expression options_list textblock} {
+  proc grep_until {start_expression stop_expression textblock {options_list ""} } {
     set stop_inverse 0
     set start_inverse 0
     set stop_ignore_case 0

@@ -1,0 +1,88 @@
+/*      
+*       
+*    NAME: clear_secondary_path_after_inactive.slax
+*    PURPOSE: The requirement is that when an mpls lsp switches from
+*             secondary path to primary path, we flap the secondary path
+*             in order to reset the bandwidth (when configured with
+*             auto-bandwidth resignal-minimum-bandwidth).
+*       
+* To use, copy the file to /var/db/scripts/event and then add the following
+* configuration:
+*       
+
+event-options { 
+    policy clear_secondary_path_after_inactive {
+        events rpd_mpls_lsp_switch;
+        then {
+            event-script clear_secondary_path_after_inactive.slax {
+                output-filename clear-output;
+                destination local;
+                output-format xml;
+            }
+        }
+    }
+    event-script {
+        file clear_secondary_path_after_inactive.slax;
+    }
+    destinations {
+        local {
+            archive-sites {
+                /var/tmp;
+            }
+        }
+    }
+}
+*/      
+                
+version 1.0;
+        
+ns junos = "http://xml.juniper.net/junos/*/junos";
+ns xnm = "http://xml.juniper.net/xnm/1.1/xnm";
+ns jcs = "http://xml.juniper.net/junos/commit-scripts/1.0";
+
+import "../import/junos.xsl";
+ 
+match / {
+  <event-script-results> {
+
+
+    <attributes-expr-dump> {
+      for-each (event-script-input/trigger-event/attribute-list/attribute) {
+        var $attrib = .;
+        <name> $attrib/name;
+        <value> $attrib/value;
+      }
+    }
+
+    var $lsp-name = event-script-input/trigger-event/attribute-list/attribute[name == "lsp-name"]/value;
+    var $bandwidth = event-script-input/trigger-event/attribute-list/attribute[name == "bandwidth"]/value;
+    var $old-pathname = event-script-input/trigger-event/attribute-list/attribute[name == "old-pathname"]/value;
+    var $old-path-type = event-script-input/trigger-event/attribute-list/attribute[name == "old-path-type"]/value;
+    <values> {
+      <lsp-name> $lsp-name;
+      <bandwidth> $bandwidth;
+      <old-pathname> $old-pathname;
+      <old-path-type> $old-path-type;
+      if( $old-path-type = "secondary" ) {
+        var $clear-lsp-path = <clear-mpls-lsp-information> {
+          <regex> $lsp-name;
+          <path> $old-pathname;
+        }
+        var $result = jcs:invoke( $clear-lsp-path );
+        <rpc-rpc-old-path-is-secondary> {
+          <message> "resetting LSP " _ $lsp-name _ " PATH " _ $old-pathname;
+          <xml> $clear-lsp-path;
+          <result> $result;
+          if ( $result//self::xnm:error ) {
+            <error> "true";
+          }
+          else {
+            <error> "false";
+          }
+        }
+      }
+    }
+  }
+}
+
+
