@@ -37,9 +37,26 @@ h2 "disconnect"
 juniperconnect::disconnectssh $router
 h2 "captured output"
 puts [indent [blockanchor $output] 2]
-foreach expr [list "Virtual" "^Virtual" "^FPC"] {
+foreach expr [list "Virtual" "virtual" "^Virtual" "^FPC"] {
   h2 "linematch for $expr"
   puts "(expression: '$expr')"
   puts [indent [blockanchor [textproc::linematch $expr $juniperconnect::output]] 2]
 }
+set textblocks [textproc::split_on_empty_line $juniperconnect::output]
+lassign $textblocks first second
+h2 "First Command and Output"
+puts [indent $first 2]
+
+
+h2 "Second Command and Output"
+puts [indent $second 2]
+
+foreach expr [list "(R1|Model)"] {
+  h2 "inverse linematch for $expr"  
+  puts "(expression: '$expr')"
+  puts [indent [blockanchor [textproc::linematch_inverse $expr $second]] 2]
+}
+
+
+puts {}
 puts end

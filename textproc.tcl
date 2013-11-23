@@ -56,33 +56,18 @@ namespace eval ::textproc {
 
 
   proc linematch {expression textblock} {
-    if {[string index $expression 0] ne "^"} {
-      set expression "^.*$expression"
-    }
-    if {[string index $expression end] ne {$}} {
-      set expression "$expression.*\$"
-    }
-    return [njoin [regexp -all -inline -line -- \
-      $expression $textblock]]
+    return [grep $expression $textblock]
   }
 
   proc linematch_nocase {expression textblock} {
-    #ignore case
-    if {[string index $expression 0] ne "^"} {
-      set expression "^.*$expression"
-    }
-    if {[string index $expression end] ne {$}} {
-      set expression "$expression.*\$"
-    }
-    return [njoin [regexp -all -inline -line -nocase -- \
-      $expression $textblock]]
+    return [grep $expression $textblock "nocase"]
   }
 
   proc linematch_inverse {expression textblock} {
-    return [tcl_grep_uber $expression "inverse" $textblock]
+    return [grep $expression $textblock "inverse"]
   }
   
-  proc tcl_grep_uber {expression options_list textblock} {
+  proc grep {expression textblock {options_list ""}} {
     set inverse 0
     set ignore_case 0
     foreach option $options_list {
@@ -92,17 +77,30 @@ namespace eval ::textproc {
         "ignore_case" {set ignore_case 1}
       }
     }
+    if {!$inverse} {
+      #if we're not doing inverse matching, we can just use regexp
+      if {[string index $expression 0] ne "^"} {
+        set expression "^.*$expression"
+      }
+      if {[string index $expression end] ne {$}} {
+        set expression "$expression.*\$"
+      }
+      if {$ignore_case} {
+        return [njoin [regexp -all -inline -line -nocase $expression $textblock]]
+      } else {
+        return [njoin [regexp -all -inline -line $expression $textblock]]
+      }
+    }
+    #inverse matching requires line-by-line
     set result {}
     foreach line [nsplit $textblock] {
       if {$ignore_case} {
-        set regexp_true [regexp -nocase -- $expression $line]
+        set regexp_true [regexp -line -nocase -- $expression $line]
       } else {
-        set regexp_true [regexp -- $expression $line]
+        set regexp_true [regexp -line -- $expression $line]
       }
-      if {$regexp_true} {
-        if {!$inverse} { lappend result $line }
-      } else {
-        if {$inverse} { lappend result $line }
+      if {!$regexp_true} {
+        lappend result $line
       }
     }
     return [njoin $result]

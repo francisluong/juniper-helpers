@@ -223,13 +223,8 @@ namespace eval ::juniperconnect {
       }
     }
     set output [string trimright [textproc::nrange $output 0 end-1]]
-    #trim each line of output
-    set output2_list {}
-    foreach line [textproc::nsplit $output] {
-      lappend output2_list [string trim $line]
-    }
-    set output2 [textproc::njoin $output2_list]
-    return $output2
+    set output [join [split $output "\r"] ""]
+    return $output
   }
 
   proc grep_output {expression textblock} {
