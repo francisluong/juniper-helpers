@@ -13,7 +13,7 @@ lp = Lineprinter()
 ###
 lp.section()
 from lxml import etree
-filepath = '../xml-simple-001.xml'
+filepath = 'xml-simple-001.xml'
 print "Reading {}\n--\n".format(filepath)
 doc = etree.parse(filepath)
 print etree.tostring(doc)
@@ -73,7 +73,7 @@ for elem in docroot.xpath('//html:p',namespaces=nsm):
 
 lp.section()
 from lxml import etree
-filepath = '../xml-show-bgp-summary.txt'
+filepath = 'xml-show-bgp-summary.txt'
 print "Reading {}\n--\n".format(filepath)
 bgp = etree.parse(filepath)
 print etree.tostring(bgp)

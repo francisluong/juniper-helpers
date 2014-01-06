@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-import paramiko, base64, os
+import paramiko, os
 ssh = paramiko.SSHClient()
 keypath = os.path.expanduser('~/.ssh/known_hosts')
 ssh.load_host_keys(keypath)
