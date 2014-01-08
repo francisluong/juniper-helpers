@@ -59,15 +59,31 @@ if __name__ == '__main__':
 
     lp.section()
     print "Chassis:", result.xpath('//chassis/description')[0].text
+    if result.xpath('//chassis/description')[0].text == "JUNOSV-FIREFLY":
+      firefly = True
+    else: 
+      firefly = False
     print "Chassis Serial-Number:", result.xpath('//chassis/serial-number')[0].text
-    print "CB0 Serial Number:", result.xpath('//chassis/chassis-module[name="CB 0"]/serial-number')[0].text
+    cb_serial = result.xpath('//chassis/chassis-module[name="CB 0"]/serial-number')
+    if len(cb_serial) == 0:
+      serial = "''"
+    else:
+      serial = cb_serial[0].text
+    print "CB0 Serial Number:", serial
 
     lp.section()
     from itertools import izip
-    print "Chassis Modules:"
-    names = result.xpath('//chassis/chassis-module/name')
-    serials = result.xpath('//chassis/chassis-module/serial-number')
-    parts = result.xpath('//chassis/chassis-module/model-number')
-    for name, serial, part in izip(names, serials, parts):
-      print " - {0}: {1} // {2}".format( name.text, part.text, serial.text )  
+    if not firefly:
+      names = result.xpath('//chassis/chassis-module/name')
+      serials = result.xpath('//chassis/chassis-module/serial-number')
+      parts = result.xpath('//chassis/chassis-module/model-number')
+      print "Chassis Modules: (there are {} of them)".format( len(names) )
+      for name, serial, part in izip(names, serials, parts):
+        print " - {0}: {1} // {2}".format( name.text, part.text, serial.text )  
+    else:
+      names = result.xpath('//chassis/chassis-module/name')
+      print "Chassis Modules: (there are {} of them)".format( len(names) )
+      for name in names:
+        print " - ", name.text
+
 
