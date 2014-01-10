@@ -86,4 +86,28 @@ if __name__ == '__main__':
       for name in names:
         print " - ", name.text
 
+    lp.section()
+    #iterate over chassis-modules and print name and if available SN and model
+
+    def append_optional_text(node, output):
+      optionals = ["serial-number", "description", "model-number"]
+      for path in optionals:
+        matches = node.xpath(path)
+        if len(matches) != 0:
+          output += " - " + matches[0].text
+      return output
+
+      
+    print "Smarter hardware inventory:"
+    modules = result.xpath('//chassis/chassis-module')
+    for module in modules:
+      output = "  > "
+      output += module.xpath('name')[0].text
+      output = append_optional_text(module, output)
+      print output
+      #print sub-modules if they contain "MIC"
+      for sub in module.xpath('chassis-sub-module[contains(name,"MIC")]'):
+        output = "    >> " + sub[0].text
+        output = append_optional_text(sub, output)
+        print output
 

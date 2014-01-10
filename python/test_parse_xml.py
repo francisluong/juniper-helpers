@@ -86,3 +86,14 @@ print "AS number should be 9192: {} ({})".format(asnumber, asnumber == "9192")
 print "It's important to note that strings don't match integers.  9192 != '9192': {}".format(9192 != "9192")
 print "but what about a float and an int?  9192.0 == 9192: {}".format(9192.0 == 9192)
 
+lp.section()
+bgp_peers = bgproot.xpath('//bgp-peer')
+for peer in bgp_peers[0:2]:
+  print peer
+  address = peer.xpath('peer-address')[0].text
+  asn = peer.xpath('peer-as')[0].text
+  state = peer.xpath('peer-state')[0].text
+  fail = peer.xpath('peer-death')
+  print "An xpath that doesn't match any nodes has a length of: {}".format(len(fail))
+  print "Peer {}, AS: {}, State: {}".format(address,asn,state)
+  print etree.tostring(peer)
