@@ -1,0 +1,17 @@
+# YAML
+name: Francis Luong
+company: Juniper Networks
+object:
+  attributes:
+    - smart
+    - ruggedly handsome
+    - rational
+    - funny
+  methods: [getter, setter]
+sonnet: |
+  I wish I could
+  write a poem
+  but I can't
+---
+#document 2
+document_number: 2
