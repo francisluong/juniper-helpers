@@ -3,7 +3,7 @@ package require textutil::split
 package require Tcl     8.5
 
 namespace eval ::textproc {
-  #namespace export grep
+  namespace export grep grep_until nsplit njoin nrange column split_on_empty_line
 
   proc nsplit {textblock} {
     #take a textblock and return a list consisting of lines
@@ -30,16 +30,9 @@ namespace eval ::textproc {
     return $result
   }
 
-  proc extract_column {field_separator column_number_list textblock} {
-    #similar to awk
-    #column numbers start with 1, not 0
-    set result_list [extract_column_to_list $field_separator $column_number_list $textblock]
-    set result [njoin $result_list]
-    return $result
-  }
-
-  proc extract_column_to_list {field_separator column_number_list textblock} {
-    #similar to awk
+  proc column {column_number_list textblock {field_separator ""} {format "list"}} {
+    #awk-like column grab
+    #return a lindex-split for all lines in textblock
     #column numbers start with 1, not 0
     set result_list {}
     foreach line [nsplit $textblock] {
@@ -51,9 +44,19 @@ namespace eval ::textproc {
       }
       lappend result_list [join $new_line_parts_list]
     }
-    return $result_list
+    switch -- $format {
+      "list" {
+        return $result_list
+      }
+      "textblock" {
+        set result [njoin $result_list]
+        return $result
+      }
+      default {
+        return -code error "extract_column_to_list: unexpected value for format: '$format'"
+      }
+    }
   }
-
 
   proc linematch {expression textblock} {
     return [grep $expression $textblock]
@@ -198,5 +201,5 @@ namespace eval ::textproc {
 
 }
 
-#namespace import 
+namespace import textproc::*
 

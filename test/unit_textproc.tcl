@@ -8,15 +8,15 @@ set textindent "x
 y
 z"
 h2 "original text"
-puts $textindent
+print $textindent
 h2 "nsplit"
-set textnsplit [textproc::nsplit $textindent]
-puts $textnsplit
+set textnsplit [nsplit $textindent]
+print $textnsplit
 h2 "njoin"
-set textnjoin [textproc::njoin $textnsplit]
-puts $textnjoin
+set textnjoin [njoin $textnsplit]
+print $textnjoin
 h2 "indent"
-puts [indent $textindent 2]
+print [indent $textindent 2]
 
 h1 "Attempt to return a list based on \\n\\n split"
 set text1 "block1
@@ -24,28 +24,28 @@ block1
 
 block2
 block2"
-set block1 [textproc::split_on_empty_line $text1]
-puts $block1
+set block1 [split_on_empty_line $text1]
+print $block1
 
 h1 "attempt case sensitive match"
 set expression "BLOCK1"
 h2 "expression: $expression"
-puts [indent [blockanchor [textproc::linematch $expression $text1]] 2]
+print [indent [blockanchor [grep $expression $text1]] 2]
 
 h1 "attempt case insensitive match"
 h2 "expression: $expression"
-puts [indent [blockanchor [textproc::linematch_nocase $expression $text1]] 2]
+print [indent [blockanchor [grep $expression $text1 "nocase"]] 2]
 
 h1 "inverse match"
 set expression "block1"
 h2 "expression: $expression"
-puts [indent [blockanchor [textproc::linematch_inverse $expression $text1]] 2]
+print [indent [blockanchor [grep $expression $text1 "nocase"]] 2]
 
 h1 "extract_column 2"
 set text2 "1 2 3
 a b c
 bob"
-puts [indent [blockanchor [textproc::extract_column " " 2 $text2]] 2]
+print [indent [blockanchor [column 2 $text2 " "]] 2]
 
 
 h1 "grep_until 1 a"
@@ -58,6 +58,6 @@ j k l"
 set start "1"
 set stop "a"
 h2 "original text"
-puts [indent [blockanchor $text3] 2]
+print [indent [blockanchor $text3] 2]
 h2 "after grep_until"
-puts [indent [blockanchor [textproc::grep_until $start $stop $text3]] 2]
+print [indent [blockanchor [grep_until $start $stop $text3]] 2]
