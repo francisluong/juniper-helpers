@@ -23,6 +23,13 @@ Prerequisites
 
 This repo is actively being developed.  Consider it informal for now.
 
+Library Files
+-------------
+ - juniper_connect.tcl - expect/ssh handlers
+ - textproc.tcl - text processing
+ - output.tcl - output, and logging
+
+
 Sub-Folders
 -----------
 I will keep non-TCL library items in the following subfolders:
