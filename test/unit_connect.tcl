@@ -4,7 +4,7 @@ set auto_path [linsert $auto_path 0 "/home/fluong/code/juniper-helpers"]
 package require JuniperConnect
 package require output
 
-
+init_logfile "/var/tmp/results"
 set line [string repeat - 50]
 set router 192.168.1.31
 
@@ -17,10 +17,10 @@ set output [juniperconnect::send_commands $router $commands_list]
 h2 "disconnect"
 juniperconnect::disconnectssh $router
 h2 "captured output"
-puts [indent [blockanchor [lineanchor $output]] 2]
+print [blockanchor [lineanchor $output]]
 h2 "split it into two blocks using empty line"
 foreach block [textproc::split_on_empty_line $output] {
-  puts [indent [blockanchor $block] 2]
+  print [blockanchor $block]
 }
 
 h1 "connect, issue 2 commands as a textblock, and grep the output"
@@ -36,27 +36,27 @@ juniperconnect::disconnectssh $router
 h2 "disconnect"
 juniperconnect::disconnectssh $router
 h2 "captured output"
-puts [indent [blockanchor $output] 2]
+print [blockanchor $output]
 foreach expr [list "Virtual" "virtual" "^Virtual" "^FPC"] {
   h2 "linematch for $expr"
-  puts "(expression: '$expr')"
-  puts [indent [blockanchor [textproc::linematch $expr $juniperconnect::output]] 2]
+  print "(expression: '$expr')"
+  print [blockanchor [textproc::linematch $expr $juniperconnect::output]]
 }
 set textblocks [textproc::split_on_empty_line $juniperconnect::output]
 lassign $textblocks first second
 h2 "First Command and Output"
-puts [indent $first 2]
+print $first
 
 
 h2 "Second Command and Output"
-puts [indent $second 2]
+print $second
 
 foreach expr [list "(R1|Model)"] {
   h2 "inverse linematch for $expr"  
-  puts "(expression: '$expr')"
-  puts [indent [blockanchor [textproc::linematch_inverse $expr $second]] 2]
+  print "(expression: '$expr')"
+  print [blockanchor [textproc::linematch_inverse $expr $second]]
 }
 
 
-puts {}
-puts end
+print {}
+print end
