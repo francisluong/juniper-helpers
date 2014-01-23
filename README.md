@@ -3,6 +3,8 @@ TCL Library
 
 Intro
 -----
+This repo is actively being developed.  Consider it informal for now.
+
 So I started writing the code in this repo before I gave a lot of thought to what it would be and now that I've been writing for a bit I think I am ready.
 
 I intend for this to be a library of TCL/Expect for interaction with Juniper devices.  Here are some of the types of interaction I will account for:
@@ -17,8 +19,6 @@ Prerequisites
  - tcllib
  - Expect 5.45
  - OpenSSH
-
-This repo is actively being developed.  Consider it informal for now.
 
 Library Files
 -------------

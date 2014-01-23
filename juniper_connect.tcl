@@ -4,7 +4,7 @@ package require Expect  5.45
 package require Tcl     8.5
 
 namespace eval ::juniperconnect {
-  namespace export connectssh disconnectssh
+  namespace export connectssh disconnectssh send_textblock grep_output
 
   variable session_array
   array unset session_array
@@ -227,10 +227,10 @@ namespace eval ::juniperconnect {
     return $output
   }
 
-  proc grep_output {expression textblock} {
+  proc grep_output {expression} {
     return [textproc::linematch $expression $juniperconnect::output]
   }
 }
 
-namespace import juniperconnect::connectssh juniperconnect::disconnectssh
+namespace import juniperconnect::*
 
