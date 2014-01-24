@@ -18,6 +18,26 @@ Prerequisites
  - Expect 5.45
  - OpenSSH
 
+Ubuntu Install: sudo apt-get install -y tcl8.5 expect tcllib openssh
+Fedora/Redhat/Centos Install: sudo yum install -y tcl expect tcllib openssh
+
+Getting Started
+---------------
+
+The library is written in TCL so you just have to clone the repo and add it to your TCLLIBPATH.
+
+Steps for BASH:
+ - Clone the repository
+ - Add the path of this git repo to TCLLIBPATH in your ~/.bashrc
+   * export TCLLIBPATH=$TCLLIBPATH:/home/fluong/juniper-helpers
+ - create a userpass file
+   * first line should be username
+   * second line should have the password
+   * e.g. examples/userpass
+ - Try to run examples/001_basic.tcl  
+   * examples/001_basic.tcl <router_address> <path_to_userpass_file>
+   * you will need a Juniper router you have access to in order to execute this script
+
 Library Files
 -------------
  - test.tcl - high-level Juniper router test interface
