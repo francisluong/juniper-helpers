@@ -35,8 +35,8 @@ Steps for BASH:
    * first line should be username
    * second line should have the password
    * e.g. _examples/userpass_
- - Try to run examples/001\_basic.tcl  
-   * _examples/001\_basic.tcl <router_address> <path_to_userpass_file>_
+ - Try to run examples/001_basic.tcl  
+   * *examples/001\_basic.tcl <router_address> <path_to_userpass_file>*
    * you will need a Juniper router you have access to in order to execute this script
 
 Library Files
