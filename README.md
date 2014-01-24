@@ -19,8 +19,8 @@ Prerequisites
  - OpenSSH
 
 Installing these packages
- * Ubuntu Install: sudo apt-get install -y tcl8.5 expect tcllib openssh
- * Fedora/Redhat/Centos Install: sudo yum install -y tcl expect tcllib openssh
+ * Ubuntu Install: _sudo apt-get install -y tcl8.5 expect tcllib openssh_
+ * Fedora/Redhat/Centos Install: _sudo yum install -y tcl expect tcllib openssh_
 
 Getting Started
 ---------------
@@ -30,13 +30,13 @@ The library is written in TCL so you just have to clone the repo and add it to y
 Steps for BASH:
  - Clone the repository
  - Add the path of this git repo to TCLLIBPATH in your ~/.bashrc
-   * export TCLLIBPATH=$TCLLIBPATH:/home/fluong/juniper-helpers
+   * _export TCLLIBPATH=$TCLLIBPATH:/home/fluong/juniper-helpers_
  - create a userpass file
    * first line should be username
    * second line should have the password
-   * e.g. examples/userpass
+   * e.g. _examples/userpass_
  - Try to run examples/001_basic.tcl  
-   * examples/001_basic.tcl <router_address> <path_to_userpass_file>
+   * _examples/001_basic.tcl <router_address> <path_to_userpass_file>_
    * you will need a Juniper router you have access to in order to execute this script
 
 Library Files
