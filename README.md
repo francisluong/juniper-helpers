@@ -18,8 +18,9 @@ Prerequisites
  - Expect 5.45
  - OpenSSH
 
-Ubuntu Install: sudo apt-get install -y tcl8.5 expect tcllib openssh
-Fedora/Redhat/Centos Install: sudo yum install -y tcl expect tcllib openssh
+Installing these packages
+ * Ubuntu Install: sudo apt-get install -y tcl8.5 expect tcllib openssh
+ * Fedora/Redhat/Centos Install: sudo yum install -y tcl expect tcllib openssh
 
 Getting Started
 ---------------
