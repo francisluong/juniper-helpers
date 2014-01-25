@@ -1,38 +1,43 @@
 
 ============================================================
-START TEST: VERIFY CHASSIS IS OF TYPE JUNOSV FIREFLY OR MX960
+START TEST: VERIFY CHASSIS IS OF TYPE FIREFLY OR MX960
 ============================================================
   
   ----------------------------------------------------------
-  Subcase: Verify Chassis matches 'JUNOSV-FIREFLY' or 'MX'
+  Subcase: Verify Chassis matches 'FIREFLY' or 'MX'
   ----------------------------------------------------------
     Analyzing 192.168.1.31 output for the following commands:
       + show chassis hardware
       + show version
     --------------------------------------------------------
     > Verification of Assertions:
-      -  Confirmed: 'Chassis .* (JUNOSV-FIREFLY|MX[0-9]+)' is present
+      -  Confirmed: 'Chassis .* (FIREFLY|MX[0-9]+)' is present
+      -  Confirmed: 'Chassis .* T640' is NOT present
+      -  Confirmed: # lines matching '^FPC' (1 == 1)
+      -  Confirmed: # lines matching '^FPC' (1 != 2)
+      -  Confirmed: # lines matching '^FPC' (1 < 2)
+      -  Confirmed: # lines matching '^FPC' (1 >= 0)
     --------------------------------------------------------
     > Relevant CLI Output:
       lab@R1> show chassis hardware 
       Hardware inventory:
       Item             Version  Part number  Serial number     Description
-      Chassis                                af39efef60db      JUNOSV-FIREFLY
+      Chassis                                dd4b876c4e0a      FIREFLY-PERIMETER
       Midplane        
       System IO       
-      Routing Engine                                           JUNOSV-FIREFLY RE
+      Routing Engine                                           FIREFLY-PERIMETER RE
       FPC 0                                                    Virtual FPC
         PIC 0                                                  Virtual GE
       Power Supply 0  
       
       lab@R1> show version 
       Hostname: R1
-      Model: junosv-firefly
-      JUNOS Software Release [12.1I20121128_2352_slt-builder]
+      Model: firefly-perimeter
+      JUNOS Software Release [12.1X46-D10.2]
   
   ----------------------------------------------------------
   Test Result Summary --> PASS
   ----------------------------------------------------------
-    ** Subcase: Verify Chassis matches 'JUNOSV-FIREFLY' or 'MX' --> PASS
+    ** Subcase: Verify Chassis matches 'FIREFLY' or 'MX' --> PASS
 
 ============================================================

@@ -62,6 +62,7 @@ namespace eval ::juniperconnect {
     set success 0
     set send_slow {1 .1}
     set retries 10
+    set ssh_mismatch_msg "ERROR: FATAL: Mismatched SSH host key for $address"
     if {$username == "-1"} {
       set username $juniperconnect::r_username
     }
@@ -83,7 +84,10 @@ namespace eval ::juniperconnect {
           return -code error "ERROR: juniperconnect::connectssh: no hostkey alg"
         }
         "Host key verification failed." {
-          return -code error "ERROR: FATAL: Mismatched SSH host key for $address"
+          return -code error $ssh_mismatch_msg
+        }
+        "REMOTE HOST IDENTIFICATION HAS CHANGED" {
+          return -code error $ssh_mismatch_msg
         }
         "Could not resolve hostname"              {
            puts "juniperconnect::connectssh: $expect_out(0,string)"

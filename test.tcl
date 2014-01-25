@@ -64,7 +64,7 @@ namespace eval ::test {
     set test::lastmode "analyze"
   }
 
-  proc assert {expression {assertion "present"}} {
+  proc assert {expression {assertion "present"} {value1 ""} {value2 ""}} {
     if {$test::lastmode ne "assert"} {
       print [output::hr "-" 4]
       print "> Verification of Assertions:"
@@ -78,6 +78,41 @@ namespace eval ::test {
           #pass
         } else {
           print "!! ERROR: Failed to verify: '$expression' $condition" 4
+          #fail
+          set test::pass($test::current_subcase) 0
+        }
+      }
+      "notpresent" -
+      "not present" {
+        set condition "is NOT present"
+        set grep_result [grep_output $expression]
+        if {$grep_result eq ""} {
+          print "-  Confirmed: '$expression' $condition" 6
+          #pass
+        } else {
+          print "!! ERROR: Failed to verify: '$expression' $condition" 4
+          #fail
+          set test::pass($test::current_subcase) 0
+        }
+      }
+      "match and count" {
+        #value1 = disposition: (<|>|==|!=|<=|>=)
+        set disposition $value1
+        #value2 = integer: compare the line count to this value
+        set compare_value $value2
+        #sanity check disposition
+        set exp {(<|>|==|!=|<=|>=)}
+        if {![regexp -- $exp $disposition]} {
+          return -code error "[info proc] $assertion: unexpected value1 '$value1' -- (should match $exp)"
+        }
+        set grep_result [grep_output $expression]
+        set linecount [llength [nsplit $grep_result]]
+        set condition "# lines matching '$expression' ($linecount $disposition $compare_value)"
+        if {[eval "expr $linecount $disposition $compare_value"]} {
+          print "-  Confirmed: $condition" 6
+          #pass
+        } else {
+          print "!! ERROR: Failed to verify: $condition" 4
           #fail
           set test::pass($test::current_subcase) 0
         }
