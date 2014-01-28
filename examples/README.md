@@ -13,7 +13,7 @@ A simple test... login to a router, verify that the Chassis is either JunosV or 
 -----------------------
 Takes a router, userpass file, and a command... provides the XML-RPC equivalent
 
-  lab@R1> show chassis hardware detail | display xml rpc
+`  lab@R1> show chassis hardware detail | display xml rpc
   <rpc-reply xmlns:junos="http://xml.juniper.net/junos/12.1X46/junos">
       <rpc>
           <get-chassis-inventory>
@@ -24,5 +24,5 @@ Takes a router, userpass file, and a command... provides the XML-RPC equivalent
           <banner></banner>
       </cli>
   </rpc-reply>
-
+`
 
