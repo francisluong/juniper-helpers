@@ -28,7 +28,9 @@ namespace eval ::juniperconnect {
   variable r_password {}
 
   proc import_userpass {filepath} {
-    #open a file containing username and password (each on one line)
+    #open a file containing username and password (each on one line) 
+    #assign all of these to the array r_db with index = username, value = password
+    #also, set the first two lines as r_username and r_password
     if {[file exists $filepath]} {
       catch {file attributes $filepath -permissions "00600"}
       set file_handle [open $filepath r]
@@ -42,12 +44,32 @@ namespace eval ::juniperconnect {
       }
       set juniperconnect::r_username [string trim [lindex $nlist_user_pass 0]]
       set juniperconnect::r_password [string trim [lindex $nlist_user_pass 1]]
+      set r_db(__lastuser) $juniperconnect::r_username
     } else {
       puts "[info proc]: $filepath doesn't exist"
     }
   }
 
+  proc change_rdb_user {username} {
+    #change r_username and r_password based in the input variable 'username'
+    #this will throw an exception if 'username' is not in r_db
+    variable r_db
+    variable r_username
+    variable r_password
+    set r_db(__lastuser) $r_username
+    set r_username $username
+    set r_password $rdb($username)
+  }
+
+  proc restore_lastuser {} {
+    #revert r_username and r_password
+    # convenience proc for temporary login changes
+    variable r_db
+    return [change_rdb_user $r_db(__lastuser)]
+  }
+
   proc session_exists {address} {
+    #convenience proc to see if a session has already been opened for an address
     set result 0
     if {[info exists juniperconnect::($address)]} {
       set result 1
@@ -55,7 +77,9 @@ namespace eval ::juniperconnect {
     return $result
   }
 
-  proc connectssh {address {username "-1"} {password "-1"}} {
+  proc connectssh {address {style "cli"} {username "-1"} {password "-1"}} {
+    #a connect needs to be performed before you can send any commands to the router
+    # style will be used to handle cli or netconf
     variable session_array
     variable rp_prompt_array
     set prompt $rp_prompt_array(Juniper)
