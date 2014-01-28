@@ -74,27 +74,24 @@ namespace eval ::test {
         set condition "is present"
         set grep_result [grep_output $expression]
         if {$grep_result ne ""} {
-          print "-  Confirmed: '$expression' $condition" 6
-          #pass
+          set this_pass 1
         } else {
-          print "!! ERROR: Failed to verify: '$expression' $condition" 4
-          #fail
-          set test::pass($test::current_subcase) 0
+          set this_pass 0
         }
+        set description "'$expression' $condition"
       }
       "notpresent" -
       "not present" {
         set condition "is NOT present"
         set grep_result [grep_output $expression]
         if {$grep_result eq ""} {
-          print "-  Confirmed: '$expression' $condition" 6
-          #pass
+          set this_pass 1
         } else {
-          print "!! ERROR: Failed to verify: '$expression' $condition" 4
-          #fail
-          set test::pass($test::current_subcase) 0
+          set this_pass 0
         }
+        set description "'$expression' $condition"
       }
+      "count" -
       "match and count" {
         #value1 = disposition: (<|>|==|!=|<=|>=)
         set disposition $value1
@@ -107,19 +104,25 @@ namespace eval ::test {
         }
         set grep_result [grep_output $expression]
         set linecount [llength [nsplit $grep_result]]
-        set condition "# lines matching '$expression' ($linecount $disposition $compare_value)"
-        if {[eval "expr $linecount $disposition $compare_value"]} {
-          print "-  Confirmed: $condition" 6
-          #pass
-        } else {
-          print "!! ERROR: Failed to verify: $condition" 4
-          #fail
-          set test::pass($test::current_subcase) 0
-        }
+        set condition "# lines matching '$expression' ($linecount) $disposition $compare_value"
+        set this_pass [eval "expr $linecount $disposition $compare_value"]
+        set description $condition
+      }
+      "other" {
+        #grab a value and compare it
+        return -code error "need to implement this"
       }
       default {
         return -code error "juniperconnect::assert - unexpected assertion type: '$assertion'"
       }
+    }
+    if {$this_pass} {
+      print "-  Confirmed: $description" 6
+      #pass
+    } else {
+      print "!! ERROR: Failed to verify: $description" 4
+      #fail
+      set test::pass($test::current_subcase) 0
     }
     set test::lastmode "assert"
   }
