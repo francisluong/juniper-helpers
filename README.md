@@ -13,13 +13,14 @@ I intend for this to be a library of TCL/Expect for interaction with Juniper dev
 
 Prerequisites
 -------------
- - TCL 8.5
- - tcllib
+ - TCL 8.5, and these libraries:
+   * tcllib
+   * tdom
  - Expect 5.45
  - OpenSSH
 
 Installing these packages
- * Ubuntu Install: _sudo apt-get install -y tcl8.5 expect tcllib openssh_
+ * Ubuntu Install: _sudo apt-get install -y tcl8.5 expect tcllib tdom openssh_
  * Fedora/Redhat/Centos Install: _sudo yum install -y tcl expect tcllib openssh_
 
 Getting Started

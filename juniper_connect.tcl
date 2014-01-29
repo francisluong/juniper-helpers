@@ -20,6 +20,10 @@ namespace eval ::juniperconnect {
   variable expect_timeout_restore $expect_timeout
   variable output {}
 
+  variable netconf_hello 
+  array unset netconf_hello
+  array set netconf_hello {}
+
   #password database
   variable r_db
   array unset r_db
@@ -71,7 +75,7 @@ namespace eval ::juniperconnect {
   proc session_exists {address} {
     #convenience proc to see if a session has already been opened for an address
     set result 0
-    if {[info exists juniperconnect::($address)]} {
+    if {[info exists juniperconnect::session_array($address)]} {
       set result 1
     }
     return $result
@@ -209,9 +213,11 @@ namespace eval ::juniperconnect {
         "
       }
       "netconf" {
-        #puts $netconf_tags
-        #to do: parse or store netconf_tags
-        #to do: session array storage for netconf... separate one?
+        #parse or store netconf_tags
+        set netconf_tags [string trim [lindex [split $netconf_tags "\]"] 0]]
+        set juniperconnect::netconf_hello($address) $netconf_tags
+        #session array storage for netconf... separate one?
+        set session_array(nc:$address) $spawn_id
       }
       default {
         return -code error "[info proc]: ERROR: unexpected value for style: '$style'"
@@ -341,6 +347,17 @@ namespace eval ::juniperconnect {
   proc grep_output {expression} {
     return [textproc::linematch $expression $juniperconnect::output]
   }
+
+  proc get_hello {address} {
+    set result {}
+    variable netconf_hello
+    set index [lsearch [array names netconf_hello] $address] 
+    if {$index != -1} {
+      set result $netconf_hello($address)
+    }
+    return $result
+  }
+
 }
 
 namespace import juniperconnect::*
