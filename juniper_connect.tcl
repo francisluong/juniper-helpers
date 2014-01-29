@@ -94,13 +94,39 @@ namespace eval ::juniperconnect {
       set password $juniperconnect::r_password
     }
     while {$success==0 && $retries>0} {
-      set catch_result [ catch {spawn ssh $username@$address} reason ]
+      switch -- $style {
+        "cli" {
+          set catch_result [ catch {spawn ssh $username@$address} reason ]
+        }
+        "netconf" {
+          log_user 0
+          set catch_result [ catch {spawn ssh $username@$address -p 830 -s "netconf"} reason ]
+        }
+        default {
+          return -code error "[info proc]: ERROR: unexpected value for style: '$style'"
+        }
+      }
+      set netconf_tags {}
       if {$catch_result>0} {
         return -code error "juniperconnect::connectssh $username@$address: failed to connect: $reason\n"
       }
       set timeout 120
       send "\n"
       expect {
+        {]]>]]>} {
+          if {$style eq "netconf"} {
+            append netconf_tags $expect_out(buffer)
+            set success 1
+          } else {
+            exp_continue
+          }
+        }
+        -re "<.*>" {
+          if {$style eq "netconf"} {
+            append netconf_tags $expect_out(buffer)
+          }
+          exp_continue
+        }
         -re "(Last login: |$prompt)" {
           set success 1
         }
@@ -173,12 +199,24 @@ namespace eval ::juniperconnect {
     }
     set timeout 10
     log_user 1
-    puts "\njuniperconnect::connectssh success"
-    set session_array($address) $spawn_id
-    send_textblock $address "
-      set cli screen-length 0
-      set cli screen-width 0
-    "
+    switch -- $style {
+      "cli" {
+        puts "\njuniperconnect::connectssh success"
+        set session_array($address) $spawn_id
+        send_textblock $address "
+          set cli screen-length 0
+          set cli screen-width 0
+        "
+      }
+      "netconf" {
+        #puts $netconf_tags
+        #to do: parse or store netconf_tags
+        #to do: session array storage for netconf... separate one?
+      }
+      default {
+        return -code error "[info proc]: ERROR: unexpected value for style: '$style'"
+      }
+    }
     return $spawn_id
   }
 
