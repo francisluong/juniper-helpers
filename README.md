@@ -3,9 +3,7 @@ TCL Library
 
 Intro
 -----
-This repo is actively being developed.  Consider it informal for now.
-
-So I started writing the code in this repo before I gave a lot of thought to what it would be and now that I've been writing for a bit I think I am ready.
+WARNING: This repo is actively being developed.  Consider it informal for now.
 
 I intend for this to be a library of TCL/Expect for interaction with Juniper devices.  Here are some of the types of interaction I will account for:
   - login
@@ -22,13 +20,14 @@ Prerequisites
 
 Library Files
 -------------
+ - test.tcl - high-level Juniper router test interface
  - juniper_connect.tcl - expect/ssh handlers
  - textproc.tcl - text processing
  - output.tcl - output, and logging
 
 Test Support - test.tcl
 -----------------------
-This is a testing framework for interacting with routers, getting outputs and verifying them.  See examples/001_basic.tcl for a brief example.
+This is a high-level testing framework for connecting with routers, performing actions, getting outputs, and verifying them.  See examples/001_basic.tcl for a brief example.
 
 Text Processing - textproc.tcl
 ------------------------------
