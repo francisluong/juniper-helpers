@@ -15,7 +15,7 @@ puts "r_username: '$juniperconnect::r_username'"
 
 test::start "Verify Chassis is of type JunosV Firefly or MX960"
 
-  test::subcase "Verify Chassis matches 'JUNOSV-FIREFLY'"
+  test::subcase "Verify Chassis matches 'JUNOSV-FIREFLY' or 'MX'"
   test::analyze_output $router "
     show chassis hardware
     show version

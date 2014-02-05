@@ -22,7 +22,6 @@ namespace eval ::test {
       disconnectssh $address
     }
     #print test results
-    h2 "Test Results Summary"
     set outparts {}
     set overall_pass "PASS"
     foreach subcase [array names test::pass] {
@@ -32,9 +31,10 @@ namespace eval ::test {
         set outcome "FAIL"
         set overall_pass "FAIL"
       }
-      lappend outparts "$subcase --> $outcome"
+      lappend outparts "** $subcase --> $outcome"
     }
-    lappend outparts "--" "Test Result: $overall_pass"
+    #lappend outparts "--" "Test Result: $overall_pass"
+    h2 "Test Result Summary --> $overall_pass"
     print [njoin $outparts]
     #print closing HR
     print "\n[output::hr "="]" 0
