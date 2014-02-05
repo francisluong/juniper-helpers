@@ -30,7 +30,7 @@ namespace eval ::juniperconnect {
   proc import_userpass {filepath} {
     #open a file containing username and password (each on one line)
     if {[file exists $filepath]} {
-      catch {file attributes $filename -permissions "00600"}
+      catch {file attributes $filepath -permissions "00600"}
       set file_handle [open $filepath r]
       set file_contents [read $file_handle]
       close $file_handle
