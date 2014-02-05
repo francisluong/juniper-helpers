@@ -26,6 +26,10 @@ Library Files
  - textproc.tcl - text processing
  - output.tcl - output, and logging
 
+Test Support - test.tcl
+-----------------------
+This is a testing framework for interacting with routers, getting outputs and verifying them.  See examples/001_basic.tcl for a brief example.
+
 Text Processing - textproc.tcl
 ------------------------------
 I will include sufficient text processing helpers to make it really easy to extract information.  Where possible, I will attempt to use native TCL to maximize platform independence.

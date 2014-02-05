@@ -4,7 +4,7 @@ package require Expect  5.45
 package require Tcl     8.5
 
 namespace eval ::juniperconnect {
-  namespace export connectssh disconnectssh send_textblock grep_output
+  namespace export connectssh disconnectssh send_textblock grep_output import_userpass
 
   variable session_array
   array unset session_array
@@ -20,13 +20,54 @@ namespace eval ::juniperconnect {
   variable expect_timeout_restore $expect_timeout
   variable output {}
 
-  proc connectssh {address username password} {
+  #password database
+  variable r_db
+  array unset r_db
+  array set r_db {}
+  variable r_username {}
+  variable r_password {}
+
+  proc import_userpass {filepath} {
+    #open a file containing username and password (each on one line)
+    if {[file exists $filepath]} {
+      catch {file attributes $filename -permissions "00600"}
+      set file_handle [open $filepath r]
+      set file_contents [read $file_handle]
+      close $file_handle
+      set nlist_user_pass [split [string trim $file_contents] "\n"]
+      foreach {user pass} $nlist_user_pass {
+        set user [string trim $user]
+        set pass [string trim $pass]
+        set juniperconnect::r_db($user) $pass
+      }
+      set juniperconnect::r_username [string trim [lindex $nlist_user_pass 0]]
+      set juniperconnect::r_password [string trim [lindex $nlist_user_pass 1]]
+    } else {
+      puts "[info proc]: $filepath doesn't exist"
+    }
+  }
+
+  proc session_exists {address} {
+    set result 0
+    if {[info exists juniperconnect::($address)]} {
+      set result 1
+    }
+    return $result
+  }
+
+  proc connectssh {address {username "-1"} {password "-1"}} {
     variable session_array
     variable rp_prompt_array
     set prompt $rp_prompt_array(Juniper)
     set success 0
     set send_slow {1 .1}
     set retries 10
+    if {$username == "-1"} {
+      set username $juniperconnect::r_username
+    }
+    if {$password == "-1"} {
+      set password $juniperconnect::r_password
+    }
     while {$success==0 && $retries>0} {
       set catch_result [ catch {spawn ssh $username@$address} reason ]
       if {$catch_result>0} {
@@ -106,6 +147,10 @@ namespace eval ::juniperconnect {
     log_user 1
     puts "\njuniperconnect::connectssh success"
     set session_array($address) $spawn_id
+    send_textblock $address "
+      set cli screen-length 0
+      set cli screen-width 0
+    "
     return $spawn_id
   }
 
