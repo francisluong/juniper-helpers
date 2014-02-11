@@ -3,7 +3,7 @@ TCL Library
 
 Intro
 -----
-WARNING: This repo is actively being developed.  Consider it informal for now.
+_WARNING: This repo is actively being developed.  Consider it informal for now._
 
 I intend for this to be a library of TCL/Expect for interaction with Juniper devices.  Here are some of the types of interaction I will account for:
   - login
@@ -16,12 +16,12 @@ Prerequisites
  - TCL 8.5, and these libraries:
    * tcllib
    * tdom
- - Expect 5.45
+   * expect 
  - OpenSSH
 
 Installing these packages
  * Ubuntu Install: _sudo apt-get install -y tcl8.5 expect tcllib tdom openssh_
- * Fedora/Redhat/Centos Install: _sudo yum install -y tcl expect tcllib openssh_
+ * Fedora/Redhat/Centos Install: _sudo yum install -y tcl expect tcllib tdom openssh_
 
 Getting Started
 ---------------

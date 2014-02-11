@@ -4,7 +4,7 @@ package require Expect  5.45
 package require Tcl     8.5
 
 namespace eval ::juniperconnect {
-  namespace export connectssh disconnectssh send_textblock grep_output import_userpass
+  namespace export connectssh disconnectssh send_textblock send_rpc grep_output import_userpass
 
   variable session_array
   array unset session_array
@@ -337,6 +337,49 @@ namespace eval ::juniperconnect {
           puts "$procname: TIMEOUT waiting for prompt"
           #because of the for-loop this sucker may just keep going, but it's possible the cli has siezed up
         }
+      }
+    }
+    set output [string trimright [textproc::nrange $output 0 end-1]]
+    set output [join [split $output "\r"] ""]
+    return $output
+  }
+
+  proc send_rpc {address rpc} {
+    #send netconf rpc to the router and return the output
+    set procname "send_commands"
+    set tclfilename [namespace current]
+
+    #initialize return output
+    variable output
+    set output {}
+
+    set timeout [timeout]
+    set mode "netconf"
+
+    variable session_array
+    set spawn_id $session_array(nc:$address)
+
+    set end_sequence {]]>]]>}
+
+    #send rpc and end sequence
+    set send_slow {1 .1}
+    send -s $rpc
+    send -s $end_sequence
+
+    #loop through return output until end_sequence received
+    expect {
+      $end_sequence {
+        #got end_sequence - exit condition for expect-loop
+        append output $expect_out(buffer)
+      }
+      -re ".*(\r|\n)" {
+        #this resets the timeout timer using newline-continues
+        append output $expect_out(buffer)
+        exp_continue
+      }
+      timeout {
+        puts "$procname: TIMEOUT waiting for prompt"
+        #because of the for-loop this sucker may just keep going, but it's possible the cli has siezed up
       }
     }
     set output [string trimright [textproc::nrange $output 0 end-1]]

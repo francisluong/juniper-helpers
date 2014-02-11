@@ -8,6 +8,7 @@ namespace eval ::test {
   variable lastmode {}
   variable pass 
   variable current_subcase {}
+  variable analyze_buffer {}
 
   proc start {testname} {
     variable pass
@@ -48,7 +49,11 @@ namespace eval ::test {
     set test::current_subcase $subcase
   }
 
+  proc analyze_cli {router commands_textblock} {
+    return [analyze_output $router $commands_textblock]
+  }
   proc analyze_output {router commands_textblock} {
+    variable analyze_buffer 
     set outparts [list "Analyzing $router output for the following commands:"]
     foreach line [nsplit $commands_textblock] {
       set line [string trim $line]
@@ -60,8 +65,14 @@ namespace eval ::test {
     if {![juniperconnect::session_exists $router]} {
       connectssh $router 
     }
-    send_textblock $router $commands_textblock
+    set analyze_buffer [send_textblock $router $commands_textblock]
     set test::lastmode "analyze"
+  }
+
+  proc analyze_textblock {description textblock_contents} {
+    variable analyze_buffer 
+    print "Analyzing textblock: $description"
+    set analyze_buffer $textblock_contents
   }
 
   proc assert {expression {assertion "present"} {value1 ""} {value2 ""}} {
@@ -72,7 +83,7 @@ namespace eval ::test {
     switch -nocase -- $assertion {
       "present" {
         set condition "is present"
-        set grep_result [grep_output $expression]
+        set grep_result [grep $expression $test::analyze_buffer]
         if {$grep_result ne ""} {
           set this_pass 1
         } else {
@@ -83,7 +94,7 @@ namespace eval ::test {
       "notpresent" -
       "not present" {
         set condition "is NOT present"
-        set grep_result [grep_output $expression]
+        set grep_result [grep $expression $test::analyze_buffer]
         if {$grep_result eq ""} {
           set this_pass 1
         } else {
@@ -102,7 +113,7 @@ namespace eval ::test {
         if {![regexp -- $exp $disposition]} {
           return -code error "[info proc] $assertion: unexpected value1 '$value1' -- (should match $exp)"
         }
-        set grep_result [grep_output $expression]
+        set grep_result [grep $expression $test::analyze_buffer]
         set linecount [llength [nsplit $grep_result]]
         set condition "# lines matching '$expression' ($linecount) $disposition $compare_value"
         set this_pass [eval "expr $linecount $disposition $compare_value"]
@@ -128,9 +139,10 @@ namespace eval ::test {
   }
 
   proc end_analyze {} {
+    variable analyze_buffer
     print [output::hr "-" 4]
     print "> Relevant CLI Output:"
-    set output $juniperconnect::output
+    set output $analyze_buffer
     switch -- [lindex [nsplit $output] end] {
       "{master}" -
       "{backup}" {
