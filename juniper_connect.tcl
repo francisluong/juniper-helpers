@@ -27,6 +27,20 @@ namespace eval ::juniperconnect {
   variable netconf_msgid 
   array unset netconf_msgid
   array set netconf_msgid {}
+  variable ncclient_hello_out {
+    <hello>
+      <capabilities>
+        <capability>urn:ietf:params:xml:ns:netconf:base:1.0</capability>
+        <capability>urn:ietf:params:xml:ns:netconf:capability:candidate:1.0</capability>
+        <capability>urn:ietf:params:xml:ns:netconf:capability:confirmed-commit:1.0</capability>
+        <capability>urn:ietf:params:xml:ns:netconf:capability:validate:1.0</capability>
+        <capability>urn:ietf:params:xml:ns:netconf:capability:url:1.0?protocol=http,ftp,file</capability>
+        <capability>http://xml.juniper.net/netconf/junos/1.0</capability>
+        <capability>http://xml.juniper.net/dmi/system/1.0</capability>
+      </capabilities>
+    </hello>
+    ]]>]]>
+  }
   variable end_of_message {]]>]]>}
 
   #password database
@@ -91,6 +105,7 @@ namespace eval ::juniperconnect {
     # style will be used to handle cli or netconf
     variable session_array
     variable rp_prompt_array
+    variable end_of_message
     set prompt $rp_prompt_array(Juniper)
     set success 0
     set send_slow {1 .1}
@@ -122,7 +137,7 @@ namespace eval ::juniperconnect {
       set timeout 120
       send "\n"
       expect {
-        {]]>]]>} {
+        $end_of_message {
           if {$style eq "netconf"} {
             append netconf_tags $expect_out(buffer)
             set success 1
@@ -221,6 +236,11 @@ namespace eval ::juniperconnect {
         #parse or store netconf_tags
         set netconf_tags [string trim [lindex [split $netconf_tags "\]"] 0]]
         set juniperconnect::netconf_hello($address) $netconf_tags
+        #send our hello
+        variable ncclient_hello_out
+        send $ncclient_hello_out
+        expect $end_of_message {}
+        #initialize msgid number
         set juniperconnect::netconf_msgid($address) "100"
         #session array storage for netconf... separate one?
         set session_array(nc:$address) $spawn_id
@@ -388,8 +408,11 @@ namespace eval ::juniperconnect {
 
     #send rpc and end sequence
     set send_slow {1 .1}
-    send -s [string trim $rpc]
-    send -s "\n"
+    send [string trim $rpc]
+    send $end_of_message
+    send "\n"
+    #clear echo for outgoing rpc
+    expect $end_of_message {}
 
     #loop through return output until end_of_message received
     expect {
@@ -403,12 +426,12 @@ namespace eval ::juniperconnect {
         exp_continue
       }
       timeout {
-        puts "$procname: TIMEOUT waiting for prompt"
+        puts "$procname: TIMEOUT waiting for end-of-message marker"
         #because of the for-loop this sucker may just keep going, but it's possible the cli has siezed up
       }
     }
     #set output [string trim [lindex [split $output "\]"] 0]]
-    set output [nrange $output 2 end-1]
+    set output [nrange $output 1 end-1]
     return $output
   }
 

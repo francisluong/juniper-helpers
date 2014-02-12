@@ -6,7 +6,7 @@ Intro
 _WARNING: This repo is actively being developed.  Consider it informal for now._
 
 I intend for this to be a library of TCL/Expect for interaction with Juniper devices.  Here are some of the types of interaction I will account for:
-  - login
+  - login via cli or NetConf
   - configure or send commands
   - get output
   - do stuff with it
