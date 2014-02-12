@@ -2,6 +2,7 @@ package provide JuniperConnect 1.0
 package require textproc 1.0
 package require Expect  5.45
 package require Tcl     8.5
+package require tdom  0.8.3
 
 namespace eval ::juniperconnect {
   namespace export connectssh disconnectssh send_textblock send_rpc grep_output import_userpass
@@ -23,6 +24,10 @@ namespace eval ::juniperconnect {
   variable netconf_hello 
   array unset netconf_hello
   array set netconf_hello {}
+  variable netconf_msgid 
+  array unset netconf_msgid
+  array set netconf_msgid {}
+  variable end_of_message {]]>]]>}
 
   #password database
   variable r_db
@@ -216,6 +221,7 @@ namespace eval ::juniperconnect {
         #parse or store netconf_tags
         set netconf_tags [string trim [lindex [split $netconf_tags "\]"] 0]]
         set juniperconnect::netconf_hello($address) $netconf_tags
+        set juniperconnect::netconf_msgid($address) "100"
         #session array storage for netconf... separate one?
         set session_array(nc:$address) $spawn_id
       }
@@ -328,7 +334,7 @@ namespace eval ::juniperconnect {
           #got prompt - exit condition for expect-loop
           append output $expect_out(buffer)
         }
-        -re ".*(\r|\n)" {
+        -re "<.*>" {
           #this resets the timeout timer using newline-continues
           append output $expect_out(buffer)
           exp_continue
@@ -344,9 +350,28 @@ namespace eval ::juniperconnect {
     return $output
   }
 
+  proc build_rpc {address path_statement} {
+    variable netconf_msgid
+    set this_msgid $netconf_msgid($address)
+    incr netconf_msgid($address)
+    set rpc [dom createDocument "rpc"]
+    set root [$rpc documentElement]
+    $root setAttribute "message-id" "$this_msgid [clock format [clock seconds]]"
+    set current_node $root
+    foreach name [split $path_statement "/"] {
+      set new_node [$rpc createElement $name]
+      $current_node appendChild $new_node
+      set current_node $new_node
+    }
+    variable end_of_message
+    #set result "[$root asXML -indent none]$end_of_message"
+    set result [$root asXML -indent none]
+    return $result
+  }
+
   proc send_rpc {address rpc} {
     #send netconf rpc to the router and return the output
-    set procname "send_commands"
+    set procname "send_rpc"
     set tclfilename [namespace current]
 
     #initialize return output
@@ -359,20 +384,20 @@ namespace eval ::juniperconnect {
     variable session_array
     set spawn_id $session_array(nc:$address)
 
-    set end_sequence {]]>]]>}
+    variable end_of_message
 
     #send rpc and end sequence
     set send_slow {1 .1}
-    send -s $rpc
-    send -s $end_sequence
+    send -s [string trim $rpc]
+    send -s "\n"
 
-    #loop through return output until end_sequence received
+    #loop through return output until end_of_message received
     expect {
-      $end_sequence {
-        #got end_sequence - exit condition for expect-loop
+      $end_of_message {
+        #got end_of_message - exit condition for expect-loop
         append output $expect_out(buffer)
       }
-      -re ".*(\r|\n)" {
+      -re "<.*>" {
         #this resets the timeout timer using newline-continues
         append output $expect_out(buffer)
         exp_continue
@@ -382,8 +407,8 @@ namespace eval ::juniperconnect {
         #because of the for-loop this sucker may just keep going, but it's possible the cli has siezed up
       }
     }
-    set output [string trimright [textproc::nrange $output 0 end-1]]
-    set output [join [split $output "\r"] ""]
+    #set output [string trim [lindex [split $output "\]"] 0]]
+    set output [nrange $output 2 end-1]
     return $output
   }
 
