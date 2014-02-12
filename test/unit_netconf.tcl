@@ -57,7 +57,7 @@ test::start "netconf connect"
   test::assert $session_id
   test::end_analyze
 
-  h2 "netconf version"
+  h2 "netconf software-information"
   set rpc [juniperconnect::build_rpc $router "get-software-information"]
   print $rpc
   set output [send_rpc $router $rpc]
@@ -70,12 +70,19 @@ test::start "netconf connect"
   $doc selectNodesNamespaces [list j $space]
   set node [$root selectNodes "j:software-information/j:host-name/text()"]
   print "node: $node"
-  print [$node data]
+  print "Hostname: [$node data]"
+  set node [$root selectNodes "j:software-information/j:package-information\[1]/j:comment/text()"]
+  print "node: $node"
+  print "Version: [$node data]"
 
-  h2 "remove namespaces"
+  h2 "remove namespaces: software-information"
   set remove_namespaces [dom parse $xslt_remove_namespace]
   $doc xslt $remove_namespaces cleandoc
   print [$cleandoc asXML]
+  set node [$cleandoc selectNodes "rpc-reply/software-information/host-name/text()"]
+  print "Hostname: [$node data]"
+  set node [$cleandoc selectNodes "rpc-reply/software-information/package-information\[1]/comment/text()"]
+  print "Version: [$node data]"
 
   h2 "craft a request for get-chassis-inventory/detail"
   set rpc [juniperconnect::build_rpc $router "get-chassis-inventory/detail"]
