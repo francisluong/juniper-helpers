@@ -268,10 +268,9 @@ namespace eval ::juniperconnect {
       "cli" {
         puts "\njuniperconnect::connectssh success"
         set session_array($address) $spawn_id
-        send_textblock $address "
-          set cli screen-length 0
-          set cli screen-width 0
-        "
+        expect -re $prompt {send "set cli screen-length 0\r"}
+        expect -re $prompt {send "set cli screen-width 0\r"}
+        expect -re $prompt {}
       }
       "netconf" {
         #parse or store netconf_tags
@@ -395,7 +394,7 @@ namespace eval ::juniperconnect {
           #got prompt - exit condition for expect-loop
           append output $expect_out(buffer)
         }
-        -re "<.*>" {
+        -re ".*(\r|\n)" {
           #this resets the timeout timer using newline-continues
           append output $expect_out(buffer)
           exp_continue
@@ -462,7 +461,7 @@ namespace eval ::juniperconnect {
         append output $expect_out(buffer)
       }
       -re "<.*>" {
-        #this resets the timeout timer using newline-continues
+        #this resets the timeout timer when we find any tag/element
         append output $expect_out(buffer)
         exp_continue
       }
