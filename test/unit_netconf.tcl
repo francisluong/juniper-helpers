@@ -63,6 +63,7 @@ test::start "netconf connect"
   h2 "craft a request for get-chassis-inventory/detail"
   set rpc [juniperconnect::build_rpc $router "get-chassis-inventory/detail"]
   print $rpc
+  #send_rpc will strip xmlns tags when you don't specify raw style output
   set output [send_rpc $router $rpc]
   set doc [dom parse $output]
   print "doc: $doc"
@@ -79,6 +80,12 @@ test::start "netconf connect"
   set chassis_serial [$node data]
   print ">>> chassis_serial: $chassis_serial"
 
+  h2 "build two requests in one rpc"
+  set path_statement_list "
+    get-chassis-inventory
+    get-interface-information
+  "
+  print [juniperconnect::build_rpc $router $path_statement_list "2"]
 
 
 test::finish

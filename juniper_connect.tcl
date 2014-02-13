@@ -416,22 +416,26 @@ namespace eval ::juniperconnect {
     return $output
   }
 
-  proc build_rpc {address path_statement} {
+  proc build_rpc {address path_statement_textblock {indent "none"}} {
     variable netconf_msgid
     set this_msgid $netconf_msgid($address)
     incr netconf_msgid($address)
     set rpc [dom createDocument "rpc"]
     set root [$rpc documentElement]
     $root setAttribute "message-id" "$this_msgid [clock format [clock seconds]]"
-    set current_node $root
-    foreach name [split $path_statement "/"] {
-      set new_node [$rpc createElement $name]
-      $current_node appendChild $new_node
-      set current_node $new_node
+    foreach path_statement [nsplit $path_statement_textblock] {
+      set path_statement [string trim $path_statement]
+      set current_node $root
+      foreach name [split $path_statement "/"] {
+        #probably will need to add logic to handle attributes and text
+        set new_node [$rpc createElement $name]
+        $current_node appendChild $new_node
+        set current_node $new_node
+      }
     }
     variable end_of_message
     #set result "[$root asXML -indent none]$end_of_message"
-    set result [$root asXML -indent none]
+    set result [$root asXML -indent $indent]
     return $result
   }
 
