@@ -298,10 +298,16 @@ namespace eval ::juniperconnect {
     set prompt $rp_prompt_array(Juniper)
     set spawn_id $session_array($address)
     if {$spawn_id ne ""} {
-      #send exit
-      set timeout 1
-      send "exit\n"
-      expect -re $prompt {}
+      if {[string match "nc:*" $address]} {
+        #close NETCONF session
+        set address [lindex [split $address ":"] end]
+        send_rpc $address [build_rpc $address "close-session"]
+      } else {
+        #CLI: send exit
+        set timeout 1
+        send "exit\n"
+        expect -re $prompt {}
+      }
       puts "\njuniperconnect::disconnect"
       #close/wait for expect session
       catch {exp_close}
