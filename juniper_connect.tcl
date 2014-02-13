@@ -21,12 +21,17 @@ namespace eval ::juniperconnect {
   variable expect_timeout_restore $expect_timeout
   variable output {}
 
+  #netconf hello message storage
   variable netconf_hello 
   array unset netconf_hello
   array set netconf_hello {}
+
+  #netconf msgid storage
   variable netconf_msgid 
   array unset netconf_msgid
   array set netconf_msgid {}
+
+  #client capabilities
   variable ncclient_hello_out {
     <hello>
       <capabilities>
@@ -36,12 +41,48 @@ namespace eval ::juniperconnect {
         <capability>urn:ietf:params:xml:ns:netconf:capability:validate:1.0</capability>
         <capability>urn:ietf:params:xml:ns:netconf:capability:url:1.0?protocol=http,ftp,file</capability>
         <capability>http://xml.juniper.net/netconf/junos/1.0</capability>
-        <capability>http://xml.juniper.net/dmi/system/1.0</capability>
       </capabilities>
     </hello>
     ]]>]]>
   }
+
+  #netconf end of message marker
   variable end_of_message {]]>]]>}
+
+  #XSLT to strip namespaces
+  # copied from https://github.com/Juniper/ncclient/blob/master/ncclient/xml_.py
+  set xslt_remove_namespace [dom parse {
+    <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+      <xsl:output method="xml" indent="no"/>
+
+      <!-- Stylesheet to remove all namespaces from a document -->
+      <!-- NOTE: this will lead to attribute name clash, if an element contains
+          two attributes with same local name but different namespace prefix -->
+      <!-- Nodes that cannot have a namespace are copied as such -->
+
+      <!-- template to copy elements -->
+      <xsl:template match="*">
+          <xsl:element name="{local-name()}">
+              <xsl:apply-templates select="@*|node()"/>
+          </xsl:element>
+      </xsl:template>
+
+      <!-- template to copy attributes -->
+      <xsl:template match="@*">
+          <xsl:attribute name="{local-name()}">
+              <xsl:value-of select="."/>
+          </xsl:attribute>
+      </xsl:template>
+
+      <!-- template to the rest of the nodes -->
+      <xsl:template match="/|comment()|processing-instruction()|text()">
+          <xsl:copy>
+              <xsl:apply-templates/>
+          </xsl:copy>
+      </xsl:template>
+
+    </xsl:stylesheet>
+  }]
 
   #password database
   variable r_db
@@ -389,7 +430,7 @@ namespace eval ::juniperconnect {
     return $result
   }
 
-  proc send_rpc {address rpc} {
+  proc send_rpc {address rpc {style "strip"}} {
     #send netconf rpc to the router and return the output
     set procname "send_rpc"
     set tclfilename [namespace current]
@@ -432,7 +473,17 @@ namespace eval ::juniperconnect {
     }
     #set output [string trim [lindex [split $output "\]"] 0]]
     set output [nrange $output 1 end-1]
-    return $output
+    switch -- $style {
+      default -
+      "strip" {
+        set doc [dom parse $output]
+        $doc xslt $juniperconnect::xslt_remove_namespace cleandoc
+        return [$cleandoc asXML]
+      }
+      "raw" {
+        return $output
+      }
+    }
   }
 
   proc grep_output {expression} {
