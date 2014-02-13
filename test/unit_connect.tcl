@@ -5,12 +5,19 @@ package require JuniperConnect
 package require output
 
 init_logfile "/var/tmp/results"
+#usage
+if {$argc < 2} {
+  puts "Usage: [info script] <router_address> <path_to_userpass_file>"
+  exit
+} 
+set router [lindex $argv 0]
+import_userpass [lindex $argv 1]
+puts "r_username: '$juniperconnect::r_username'"
 set line [string repeat - 50]
-set router 192.168.1.31
 
 h1 "connect, issue 2 commands as a list, and disconnect"
 h2 "connect"
-juniperconnect::connectssh $router lab lab123
+juniperconnect::connectssh $router 
 h2 "issue commands"
 set commands_list [list "sh ver" "sh system uptime"]
 set output [juniperconnect::send_commands $router $commands_list]
@@ -25,7 +32,7 @@ foreach block [textproc::split_on_empty_line $output] {
 
 h1 "connect, issue 2 commands as a textblock, and grep the output"
 h2 "connect"
-juniperconnect::connectssh $router lab lab123
+juniperconnect::connectssh $router 
 h2 "send commands"
 set commands_textblock "
   show chassis hardware
