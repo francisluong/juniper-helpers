@@ -21,10 +21,7 @@ test::start "Verify Chassis is of type Firefly or MX960"
   "
   test::assert "Chassis .* (FIREFLY|MX\[0-9]+)"
   test::assert "Chassis .* T640" "not present"
-  test::assert "^FPC" "match and count" == "1"
-  test::assert "^FPC" "match and count" != "2"
-  test::assert "^FPC" "match and count" < "2"
-  test::assert "^FPC" "match and count" >= "0"
+  test::assert "^FPC" "match and count" >= "1"
   test::end_analyze
 
 test::finish

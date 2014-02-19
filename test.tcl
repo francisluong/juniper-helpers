@@ -9,6 +9,7 @@ namespace eval ::test {
   variable pass 
   variable current_subcase {}
   variable analyze_buffer {}
+  variable subcase_list {}
 
   proc start {testname} {
     variable pass
@@ -25,7 +26,7 @@ namespace eval ::test {
     #print test results
     set outparts {}
     set overall_pass "PASS"
-    foreach subcase [array names test::pass] {
+    foreach subcase $test::subcase_list {
       set this_pass $test::pass($subcase)
       set outcome "PASS"
       if {!$this_pass} {
@@ -47,6 +48,7 @@ namespace eval ::test {
     #initialize PASS for this subcase
     set test::pass($subcase) 1
     set test::current_subcase $subcase
+    lappend test::subcase_list $subcase
   }
 
   proc analyze_cli {router commands_textblock} {

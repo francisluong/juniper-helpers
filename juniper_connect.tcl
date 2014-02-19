@@ -1,6 +1,6 @@
 package provide JuniperConnect 1.0
 package require textproc 1.0
-package require Expect  5.45
+package require Expect  5.43
 package require Tcl     8.5
 package require tdom  0.8.3
 
@@ -197,7 +197,7 @@ namespace eval ::juniperconnect {
           }
           exp_continue
         }
-        -re "(Last login: |$prompt)" {
+        -re $prompt {
           set success 1
         }
         "no hostkey alg" {
@@ -273,7 +273,7 @@ namespace eval ::juniperconnect {
       "cli" {
         puts "\njuniperconnect::connectssh success"
         set session_array($address) $spawn_id
-        expect -re $prompt {send "set cli screen-length 0\r"}
+        send "set cli screen-length 0\r"
         expect -re $prompt {send "set cli screen-width 0\r"}
         expect -re $prompt {}
       }
