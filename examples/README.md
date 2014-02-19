@@ -27,3 +27,8 @@ lab@R1> show chassis hardware detail | display xml rpc
   </rpc-reply>
 ```
 
+003_netconf_basic.tcl
+---------------------
+
+A netconf variant on a simple testcase. Login to a router as netconf, verify that the Chassis is either JunosV or MX. Saves a results file to /var/tmp/results.
+

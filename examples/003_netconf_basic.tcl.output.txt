@@ -1,0 +1,59 @@
+
+============================================================
+START TEST: VERIFY CHASSIS IS OF TYPE FIREFLY OR MX960
+============================================================
+  
+  ----------------------------------------------------------
+  Subcase: Verify Chassis matches 'FIREFLY' or 'MX'
+  ----------------------------------------------------------
+    Analyzing r1 output for the following rpc:
+      <rpc message-id="100 Wed Feb 19 08:09:23 EST 2014">
+          <get-chassis-inventory/>
+      </rpc>
+    --------------------------------------------------------
+    > Verification of Assertions:
+      -  Confirmed: XPATH 'chassis-inventory' returns one or more nodes
+      -  Confirmed: XPATH 'chassis-inventory/chassis/chassis-module[name='FPC 0']/chassis-sub-module' returns one or more nodes
+      -  Confirmed: XPATH 'chassis-inventory/chassis/chassis-module[name='FPC 0']/chassis-sub-module/name/text()' text/data matches regexp 'PIC 0'
+      -  Confirmed: XPATH 'chassis-inventory/chassis/description/text()' text/data matches regexp '(FIREFLY|MX).*'
+      -  Confirmed: # nodes matching 'chassis-inventory/chassis/chassis-module' (5) >= 5
+    --------------------------------------------------------
+    > Relevant CLI/RPC Output:
+      <rpc-reply message-id="100 Wed Feb 19 08:09:23 EST 2014">
+          <chassis-inventory>
+              <chassis style="inventory">
+                  <name>Chassis</name>
+                  <serial-number>dd4b876c4e0a</serial-number>
+                  <description>FIREFLY-PERIMETER</description>
+                  <chassis-module>
+                      <name>Midplane</name>
+                  </chassis-module>
+                  <chassis-module>
+                      <name>System IO</name>
+                  </chassis-module>
+                  <chassis-module>
+                      <name>Routing Engine</name>
+                      <description>FIREFLY-PERIMETER RE</description>
+                  </chassis-module>
+                  <chassis-module>
+                      <name>FPC 0</name>
+                      <description>Virtual FPC</description>
+                      <chassis-sub-module>
+                          <name>PIC 0</name>
+                          <description>Virtual GE</description>
+                      </chassis-sub-module>
+                  </chassis-module>
+                  <chassis-module>
+                      <name>Power Supply 0</name>
+                  </chassis-module>
+              </chassis>
+          </chassis-inventory>
+      </rpc-reply>
+      
+  
+  ----------------------------------------------------------
+  Test Result Summary --> PASS
+  ----------------------------------------------------------
+    ** Subcase: Verify Chassis matches 'FIREFLY' or 'MX' --> PASS
+
+============================================================
