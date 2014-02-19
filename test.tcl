@@ -138,10 +138,84 @@ namespace eval ::test {
     set test::lastmode "assert"
   }
 
+  proc analyze_netconf {router rpc} {
+    variable analyze_buffer 
+    print "Analyzing $router output for the following rpc:"
+    print $rpc
+    if {![juniperconnect::session_exists "nc:$router"]} {
+      connectssh $router "netconf"
+    }
+    set analyze_buffer [send_rpc $router $rpc]
+    set test::lastmode "analyze"
+  }
+
+  proc xassert {xpath {assertion "present"}  {value1 ""} {value2 ""}} {
+    if {$test::lastmode ne "assert"} {
+      print [output::hr "-" 4]
+      print "> Verification of Assertions:"
+    }
+    switch -nocase -- $assertion {
+      "present" {
+        set condition "returns one or more nodes"
+        set domdoc [dom parse $test::analyze_buffer]
+        set rpc_reply [$domdoc documentElement]
+        set node_set [$rpc_reply selectNodes $xpath]
+        if {[llength $node_set] > 0} {
+          set this_pass 1
+        } else {
+          set this_pass 0
+        }
+        set description "XPATH '$xpath' $condition"
+      }
+      "regexp" {
+        set description "XPATH '$xpath' text/data matches regexp '$value1'"
+        set domdoc [dom parse $test::analyze_buffer]
+        set rpc_reply [$domdoc documentElement]
+        set node [$rpc_reply selectNodes $xpath]
+        set grep_result [grep $value1 [$node data]]
+        if {$grep_result ne ""} {
+          set this_pass 1
+        } else {
+          set this_pass 0
+        }
+      }
+      "count" {
+        #value1 = disposition: (<|>|==|!=|<=|>=)
+        set disposition $value1
+        #value2 = integer: compare the line count to this value
+        set compare_value $value2
+        #sanity check disposition
+        set exp {(<|>|==|!=|<=|>=)}
+        if {![regexp -- $exp $disposition]} {
+          return -code error "[info proc] $assertion: unexpected value1 '$value1' -- (should match $exp)"
+        }
+        set domdoc [dom parse $test::analyze_buffer]
+        set rpc_reply [$domdoc documentElement]
+        set node_set [$rpc_reply selectNodes $xpath]
+        set nodecount [llength $node_set]
+        set condition "# nodes matching '$xpath' ($nodecount) $disposition $compare_value"
+        set this_pass [eval "expr $nodecount $disposition $compare_value"]
+        set description $condition
+      }
+      default {
+        return -code error "juniperconnect::nc_assert - unexpected assertion type: '$assertion'"
+      }
+    }
+    if {$this_pass} {
+      print "-  Confirmed: $description" 6
+      #pass
+    } else {
+      print "!! ERROR: Failed to verify: $description" 4
+      #fail
+      set test::pass($test::current_subcase) 0
+    }
+    set test::lastmode "assert"
+  }
+
   proc end_analyze {} {
     variable analyze_buffer
     print [output::hr "-" 4]
-    print "> Relevant CLI Output:"
+    print "> Relevant CLI/RPC Output:"
     set output $analyze_buffer
     switch -- [lindex [nsplit $output] end] {
       "{master}" -

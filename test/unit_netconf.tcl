@@ -69,8 +69,8 @@ test::start "netconf connect"
   print "doc: $doc"
   set root [$doc documentElement]
   print "root: $root"
+  print "current node: [$root nodeName] ($root)"
   print [$root asXML]
-  print "current node: [$root nodeName]"
   set child [$root childNodes]
   print "child node(s): [$child nodeName]"
   set node [$root selectNodes "child::*"]
@@ -80,12 +80,26 @@ test::start "netconf connect"
   set chassis_serial [$node data]
   print ">>> chassis_serial: $chassis_serial"
 
+  h2 "good/bad xpath"
+  set node [$root selectNodes "chassis-inventory"]
+  print "good node: '$node' ([$node nodeName])"
+  print "good length: [llength $node]"
+  set node [$doc selectNodes "bob"]
+  print "bad node: '$node'"
+  print "bad length: [llength $node]"
+
   h2 "build two requests in one rpc"
   set path_statement_list "
     get-chassis-inventory
     get-interface-information
   "
-  print [juniperconnect::build_rpc $router $path_statement_list "2"]
+  set rpc [juniperconnect::build_rpc $router $path_statement_list "2"]
+  print $rpc
+
+  h2 "now send the 2 requests"
+  set output [send_rpc $router $rpc]
+  print $output
+
 
 
 test::finish

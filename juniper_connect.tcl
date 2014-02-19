@@ -5,7 +5,7 @@ package require Tcl     8.5
 package require tdom  0.8.3
 
 namespace eval ::juniperconnect {
-  namespace export connectssh disconnectssh send_textblock send_rpc grep_output import_userpass
+  namespace export connectssh disconnectssh send_textblock build_rpc send_rpc grep_output import_userpass
 
   variable session_array
   array unset session_array
@@ -19,7 +19,12 @@ namespace eval ::juniperconnect {
 
   variable expect_timeout 10
   variable expect_timeout_restore $expect_timeout
+
+  #cli output
   variable output {}
+
+  #netconf output
+  variable nc_output {}
 
   #netconf hello message storage
   variable netconf_hello 
@@ -280,8 +285,6 @@ namespace eval ::juniperconnect {
         variable ncclient_hello_out
         send $ncclient_hello_out
         expect $end_of_message {}
-        #initialize msgid number
-        set juniperconnect::netconf_msgid($address) "100"
         #session array storage for netconf... separate one?
         set session_array(nc:$address) $spawn_id
       }
@@ -418,6 +421,10 @@ namespace eval ::juniperconnect {
 
   proc build_rpc {address path_statement_textblock {indent "none"}} {
     variable netconf_msgid
+    if {![info exists netconf_msgid($address)]} {
+      #initialize msgid
+      set netconf_msgid($address) 100
+    }
     set this_msgid $netconf_msgid($address)
     incr netconf_msgid($address)
     set rpc [dom createDocument "rpc"]
@@ -440,13 +447,13 @@ namespace eval ::juniperconnect {
   }
 
   proc send_rpc {address rpc {style "strip"}} {
-    #send netconf rpc to the router and return the output
+    #send netconf rpc to the router and return the nc_output
     set procname "send_rpc"
     set tclfilename [namespace current]
 
-    #initialize return output
-    variable output
-    set output {}
+    #initialize return nc_output
+    variable nc_output
+    set nc_output {}
 
     set timeout [timeout]
     set mode "netconf"
@@ -464,15 +471,15 @@ namespace eval ::juniperconnect {
     #clear echo for outgoing rpc
     expect $end_of_message {}
 
-    #loop through return output until end_of_message received
+    #loop through return nc_output until end_of_message received
     expect {
       $end_of_message {
         #got end_of_message - exit condition for expect-loop
-        append output $expect_out(buffer)
+        append nc_output $expect_out(buffer)
       }
       -re "<.*>" {
         #this resets the timeout timer when we find any tag/element
-        append output $expect_out(buffer)
+        append nc_output $expect_out(buffer)
         exp_continue
       }
       timeout {
@@ -480,17 +487,17 @@ namespace eval ::juniperconnect {
         #because of the for-loop this sucker may just keep going, but it's possible the cli has siezed up
       }
     }
-    #set output [string trim [lindex [split $output "\]"] 0]]
-    set output [nrange $output 1 end-1]
+    #set nc_output [string trim [lindex [split $nc_output "\]"] 0]]
+    set nc_output [nrange $nc_output 1 end-1]
     switch -- $style {
       default -
       "strip" {
-        set doc [dom parse $output]
+        set doc [dom parse $nc_output]
         $doc xslt $juniperconnect::xslt_remove_namespace cleandoc
         return [$cleandoc asXML]
       }
       "raw" {
-        return $output
+        return $nc_output
       }
     }
   }
