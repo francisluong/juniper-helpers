@@ -1,6 +1,5 @@
 #!/usr/bin/env tclsh
 
-set auto_path [linsert $auto_path 0 "/home/fluong/code/juniper-helpers"]
 package require test
 
 init_logfile "/var/tmp/results"
@@ -20,8 +19,8 @@ test::start "Verify Chassis is of type Firefly or MX960"
   test::xassert "chassis-inventory"
   test::xassert {chassis-inventory/chassis/chassis-module[name='FPC 0']/chassis-sub-module} 
   test::xassert {chassis-inventory/chassis/chassis-module[name='FPC 0']/chassis-sub-module/name/text()} regexp "PIC 0"
-  test::xassert "chassis-inventory/chassis/description/text()" "regexp" "(FIREFLY|MX).*"
-  test::xassert "chassis-inventory/chassis/chassis-module" "count" >= 5
+  test::xassert "chassis-inventory/chassis/description/text()" regexp "(FIREFLY|MX).*"
+  test::xassert "chassis-inventory/chassis/chassis-module" count >= 5
   test::end_analyze
 
 test::finish

@@ -141,7 +141,7 @@ namespace eval ::test {
   proc analyze_netconf {router rpc} {
     variable analyze_buffer 
     print "Analyzing $router output for the following rpc:"
-    print $rpc
+    print [string trim [[dom parse $rpc] asXML]] 6
     if {![juniperconnect::session_exists "nc:$router"]} {
       connectssh $router "netconf"
     }
