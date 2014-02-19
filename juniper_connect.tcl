@@ -451,10 +451,22 @@ namespace eval ::juniperconnect {
     foreach path_statement [nsplit $path_statement_textblock] {
       set path_statement [string trim $path_statement]
       set current_node $root
-      foreach name [split $path_statement "/"] {
-        #probably will need to add logic to handle attributes and text
-        set new_node [$rpc createElement $name]
-        $current_node appendChild $new_node
+      foreach element_list [split $path_statement "/"] {
+        foreach element [split $element_list ","] {
+          #probably will need to add logic to handle attributes and text
+          if {[string match "*=*" $element]} {
+            lassign [split $element "="] tag value
+            set value [string trim $value {'\"}]
+            #need to also create a text node and attach it
+            set new_node [$rpc createElement $tag]
+            $current_node appendChild $new_node
+            set text_node [$rpc createTextNode $value]
+            $new_node appendChild $text_node
+          } else {
+            set new_node [$rpc createElement $element]
+            $current_node appendChild $new_node
+          }
+        }
         set current_node $new_node
       }
     }
