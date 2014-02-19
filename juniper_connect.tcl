@@ -3,6 +3,7 @@ package require textproc 1.0
 package require Expect  5.43
 package require Tcl     8.5
 package require tdom  0.8.3
+package require base64
 
 namespace eval ::juniperconnect {
   namespace export connectssh disconnectssh send_textblock build_rpc send_rpc grep_output import_userpass
@@ -109,10 +110,10 @@ namespace eval ::juniperconnect {
       foreach {user pass} $nlist_user_pass {
         set user [string trim $user]
         set pass [string trim $pass]
-        set juniperconnect::r_db($user) $pass
+        set juniperconnect::r_db($user) [base64::encode $pass]
       }
       set juniperconnect::r_username [string trim [lindex $nlist_user_pass 0]]
-      set juniperconnect::r_password [string trim [lindex $nlist_user_pass 1]]
+      set juniperconnect::r_password [base64::encode [string trim [lindex $nlist_user_pass 1]]]
       set r_db(__lastuser) $juniperconnect::r_username
     } else {
       puts "[info proc]: $filepath doesn't exist"
@@ -162,6 +163,8 @@ namespace eval ::juniperconnect {
     }
     if {$password == "-1"} {
       set password $juniperconnect::r_password
+    } else {
+      set password [base64::encode $password]
     }
     while {$success==0 && $retries>0} {
       switch -- $style {
@@ -249,7 +252,7 @@ namespace eval ::juniperconnect {
           exp_continue
         }
         -re "($address's password:|Password:|Telnet password:)" {
-          send -s "$password\r"
+          send -s "[base64::decode $password]\r"
           exp_continue
         }
         timeout {
