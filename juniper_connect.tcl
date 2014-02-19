@@ -201,7 +201,11 @@ namespace eval ::juniperconnect {
           exp_continue
         }
         -re $prompt {
-          set success 1
+          if {$style eq "cli"} {
+            set success 1
+          } else {
+            exp_continue
+          }
         }
         "no hostkey alg" {
           return -code error "ERROR: juniperconnect::connectssh: no hostkey alg"
@@ -276,8 +280,9 @@ namespace eval ::juniperconnect {
       "cli" {
         puts "\njuniperconnect::connectssh success"
         set session_array($address) $spawn_id
-        send "set cli screen-length 0\r"
-        expect -re $prompt {send "set cli screen-width 0\r"}
+        send "set cli screen-length 0\n"
+        expect -re $prompt {send "set cli screen-width 0\n"}
+        expect -re $prompt {send "set cli terminal vt100\n"}
         expect -re $prompt {}
       }
       "netconf" {
@@ -367,7 +372,10 @@ namespace eval ::juniperconnect {
     #send initial carriage-return then expect first prompt
     send "\n"
     expect {
-      -re $prompt {append output [string trimleft $expect_out(buffer)]}
+      -re $prompt {
+        append output [string trimleft $expect_out(buffer)]
+        #puts "\n\n>> ENTER PROMPT MATCH: $expect_out(0,string)\nCommands: $commands_list\n\n"
+      }
       timeout {
         return -code error "ERROR: $procname: TIMEOUT waiting for initial prompt"
       }
@@ -400,15 +408,22 @@ namespace eval ::juniperconnect {
       }
       #send command
       send "$this_command\n"
+      set output_received 0
       #loop and look for for prompt regexp
       expect {
-        -re "$prompt" {
+        -re $prompt {
           #got prompt - exit condition for expect-loop
           append output $expect_out(buffer)
+          #puts "\n\n>> EXIT PROMPT MATCH: $expect_out(0,string)\nexit buffer:\n>---\n$expect_out(buffer)\n---<\n\n"
+          if {!$output_received} {
+            exp_continue
+          }
         }
         -re ".*(\r|\n)" {
           #this resets the timeout timer using newline-continues
+          set output_received 1
           append output $expect_out(buffer)
+          #puts "\n>> loop buffer:\n>---\n$expect_out(buffer)\n---<\n\n"
           exp_continue
         }
         timeout {
