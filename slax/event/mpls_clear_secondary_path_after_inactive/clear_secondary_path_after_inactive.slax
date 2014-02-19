@@ -25,7 +25,7 @@ ns jcs = "http://xml.juniper.net/junos/commit-scripts/1.0";
 
 import "../import/junos.xsl";
  
-/* Embedded event policy: set the policy to refresh every five minutes */
+/* Embedded event policy: trigger event == "rpd_mpls_lsp_switch" */
 
 var $event-definition = {
     <event-options> {
@@ -51,17 +51,18 @@ match / {
     var $bandwidth = event-script-input/trigger-event/attribute-list/attribute[name == "bandwidth"]/value;
     var $old-pathname = event-script-input/trigger-event/attribute-list/attribute[name == "old-pathname"]/value;
     var $old-path-type = event-script-input/trigger-event/attribute-list/attribute[name == "old-path-type"]/value;
+    /* This script only acts if old-path-type is "secondary" */
     if( $old-path-type = "secondary" ) {
       var $clear-lsp-path = <clear-mpls-lsp-information> {
         <regex> $lsp-name;
         <path> $old-pathname;
       }
       var $result = jcs:invoke( $clear-lsp-path );
-      /* Add a Syslog to indicate that the LSP has been cleared */
+      /* Issue a Syslog to indicate that the LSP has been cleared */
       var $message = "resetting LSP " _ $lsp-name _ " PATH " _ $old-pathname ;
       expr jcs:syslog( "user.info", $message );
       if ( $result//self::xnm:error ) {
-        /* handle error? */
+        /* handle error... TBD */
       }
     }
   }
