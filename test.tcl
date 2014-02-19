@@ -156,7 +156,7 @@ namespace eval ::test {
     }
     switch -nocase -- $assertion {
       "present" {
-        set condition "returns one or more nodes"
+        set description "XPATH matches one or more nodes"
         set domdoc [dom parse $test::analyze_buffer]
         set rpc_reply [$domdoc documentElement]
         set node_set [$rpc_reply selectNodes $xpath]
@@ -165,10 +165,9 @@ namespace eval ::test {
         } else {
           set this_pass 0
         }
-        set description "XPATH '$xpath' $condition"
       }
       "regexp" {
-        set description "XPATH '$xpath' text/data matches regexp '$value1'"
+        set description "XPATH text matches regexp: '$value1'"
         set domdoc [dom parse $test::analyze_buffer]
         set rpc_reply [$domdoc documentElement]
         set node [$rpc_reply selectNodes $xpath]
@@ -193,14 +192,14 @@ namespace eval ::test {
         set rpc_reply [$domdoc documentElement]
         set node_set [$rpc_reply selectNodes $xpath]
         set nodecount [llength $node_set]
-        set condition "# nodes matching '$xpath' ($nodecount) $disposition $compare_value"
         set this_pass [eval "expr $nodecount $disposition $compare_value"]
-        set description $condition
+        set description "# nodes matching XPATH ($nodecount) $disposition $compare_value"
       }
       default {
         return -code error "juniperconnect::nc_assert - unexpected assertion type: '$assertion'"
       }
     }
+    append description "\n    * xpath: $xpath"
     if {$this_pass} {
       print "-  Confirmed: $description" 6
       #pass

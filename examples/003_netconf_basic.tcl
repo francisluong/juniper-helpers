@@ -23,4 +23,9 @@ test::start "Verify Chassis is of type Firefly or MX960"
   test::xassert "chassis-inventory/chassis/chassis-module" count >= 5
   test::end_analyze
 
+  test::subcase "Verify Version is JUNOS"
+  test::analyze_netconf $router [build_rpc $router "get-software-information"]
+  test::xassert "software-information/package-information\[name='junos']/comment/text()" regexp "JUNOS Software Release"
+  test::end_analyze
+
 test::finish
