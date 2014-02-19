@@ -49,6 +49,7 @@ namespace eval ::test {
     set test::pass($subcase) 1
     set test::current_subcase $subcase
     lappend test::subcase_list $subcase
+    set test::lastmode "subcase"
   }
 
   proc analyze_cli {router commands_textblock} {
@@ -56,7 +57,11 @@ namespace eval ::test {
   }
   proc analyze_output {router commands_textblock} {
     variable analyze_buffer 
-    set outparts [list "Analyzing $router output for the following commands:"]
+    set outparts {}
+    if {$test::lastmode ne "subcase"} {
+      lappend outparts [output::hr "-" 4]
+    }
+    lappend outparts "Analyzing $router output for the following commands:"
     foreach line [nsplit $commands_textblock] {
       set line [string trim $line]
       if {$line ne ""} {
@@ -142,6 +147,9 @@ namespace eval ::test {
 
   proc analyze_netconf {router rpc} {
     variable analyze_buffer 
+    if {$test::lastmode ne "subcase"} {
+      print [output::hr "-" 4]
+    }
     print "Analyzing $router output for the following rpc:"
     print [string trim [[dom parse $rpc] asXML]] 6
     if {![juniperconnect::session_exists "nc:$router"]} {
