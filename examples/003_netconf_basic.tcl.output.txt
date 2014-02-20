@@ -7,7 +7,7 @@ START TEST: VERIFY CHASSIS IS OF TYPE FIREFLY OR MX960
   Subcase: Verify Chassis matches 'FIREFLY' or 'MX'
   ----------------------------------------------------------
     Analyzing r1 output for the following rpc:
-      <rpc message-id="100 Wed Feb 19 09:00:35 EST 2014">
+      <rpc message-id="100 Wed Feb 19 23:56:49 EST 2014">
           <get-chassis-inventory/>
       </rpc>
     --------------------------------------------------------
@@ -16,15 +16,15 @@ START TEST: VERIFY CHASSIS IS OF TYPE FIREFLY OR MX960
           * xpath: chassis-inventory
       -  Confirmed: XPATH matches one or more nodes
           * xpath: chassis-inventory/chassis/chassis-module[name='FPC 0']/chassis-sub-module
-      -  Confirmed: XPATH text matches regexp: 'PIC 0'
-          * xpath: chassis-inventory/chassis/chassis-module[name='FPC 0']/chassis-sub-module/name/text()
+      -  Confirmed: XPATH matches one or more nodes
+          * xpath: chassis-inventory/chassis/chassis-module[name='FPC 0']/chassis-sub-module[name='PIC 0']
       -  Confirmed: XPATH text matches regexp: '(FIREFLY|MX).*'
           * xpath: chassis-inventory/chassis/description/text()
       -  Confirmed: # nodes matching XPATH (5) >= 5
           * xpath: chassis-inventory/chassis/chassis-module
     --------------------------------------------------------
     > Relevant CLI/RPC Output:
-      <rpc-reply message-id="100 Wed Feb 19 09:00:35 EST 2014">
+      <rpc-reply message-id="100 Wed Feb 19 23:56:49 EST 2014">
           <chassis-inventory>
               <chassis style="inventory">
                   <name>Chassis</name>
@@ -53,6 +53,17 @@ START TEST: VERIFY CHASSIS IS OF TYPE FIREFLY OR MX960
                   </chassis-module>
               </chassis>
           </chassis-inventory>
+          <output>
+      Hardware inventory:
+      Item             Version  Part number  Serial number     Description
+      Chassis                                dd4b876c4e0a      FIREFLY-PERIMETER
+      Midplane        
+      System IO       
+      Routing Engine                                           FIREFLY-PERIMETER RE
+      FPC 0                                                    Virtual FPC
+        PIC 0                                                  Virtual GE
+      Power Supply 0  
+      </output>
       </rpc-reply>
       
   
@@ -60,32 +71,25 @@ START TEST: VERIFY CHASSIS IS OF TYPE FIREFLY OR MX960
   Subcase: Verify Version is JUNOS
   ----------------------------------------------------------
     Analyzing r1 output for the following rpc:
-      <rpc message-id="101 Wed Feb 19 09:00:38 EST 2014">
+      <rpc message-id="101 Wed Feb 19 23:56:51 EST 2014">
           <get-software-information/>
       </rpc>
     --------------------------------------------------------
     > Verification of Assertions:
-      -  Confirmed: XPATH text matches regexp: 'JUNOS Software Release'
-          * xpath: software-information/package-information[name='junos']/comment/text()
+      -  Confirmed: XPATH text matches regexp: 'JUNOS'
+          * xpath: software-information/package-information[1]/comment/text()
     --------------------------------------------------------
     > Relevant CLI/RPC Output:
-      <rpc-reply message-id="101 Wed Feb 19 09:00:38 EST 2014">
-          <software-information>
-              <host-name>R1</host-name>
-              <product-model>firefly-perimeter</product-model>
-              <product-name>firefly-perimeter</product-name>
-              <package-information>
-                  <name>junos</name>
-                  <comment>JUNOS Software Release [12.1X46-D10.2]</comment>
-              </package-information>
-          </software-information>
-      </rpc-reply>
-      
+      <output>
+      Hostname: R1
+      Model: firefly-perimeter
+      JUNOS Software Release [12.1X46-D10.2]
+      </output>
   
   ----------------------------------------------------------
   Test Result Summary --> PASS
   ----------------------------------------------------------
-    ** Subcase: Verify Version is JUNOS --> PASS
     ** Subcase: Verify Chassis matches 'FIREFLY' or 'MX' --> PASS
+    ** Subcase: Verify Version is JUNOS --> PASS
 
 ============================================================

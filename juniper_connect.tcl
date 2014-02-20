@@ -33,9 +33,7 @@ namespace eval ::juniperconnect {
   array set netconf_hello {}
 
   #netconf msgid storage
-  variable netconf_msgid 
-  array unset netconf_msgid
-  array set netconf_msgid {}
+  variable netconf_msgid 1000
 
   #client capabilities
   variable ncclient_hello_out {
@@ -311,7 +309,7 @@ namespace eval ::juniperconnect {
       if {[string match "nc:*" $address]} {
         #close NETCONF session
         set address [lindex [split $address ":"] end]
-        send_rpc $address [build_rpc $address "close-session"]
+        send_rpc $address [build_rpc "close-session"]
       } else {
         #CLI: send exit
         set timeout 1
@@ -436,14 +434,10 @@ namespace eval ::juniperconnect {
     return $output
   }
 
-  proc build_rpc {address path_statement_textblock {indent "none"}} {
+  proc build_rpc {path_statement_textblock {indent "none"}} {
     variable netconf_msgid
-    if {![info exists netconf_msgid($address)]} {
-      #initialize msgid
-      set netconf_msgid($address) 100
-    }
-    set this_msgid $netconf_msgid($address)
-    incr netconf_msgid($address)
+    set this_msgid $netconf_msgid
+    incr netconf_msgid
     set rpc [dom createDocument "rpc"]
     set root [$rpc documentElement]
     $root setAttribute "message-id" "$this_msgid [clock format [clock seconds]]"

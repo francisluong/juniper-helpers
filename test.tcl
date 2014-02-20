@@ -173,7 +173,7 @@ namespace eval ::test {
     if {![juniperconnect::session_exists "nc:$router"]} {
       connectssh $router "netconf"
     }
-    set analyze_buffer [send_rpc $router $rpc]
+    set analyze_buffer [send_rpc $router $rpc "ascii"]
     variable full_analyze_buffer $analyze_buffer
     set test::lastmode "analyze"
   }
@@ -240,18 +240,40 @@ namespace eval ::test {
     set test::lastmode "assert"
   }
 
-  proc end_analyze {} {
+  proc end_analyze {{style "default"}} {
     variable analyze_buffer
+    set output $analyze_buffer
     print [output::hr "-" 4]
     print "> Relevant CLI/RPC Output:"
-    set output $analyze_buffer
-    switch -- [lindex [nsplit $output] end] {
-      "{master}" -
-      "{backup}" {
-        set output [nrange $output 0 end-2]
+    if {[catch {dom parse $analyze_buffer} doc] > 0} {
+      #CLI
+      switch -- [lindex [nsplit $output] end] {
+        "{master}" -
+        "{backup}" {
+          set output [nrange $output 0 end-2]
+        }
+      }
+      print $output 6
+    } else {
+      #NetConf/RPC/XML
+      switch -nocase -- $style {
+        default {
+          print $output 6
+        }
+        "xml" -
+        "rpc" {
+          set node [$doc selectNodes "//output"]
+          set rpc_reply [$doc firstChild]
+          $rpc_reply removeChild $node
+          print [string trim [$doc asXML]] 6
+        }
+        "output" -
+        "ascii" {
+          set node [$doc selectNodes "//output"]
+          print [string trim [$node asXML]] 6
+        }
       }
     }
-    print $output 6
     set analyze_buffer $test::full_analyze_buffer
   }
 

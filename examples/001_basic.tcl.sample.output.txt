@@ -53,8 +53,8 @@ START TEST: VERIFY CHASSIS IS OF TYPE FIREFLY OR MX960
     > Relevant CLI/RPC Output:
         Logical interface ge-0/0/0.0 (Index 69) (SNMP ifIndex 507) 
           Flags: SNMP-Traps 0x4000 Encapsulation: ENET2
-          Input packets : 149335 
-          Output packets: 5001
+          Input packets : 154775 
+          Output packets: 8096
           Security: Zone: Null
           Protocol inet, MTU: 1500
             Flags: Sendbcast-pkt-to-re, Is-Primary

@@ -33,7 +33,7 @@ test::start "netconf connect"
   test::end_analyze
 
   h2 "netconf software-information"
-  set rpc [juniperconnect::build_rpc $router "get-software-information"]
+  set rpc [juniperconnect::build_rpc "get-software-information"]
   print $rpc
   set output [send_rpc $router $rpc "raw"]
   set doc [dom parse $output]
@@ -61,7 +61,7 @@ test::start "netconf connect"
   print "Version: [$node data]"
 
   h2 "craft a request for get-chassis-inventory/detail"
-  set rpc [juniperconnect::build_rpc $router "get-chassis-inventory/detail"]
+  set rpc [juniperconnect::build_rpc "get-chassis-inventory/detail"]
   print $rpc
   #send_rpc will strip xmlns tags when you don't specify raw style output
   set output [send_rpc $router $rpc]
@@ -93,7 +93,7 @@ test::start "netconf connect"
     get-chassis-inventory
     get-interface-information
   "
-  set rpc [juniperconnect::build_rpc $router $path_statement_list "2"]
+  set rpc [juniperconnect::build_rpc $path_statement_list "2"]
   print $rpc
 
   h2 "now send the 2 requests"
@@ -101,14 +101,14 @@ test::start "netconf connect"
   print $output
 
   h2 "get combined ascii output"
-  set rpc [juniperconnect::build_rpc $router "get-software-information"]
+  set rpc [juniperconnect::build_rpc "get-software-information"]
   print $rpc
   set output [send_rpc $router $rpc "ascii"]
   print $output
 
   h2 "build a complex rpc"
   set path_statement_list "get-mpls-lsp-information/ingress,detail,regex='WP-ER10WDC1-TO-ER10POP1'"
-  set rpc [juniperconnect::build_rpc $router $path_statement_list "2"]
+  set rpc [juniperconnect::build_rpc $path_statement_list "2"]
   print $rpc
   print [juniperconnect::add_ascii_format_to_rpc $rpc]
 
