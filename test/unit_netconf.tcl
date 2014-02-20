@@ -100,10 +100,17 @@ test::start "netconf connect"
   set output [send_rpc $router $rpc]
   print $output
 
+  h2 "get combined ascii output"
+  set rpc [juniperconnect::build_rpc $router "get-software-information"]
+  print $rpc
+  set output [send_rpc $router $rpc "ascii"]
+  print $output
+
   h2 "build a complex rpc"
   set path_statement_list "get-mpls-lsp-information/ingress,detail,regex='WP-ER10WDC1-TO-ER10POP1'"
   set rpc [juniperconnect::build_rpc $router $path_statement_list "2"]
   print $rpc
+  print [juniperconnect::add_ascii_format_to_rpc $rpc]
 
   
 

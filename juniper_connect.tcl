@@ -475,6 +475,14 @@ namespace eval ::juniperconnect {
     return $result
   }
 
+  proc add_ascii_format_to_rpc {rpc_request {indent "none"}} {
+    set doc [dom parse $rpc_request]
+    set rpc [$doc firstChild]
+    set node [$rpc firstChild]
+    $node setAttribute format "ascii"
+    set result [$doc asXML -indent $indent]
+  }
+
   proc send_rpc {address rpc {style "strip"}} {
     #send netconf rpc to the router and return the nc_output
     set procname "send_rpc"
@@ -518,15 +526,24 @@ namespace eval ::juniperconnect {
     }
     #set nc_output [string trim [lindex [split $nc_output "\]"] 0]]
     set nc_output [nrange $nc_output 1 end-1]
+    set doc [dom parse $nc_output]
+    $doc xslt $juniperconnect::xslt_remove_namespace cleandoc
     switch -- $style {
       default -
       "strip" {
-        set doc [dom parse $nc_output]
-        $doc xslt $juniperconnect::xslt_remove_namespace cleandoc
         return [$cleandoc asXML]
       }
       "raw" {
         return $nc_output
+      }
+      "ascii" {
+        set rpc_ascii [add_ascii_format_to_rpc $rpc]
+        set ascii_output [send_rpc $address $rpc_ascii]
+        set ascii_doc [dom parse $ascii_output]
+        set output [$ascii_doc selectNodes "//output"]
+        set rpc_reply [$cleandoc firstChild]
+        $rpc_reply appendChild $output 
+        return [$cleandoc asXML]
       }
     }
   }
