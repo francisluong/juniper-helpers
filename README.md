@@ -31,7 +31,9 @@ The library is written in TCL so you just have to clone the repo and add it to y
 Steps for BASH:
  - Clone the repository
  - Add the path of this git repo to TCLLIBPATH in your ~/.bashrc
-   * _export TCLLIBPATH=$TCLLIBPATH:/home/fluong/juniper-helpers_
+   * _export TCLLIBPATH=/home/fluong/juniper-helpers_
+ - ...or you can symlink the folder from a place listed in $tcl_pkgPath
+   * e.g. 'sudo ln -s /home/fluong/juniper-helpers /usr/lib/juniper-helpers'
  - create a userpass file
    * first line should be username
    * second line should have the password
