@@ -282,7 +282,6 @@ namespace eval ::juniperconnect {
         set session_array($address) $spawn_id
         send "set cli screen-length 0\n"
         expect -re $prompt {send "set cli screen-width 0\n"}
-        expect -re $prompt {send "set cli terminal vt100\n"}
         expect -re $prompt {}
       }
       "netconf" {

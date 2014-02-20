@@ -9,6 +9,7 @@ namespace eval ::test {
   variable pass 
   variable current_subcase {}
   variable analyze_buffer {}
+  variable full_analyze_buffer {}
   variable subcase_list {}
 
   proc start {testname} {
@@ -73,6 +74,7 @@ namespace eval ::test {
       connectssh $router 
     }
     set analyze_buffer [send_textblock $router $commands_textblock]
+    variable full_analyze_buffer $analyze_buffer
     set test::lastmode "analyze"
   }
 
@@ -145,6 +147,22 @@ namespace eval ::test {
     set test::lastmode "assert"
   }
 
+  proc limit_scope {start_expression {stop_expression {^$}} {options_list ""}} {
+    if {$test::lastmode ne "subcase"} {
+      print [output::hr "-" 4]
+    }
+    print "Limit Scope of output as follows:"
+    print "* Start Expression: '$start_expression'" 6
+    print "* Stop Expression: '$stop_expression'" 6
+    if {$options_list ne ""} {
+      print "* Options: $options_list" 6
+    }
+    variable analyze_buffer
+    #use grep_until to match the scoped section and choose the first block
+    # set the result to analyze_buffer
+    set analyze_buffer [lindex [grep_until $start_expression $stop_expression $analyze_buffer $options_list] 0]
+  }
+
   proc analyze_netconf {router rpc} {
     variable analyze_buffer 
     if {$test::lastmode ne "subcase"} {
@@ -156,6 +174,7 @@ namespace eval ::test {
       connectssh $router "netconf"
     }
     set analyze_buffer [send_rpc $router $rpc]
+    variable full_analyze_buffer $analyze_buffer
     set test::lastmode "analyze"
   }
 
@@ -233,6 +252,7 @@ namespace eval ::test {
       }
     }
     print $output 6
+    set analyze_buffer $test::full_analyze_buffer
   }
 
   proc within {} {

@@ -24,4 +24,10 @@ test::start "Verify Chassis is of type Firefly or MX960"
   test::assert "^FPC" "match and count" >= "1"
   test::end_analyze
 
+  test::subcase "Limit Output then Verify interface ge-0/0/0.0 has protocol inet configured"
+  test::analyze_cli $router "show interface"
+  test::limit_scope "Logical interface ge-0/0/0.0" 
+  test::assert "Protocol inet"
+  test::end_analyze
+
 test::finish

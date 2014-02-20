@@ -6,19 +6,21 @@ START TEST: VERIFY CHASSIS IS OF TYPE FIREFLY OR MX960
   ----------------------------------------------------------
   Subcase: Verify Chassis matches 'FIREFLY' or 'MX'
   ----------------------------------------------------------
-    Analyzing 192.168.1.31 output for the following commands:
+    Analyzing r1 output for the following commands:
       + show chassis hardware
       + show version
     --------------------------------------------------------
     > Verification of Assertions:
       -  Confirmed: 'Chassis .* (FIREFLY|MX[0-9]+)' is present
       -  Confirmed: 'Chassis .* T640' is NOT present
-      -  Confirmed: # lines matching '^FPC' (1 == 1)
-      -  Confirmed: # lines matching '^FPC' (1 != 2)
-      -  Confirmed: # lines matching '^FPC' (1 < 2)
-      -  Confirmed: # lines matching '^FPC' (1 >= 0)
+      -  Confirmed: # lines matching '^FPC' (1) >= 1
     --------------------------------------------------------
-    > Relevant CLI Output:
+    > Relevant CLI/RPC Output:
+      set cli screen-width 0 
+      Screen width set to 0
+      
+      lab@R1> 
+      
       lab@R1> show chassis hardware 
       Hardware inventory:
       Item             Version  Part number  Serial number     Description
@@ -36,8 +38,34 @@ START TEST: VERIFY CHASSIS IS OF TYPE FIREFLY OR MX960
       JUNOS Software Release [12.1X46-D10.2]
   
   ----------------------------------------------------------
+  Subcase: Limit Output then Verify interface ge-0/0/0.0 has protocol inet configured
+  ----------------------------------------------------------
+    Analyzing r1 output for the following commands:
+      + show interface
+    --------------------------------------------------------
+    Limit Scope of output as follows:
+      * Start Expression: 'Logical interface ge-0/0/0.0'
+      * Stop Expression: '^$'
+    --------------------------------------------------------
+    > Verification of Assertions:
+      -  Confirmed: 'Protocol inet' is present
+    --------------------------------------------------------
+    > Relevant CLI/RPC Output:
+        Logical interface ge-0/0/0.0 (Index 69) (SNMP ifIndex 507) 
+          Flags: SNMP-Traps 0x4000 Encapsulation: ENET2
+          Input packets : 149335 
+          Output packets: 5001
+          Security: Zone: Null
+          Protocol inet, MTU: 1500
+            Flags: Sendbcast-pkt-to-re, Is-Primary
+            Addresses, Flags: Is-Default Is-Preferred Is-Primary
+              Destination: 192.168.1/24, Local: 192.168.1.31, Broadcast: 192.168.1.255
+      
+  
+  ----------------------------------------------------------
   Test Result Summary --> PASS
   ----------------------------------------------------------
     ** Subcase: Verify Chassis matches 'FIREFLY' or 'MX' --> PASS
+    ** Subcase: Limit Output then Verify interface ge-0/0/0.0 has protocol inet configured --> PASS
 
 ============================================================
