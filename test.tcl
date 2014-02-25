@@ -78,6 +78,42 @@ namespace eval ::test {
     set test::lastmode "analyze"
   }
 
+  proc apply_config {$router commands_textblock} {
+    variable analyze_buffer
+    set outparts {}
+    if {$test::lastmode ne "subcase"} {
+      lappend outparts [output::hr "-" 4]
+    }
+    lappend outparts "Apply Configuration to $router:"
+    #sanitize config - add configure private and/or commit and-quit if needed
+    set commands_list [nsplit $commands_textblock]
+    set first [lindex $commands_list 0]
+    if {![string match "config*" $first]} {
+      set commands_list [linsert $commands_list 0 "configure private"]
+    }
+    set last [lindex $commands_list end]
+    if {![string match "commit*" $last]} {
+      set commands_list [linsert $commands_list 0 "commit and-quit"]
+    }
+    #add commands to output
+    foreach line [nsplit $commands_textblock] {
+      set line [string trim $line]
+      if {$line ne ""} {
+        lappend outparts "  + $line"
+      }
+    }
+    #print output
+    print [njoin $outparts]
+    #connect if needed
+    if {![juniperconnect::session_exists $router]} {
+      connectssh $router
+    }
+    #send commands
+    set analyze_buffer [send_textblock $router $commands_textblock]
+    variable full_analyze_buffer $analyze_buffer
+    set test::lastmode "analyze"
+  }
+
   proc analyze_textblock {description textblock_contents} {
     variable analyze_buffer 
     print "Analyzing textblock: $description"
@@ -224,6 +260,23 @@ namespace eval ::test {
         set this_pass [eval "expr $nodecount $disposition $compare_value"]
         set description "# nodes matching XPATH ($nodecount) $disposition $compare_value"
       }
+      "compare" {
+        #value1 = disposition: (<|>|==|!=|<=|>=)
+        set disposition $value1
+        #value2 = integer: compare the line count to this value
+        set compare_value $value2
+        #sanity check disposition
+        set exp {(<|>|==|!=|<=|>=)}
+        if {![regexp -- $exp $disposition]} {
+          return -code error "[info proc] $assertion: unexpected value1 '$value1' -- (should match $exp)"
+        }
+        set domdoc [dom parse $test::analyze_buffer]
+        set rpc_reply [$domdoc documentElement]
+        set node [$rpc_reply selectNodes $xpath]
+        set this_value [$node data]
+        set this_pass [eval "expr $this_value $disposition $compare_value"]
+        set description "value for node matching XPATH ($this_value) $disposition $compare_value"
+      }
       default {
         return -code error "juniperconnect::nc_assert - unexpected assertion type: '$assertion'"
       }
@@ -269,6 +322,7 @@ namespace eval ::test {
         }
         "output" -
         "ascii" {
+          print "(Truncating XML to ASCII output only)\n--snip, snip--" 6
           set node [$doc selectNodes "//output"]
           print [string trim [$node asXML]] 6
         }
@@ -278,9 +332,6 @@ namespace eval ::test {
   }
 
   proc within {} {
-  }
-
-  proc config {} {
   }
 
 }
