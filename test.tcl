@@ -219,69 +219,65 @@ namespace eval ::test {
       print [output::hr "-" 4]
       print "> Verification of Assertions:"
     }
+    set domdoc [dom parse $test::analyze_buffer]
+    set rpc_reply [$domdoc documentElement]
+    set node_set [$rpc_reply selectNodes $xpath]
+    set outparts [list "* xpath: $xpath"]
     switch -nocase -- $assertion {
       "present" {
         set description "XPATH matches one or more nodes"
-        set domdoc [dom parse $test::analyze_buffer]
-        set rpc_reply [$domdoc documentElement]
-        set node_set [$rpc_reply selectNodes $xpath]
         if {[llength $node_set] > 0} {
           set this_pass 1
+          foreach node $node_set {
+            lappend outparts "   ([$node toXPath])"
+          }
         } else {
           set this_pass 0
         }
       }
       "regexp" {
         set description "XPATH text matches regexp: '$value1'"
-        set domdoc [dom parse $test::analyze_buffer]
-        set rpc_reply [$domdoc documentElement]
-        set node [$rpc_reply selectNodes $xpath]
-        set grep_result [grep $value1 [$node data]]
-        if {$grep_result ne ""} {
-          set this_pass 1
-        } else {
-          set this_pass 0
+        set this_pass 1
+        foreach node $node_set {
+          set this_value [$node data]
+          set grep_result [grep $value1 $this_value]
+          if {$grep_result == ""} {
+            set this_pass 0
+          } else {
+            lappend outparts "   ($this_value)"
+          }
         }
       }
       "count" {
         #value1 = disposition: (<|>|==|!=|<=|>=)
-        set disposition $value1
+        set disposition [sanity_boolean_disposition $assertion $value1]
         #value2 = integer: compare the line count to this value
         set compare_value $value2
-        #sanity check disposition
-        set exp {(<|>|==|!=|<=|>=)}
-        if {![regexp -- $exp $disposition]} {
-          return -code error "[info proc] $assertion: unexpected value1 '$value1' -- (should match $exp)"
-        }
-        set domdoc [dom parse $test::analyze_buffer]
-        set rpc_reply [$domdoc documentElement]
-        set node_set [$rpc_reply selectNodes $xpath]
         set nodecount [llength $node_set]
         set this_pass [eval "expr $nodecount $disposition $compare_value"]
         set description "# nodes matching XPATH ($nodecount) $disposition $compare_value"
       }
       "compare" {
         #value1 = disposition: (<|>|==|!=|<=|>=)
-        set disposition $value1
+        set disposition [sanity_boolean_disposition $assertion $value1]
         #value2 = integer: compare the line count to this value
         set compare_value $value2
-        #sanity check disposition
-        set exp {(<|>|==|!=|<=|>=)}
-        if {![regexp -- $exp $disposition]} {
-          return -code error "[info proc] $assertion: unexpected value1 '$value1' -- (should match $exp)"
+        set description "value for node matching XPATH $disposition $compare_value"
+        set this_pass 1
+        foreach node $node_set {
+          set this_value [$node data]
+          set this_node_pass [eval "expr $this_value $disposition $compare_value"]
+          if {!$this_node_pass} {
+            set this_pass 0
+          } else {
+            lappend outparts "   ($this_value)"
+          }
         }
-        set domdoc [dom parse $test::analyze_buffer]
-        set rpc_reply [$domdoc documentElement]
-        set node [$rpc_reply selectNodes $xpath]
-        set this_value [$node data]
-        set this_pass [eval "expr $this_value $disposition $compare_value"]
-        set description "value for node matching XPATH ($this_value) $disposition $compare_value"
       }
       default {
         return -code error "juniperconnect::nc_assert - unexpected assertion type: '$assertion'"
       }
     }
-    append description "\n    * xpath: $xpath"
     if {$this_pass} {
       print "-  Confirmed: $description" 6
       #pass
@@ -290,7 +286,17 @@ namespace eval ::test {
       #fail
       set test::pass($test::current_subcase) 0
     }
+    print "[njoin $outparts]\n" 8
     set test::lastmode "assert"
+  }
+
+  proc sanity_boolean_disposition {assertion disposition} {
+    set exp {(<|>|==|!=|<=|>=)}
+    if {![regexp -- $exp $disposition]} {
+      return -code error "[info proc] $assertion: unexpected disposition '$disposition' -- (should match $exp)"
+    } else {
+      return $disposition
+    }
   }
 
   proc end_analyze {{style "default"}} {
@@ -322,7 +328,7 @@ namespace eval ::test {
         }
         "output" -
         "ascii" {
-          print "(Truncating XML to ASCII output only)\n--snip, snip--" 6
+          print "(Truncating XML to ASCII output only)\n-- snip, snip --" 6
           set node [$doc selectNodes "//output"]
           print [string trim [$node asXML]] 6
         }

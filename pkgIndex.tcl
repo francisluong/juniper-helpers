@@ -11,5 +11,6 @@
 package ifneeded JuniperConnect 1.0 [list source [file join $dir juniper_connect.tcl]]
 package ifneeded countdown 1.0 [list source [file join $dir countdown.tcl]]
 package ifneeded output 1.0 [list source [file join $dir output.tcl]]
+package ifneeded rpc 1.0 [list source [file join $dir rpc.tcl]]
 package ifneeded test 1.0 [list source [file join $dir test.tcl]]
 package ifneeded textproc 1.0 [list source [file join $dir textproc.tcl]]
