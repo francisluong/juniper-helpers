@@ -18,8 +18,8 @@ namespace eval ::juniperconnect {
   variable rp_prompt_array
   set rp_prompt_array(Juniper) {([a-z]+@[a-zA-Z0-9\.\-\_]+[>#%])}
 
-  variable expect_timeout 10
-  variable expect_timeout_restore $expect_timeout
+  variable expect_timeout_default 10
+  variable expect_timeout $expect_timeout_default
 
   #cli output
   variable output {}
@@ -335,7 +335,7 @@ namespace eval ::juniperconnect {
     #revert the expect_timeout value to default
     variable expect_timeout
     variable expect_timeout_default
-    set expect_timeout $expect_timeout_restore
+    set expect_timeout $expect_timeout_default
   }
 
   proc timeout {} {
