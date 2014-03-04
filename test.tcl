@@ -2,6 +2,7 @@ package provide test 1.0
 package require Tcl 8.5
 package require JuniperConnect 1.0
 package require output 1.0
+package require countdown
 
 namespace eval ::test {
   #namespace export 
@@ -78,22 +79,29 @@ namespace eval ::test {
     set test::lastmode "analyze"
   }
 
-  proc apply_config {$router commands_textblock} {
+  proc apply_config {router commands_textblock} {
     variable analyze_buffer
+    juniperconnect::set_timeout 30
     set outparts {}
     if {$test::lastmode ne "subcase"} {
       lappend outparts [output::hr "-" 4]
     }
     lappend outparts "Apply Configuration to $router:"
     #sanitize config - add configure private and/or commit and-quit if needed
-    set commands_list [nsplit $commands_textblock]
+    set commands_list [nsplit [string trim $commands_textblock]]
     set first [lindex $commands_list 0]
-    if {![string match "config*" $first]} {
+    set changed 0
+    if {![string match "*config*" $first]} {
       set commands_list [linsert $commands_list 0 "configure private"]
+      set changed 1
     }
     set last [lindex $commands_list end]
-    if {![string match "commit*" $last]} {
-      set commands_list [linsert $commands_list 0 "commit and-quit"]
+    if {![string match "*commit*" $last]} {
+      set commands_list [linsert $commands_list end "commit and-quit"]
+      set changed 1
+    }
+    if {$changed} {
+      set commands_textblock [njoin $commands_list]
     }
     #add commands to output
     foreach line [nsplit $commands_textblock] {
@@ -112,6 +120,7 @@ namespace eval ::test {
     set analyze_buffer [send_textblock $router $commands_textblock]
     variable full_analyze_buffer $analyze_buffer
     set test::lastmode "analyze"
+    juniperconnect::restore_timeout
   }
 
   proc analyze_textblock {description textblock_contents} {
@@ -337,7 +346,10 @@ namespace eval ::test {
     set analyze_buffer $test::full_analyze_buffer
   }
 
-  proc within {} {
+  proc wait {wait_seconds} {
+    print "[output::hr "-" 4]\nWaiting for $wait_seconds seconds..."
+    countdown::wait $wait_seconds
+    set test::lastmode "wait"
   }
 
 }
