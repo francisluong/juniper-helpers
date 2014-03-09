@@ -22,3 +22,14 @@
     SRLGCOST: 10000
   config:
     set routing-options srlg $NAMEID srlg-value $NAMEID srlg-cost $SRLGCOST
+---
+3:
+  generators:
+    NAMEID: 
+      start: 10001
+      stop: 10010
+      increment: 2
+  simple_substitutions:
+    SRLGCOST: 10000
+  config:
+    set routing-options srlg $NAMEID srlg-value $NAMEID srlg-cost $SRLGCOST
