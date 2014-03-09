@@ -1,12 +1,24 @@
 #srlg template
 ---
-simple_substitutions:
-  SRLGNAME: 10001
-  SRLGID: 10001
-  SRLGCOST: 10000
-config:
-  set routing-options srlg $SRLGNAME srlg-value $SRLGID srlg-cost $SRLGCOST
+1:
+  simple_substitutions:
+    SRLGNAME: 10001
+    SRLGID: 10001
+    SRLGCOST: 10000
+  config:
+    set routing-options srlg $SRLGNAME srlg-value $SRLGID srlg-cost $SRLGCOST
 
-#second doc
+#srlg template with generator/range
 ---
-docname: doc2
+2:
+  generators:
+    NAMEID: 
+      start: 10001
+      stop: 10010
+  this:
+    is:
+      level: 3
+  simple_substitutions:
+    SRLGCOST: 10000
+  config:
+    set routing-options srlg $NAMEID srlg-value $NAMEID srlg-cost $SRLGCOST
