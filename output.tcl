@@ -115,5 +115,48 @@ namespace eval ::output {
     return [textproc::njoin $result]
   }
 
+  proc pdict { dictVarName {indent 1} {prefixString "    "} {separator " => "} } {
+  #copied from http://wiki.tcl.tk/23526...
+  # alterations by @francisluong
+      set fRepExist [expr {0 < [llength\
+              [info commands tcl::unsupported::representation]]}]
+      #output dictionary name if first iteration
+      if { (![string is list $dictVarName] || [llength $dictVarName] == 1)
+              && [uplevel 1 [list info exists $dictVarName]] } {
+          set dictName $dictVarName
+          unset dictVarName
+          upvar 1 $dictName dictVarName
+          puts "dict $dictName"
+      }
+      #throw an exception if we are not dealing with a key value list
+      if { ! [string is list $dictVarName] || [llength $dictVarName] % 2 != 0 } {
+          return -code error  "error: pdict - argument is not a dict"
+      }
+      set prefix [string repeat $prefixString $indent]
+      #set max to the string length of the longest key
+      set max 0
+      foreach key [dict keys $dictVarName] {
+          if { [string length $key] > $max } {
+              set max [string length $key]
+          }
+      }
+      #output keys at this level and call pdict for inside levels
+      dict for {key val} ${dictVarName} {
+          puts -nonewline "$indent:${prefix}[format "%-${max}s" $key]$separator"
+          if {    $fRepExist && [string match "value is a dict*"\
+                      [tcl::unsupported::representation $val]]
+                  || ! $fRepExist && [string is list $val]
+                      && [llength $val] % 2 == 0 } {
+              #it's a dict... recurse!
+              puts ""
+              pdict $val [expr {$indent+1}] $prefixString $separator
+          } else {
+              #scalar value... print and return
+              puts "'${val}'"
+          }
+      }
+      return
+  }
+
 }
 namespace import output::*
