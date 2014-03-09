@@ -2,7 +2,7 @@ package provide homeless 1.0
 package require Tcl 8.5
 
 namespace eval ::homeless {
-  #homelesserators of lists
+  #homeless procs... I'll find a place for them later... all get imported into root namespace (I know...)
   namespace export *
 
   proc read_file {file_name_and_path} {
