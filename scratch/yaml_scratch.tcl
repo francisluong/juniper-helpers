@@ -1,34 +1,9 @@
 #!/usr/bin/env tclsh8.5
 
 package require output
+package require gen
+package require homeless
 
-proc read_file {file_name_and_path} {
- ###########################################
- # abstract: reads in the contents of a file and returns a string
- #
- # inputs:
- #    - file_name_and_path - text string, fully qualified path to a file
- # returns:
- #    - string containing the contents of the file
- ###########################################
-  set procname "proc [lindex [info level 0] 0]"
-  if {![file exists $file_name_and_path]} {
-    return -code error "$procname: ERROR -- file not found: $file_name_and_path"
-  }
-  set fl [open $file_name_and_path]
-  set file_contents [read $fl]
-  close $fl
-  return $file_contents
-}
-
-
-proc range {start stop {incrementBy 1}} {
-  set resultList {}
-  for {set i $start} {$i < $stop} {incr i $incrementBy} {
-    lappend resultList $i
-  }
-  return $resultList
-}
 
 proc yaml_generate {kv_range_params} {
   puts $kv_range_params
@@ -39,7 +14,7 @@ proc yaml_generate {kv_range_params} {
     set increment 1
   }
   array set this_gen $kv_range_params
-  set genresult [range $this_gen(start) $this_gen(stop) $increment]
+  set genresult [gen::range $this_gen(start) $this_gen(stop) $increment]
   return $genresult
 }
 
