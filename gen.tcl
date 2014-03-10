@@ -4,7 +4,7 @@ package require ip
 
 namespace eval ::gen {
   #generators of lists
-  #namespace export h1 h2 indent blockanchor lineanchor init_logfile print printline
+  #namespace export XXX
 
   proc range {start stop {incrementBy 1}} {
     set resultList {}
@@ -14,7 +14,7 @@ namespace eval ::gen {
     return $resultList
   }
 
-  proc ipv4 {start_address count {increment 0.0.0.1}} {
+  proc ipv4 {start_address count {increment "0.0.0.1"}} {
     set result_list {}
     set addr_hex [ip::toHex $start_address]
     set incr_hex [ip::toHex $increment]
