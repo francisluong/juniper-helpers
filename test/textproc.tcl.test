@@ -1,0 +1,56 @@
+#!/usr/bin/env tclsh8.5
+
+package require tcltest
+namespace import tcltest::*
+
+#software under test
+package require textproc
+
+test nsplit_single_line {
+  Test: nsplit should return same string if no "\n"
+} -body {
+  textproc::nsplit "bob"
+} -result "bob"
+
+test nsplit_basic_1 {
+  Test: "a\nb\nc" --> list: a b c
+} -body {
+  textproc::nsplit "a\nb\nc"
+} -result [list a b c]
+
+
+test njoin_single_item {
+  njoin_single_item
+} -body {
+  textproc::njoin [list "a b c"]
+} -result "a b c"
+
+test njoin_basic_1 {
+  njoin_basic_1
+} -body {
+  textproc::njoin [list a b c]
+} -result "a\nb\nc"
+
+
+test nrange_0_0 {
+  nrange_0_0
+} -body {
+  textproc::nrange "a\nb\nc\nd\ne" 0 0
+} -result "a"
+
+test nrange_0_1 {
+  nrange_0_1
+} -body {
+  textproc::nrange "a\nb\nc\nd\ne" 0 1
+} -result "a\nb"
+
+test nrange_end {
+  nrange_end
+} -body {
+  textproc::nrange "a\nb\nc\nd\ne" end-1 end
+} -result "d\ne"
+
+
+
+
+cleanupTests

@@ -15,5 +15,6 @@ if {$argc != 0} {
   }
 }
 
+configure -verbose p
 runAllTests
 exit
