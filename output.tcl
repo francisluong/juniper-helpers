@@ -17,7 +17,7 @@ namespace eval ::output {
   }
 
   proc log_results_clear {target_filepath} {
-    set prefix "run"
+    set suffix "bak"
     if {[string match "*/*" $target_filepath]} {
       set filename [file tail $target_filepath]
       set path [file dirname $target_filepath]
@@ -29,8 +29,7 @@ namespace eval ::output {
       set format_string "%G-%m%d-%H%M"
       file stat $target_filepath "time"
       set formatted_timestamp [clock format $time(ctime) -format $format_string]
-      append prefix $formatted_timestamp
-      set filename "${path}/${prefix}_${filename}"
+      set filename "${path}/${filename}.${formatted_timestamp}.${suffix}"
       set catch_result [ catch {file rename $target_filepath $filename} ]
     }
     #create empty file
