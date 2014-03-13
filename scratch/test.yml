@@ -5,7 +5,7 @@
     SRLGNAME: 10001
     SRLGID: 10001
     SRLGCOST: 10000
-  config:
+  config: |
     set routing-options srlg $SRLGNAME srlg-value $SRLGID srlg-cost $SRLGCOST
 
 #srlg template with generator/range
@@ -20,7 +20,7 @@
       level: 3
   simple_substitutions:
     SRLGCOST: 10000
-  config:
+  config: |
     set routing-options srlg $NAMEID srlg-value $NAMEID srlg-cost $SRLGCOST
 ---
 3:
@@ -31,5 +31,18 @@
       increment: 2
   simple_substitutions:
     SRLGCOST: 10000
-  config:
+  config: |
     set routing-options srlg $NAMEID srlg-value $NAMEID srlg-cost $SRLGCOST
+
+CRS_CONFIG:
+  simple_substitutions:
+    INTF: xe-7/2/3
+    BDNAME: BD-Google-Cache-SW
+    BUNDLE: 30
+  config: |
+    set interfaces $INTF gigether-options 802.3ad ae$BUNDLE
+    set interfaces ae$BUNDLE mtu 9086
+    set interfaces ae$BUNDLE encapsulation ethernet-bridge
+    set interfaces ae$BUNDLE aggregated-ether-options lacp accept-data
+    set interfaces ae$BUNDLE unit 0
+    set bridge-domains $BDNAME interface ae$BUNDLE.0
