@@ -25,11 +25,20 @@
 ---
 3:
   generators:
-    NAMEID: 
-      start: 10001
-      stop: 10010
-      increment: 2
+    PIC: 
+      start: 0
+      stop: 4
+      then:
+        PORT:
+          start: 0
+          stop: 10
+    ADDRESS:
+      type: ipv4
+      start: 10.0.0.1
+      increment: 0.0.0.1
+      count: 40
   simple_substitutions:
-    SRLGCOST: 10000
+    FPC: 0
+    UNIT: 0
   config:
-    set routing-options srlg $NAMEID srlg-value $NAMEID srlg-cost $SRLGCOST
+    set interfaces ge-$FPC/$PIC/$PORT.$UNIT family inet address $ADDRESS
