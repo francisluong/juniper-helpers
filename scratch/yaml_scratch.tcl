@@ -33,8 +33,10 @@ foreach key [dict keys $yaml_full] {
   set keys [dict keys $yaml_in]
   puts "keys: $keys"
   #add simple subs to variable space
-  foreach {varname value} [dict get $yaml_in simple_substitutions] {
-    set $varname $value
+  if {[dict exists $yaml_in simple_substitutions]} {
+    foreach {varname value} [dict get $yaml_in simple_substitutions] {
+      set $varname $value
+    }
   }
   #process generators
   array unset gen_values 
