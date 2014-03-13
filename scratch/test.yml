@@ -1,5 +1,8 @@
 #srlg template
 ---
+0:
+  config:
+    annotate system hi
 1:
   simple_substitutions:
     SRLGNAME: 10001
