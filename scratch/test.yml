@@ -1,7 +1,47 @@
-#srlg template
+
+###############################
+#section_name:
+#   description: (name for the section, must be unique - one for each set of substitutions)
+#
+#   simple_substitutions: 
+#     description: (these are non-repeating, non-changing substitutions)
+#     VARIABLE1: value1
+#     VARIABLE2: value2
+#
+#   generators: 
+#     description: |
+#       (variables that describe a list, with the config being duplicated for each of the values
+#         - these can be nested with 'then:' statements
+#         - in the event of mistmatched list lengths, the shortest list length will be used
+#       )
+#
+#     VARIABLE3: 
+#       description: (this will generate a list of 0-5 and repeat the config for each value)
+#       start: 0
+#       stop: 6
+#
+#     TOP:
+#       description: |
+#         (this will create two lists:
+#          - TOP: 0 0 0 1 1 1
+#          - BOTTOM: 0 1 2 0 1 2
+#         )
+#       start: 0
+#       stop: 2
+#       then:
+#         BOTTOM:
+#           start: 0
+#           stop: 3
+#
+#     IPADDRESS:
+#       description: 
+#       type: ipv4
+#       start: 10.0.0.1
+#       increment: 0.0.0.2
+#       count: 6
 
 no_subs:
-  config:
+  config: |
     annotate system hi
 
 simple_sub:
@@ -50,10 +90,12 @@ ipv4:
     ADDRESS:
       type: ipv4
       start: 10.0.0.1
-      increment: 0.0.0.1
+      increment: 0.0.0.2
       count: 40
   simple_substitutions:
-    SRLGCOST: 10000
+    FPC: 0
+    UNIT: 0
+    CIDR: 31
   config: |
-    set routing-options srlg $NAMEID srlg-value $NAMEID srlg-cost $SRLGCOST
+    set interface ge-$FPC/$PIC/$PORT.$UNIT family inet address $ADDRESS/$CIDR
 
