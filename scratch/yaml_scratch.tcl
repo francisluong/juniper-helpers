@@ -5,23 +5,13 @@ package require gen
 package require homeless
 
 
-proc yaml_generate {kv_range_params} {
-  puts $kv_range_params
-  # return same key and generated list as value
-  if {[dict exists $kv_range_params "increment"]} {
-    set increment [dict get $kv_range_params increment]
-  } else {
-    set increment 1
-  }
-  array set this_gen $kv_range_params
-  set genresult [gen::range $this_gen(start) $this_gen(stop) $increment]
-  return $genresult
-}
-
 
 puts [subst "YAML!!"]
 puts [package require yaml]
-set filepath "/home/fluong/juniper-helpers/scratch/test.yml"
+set filepath "test.yml"
+puts [gen::config_from_yaml $filepath]
+exit
+
 set yaml_full [yaml::yaml2dict [read_file $filepath]]
 puts $yaml_full
 puts "keys: [dict keys $yaml_full]"
