@@ -4,10 +4,12 @@ package require Expect  5.43
 package require Tcl     8.5
 package require tdom  0.8.3
 package require base64
+package require yaml
 
 namespace eval ::juniperconnect {
   namespace export connectssh disconnectssh send_textblock build_rpc send_rpc grep_output import_userpass
 
+  variable version 1.0
   variable session_array
   array unset session_array
   array set session_array {}
@@ -20,6 +22,14 @@ namespace eval ::juniperconnect {
 
   variable expect_timeout_default 10
   variable expect_timeout $expect_timeout_default
+
+  #options variable
+  # - "outputlevel": 
+  #     * normal (default) will allow expect sessions to be echoed to stdout
+  #     * quiet will suppress expect session output 
+  variable options 
+  array unset options
+  set options(initialized) 0
 
   #cli output
   variable output {}
@@ -151,6 +161,23 @@ namespace eval ::juniperconnect {
     variable session_array
     variable rp_prompt_array
     variable end_of_message
+    variable options
+    if {!$options(initialized)} {
+      #read in config.yml from same folder as juniperconnect
+      set jcpath [lindex [package ifneeded JuniperConnect $juniperconnect::version] end]
+      set jcpath [file dir $jcpath]
+      set config_dict [yaml::yaml2dict [read_file "${jcpath}/config.yml"]]
+      dict for {key value} $config_dict {
+        if {![info exists options($key)]} {
+          set options($key) $value
+        }
+      }
+      set options(initialized) 1
+    }
+    if {$options(outputlevel) eq "quiet"} {
+      log_user 0
+    }
+    #parray options
     set prompt $rp_prompt_array(Juniper)
     set success 0
     set send_slow {1 .1}
@@ -273,10 +300,11 @@ namespace eval ::juniperconnect {
       return -code error "juniperconnect::connectssh: Error count exceeded for error $err_string error"
     }
     set timeout 10
-    log_user 1
     switch -- $style {
       "cli" {
-        puts "\njuniperconnect::connectssh success"
+        if {$options(outputlevel) ne "quiet" } {
+          puts "\njuniperconnect::connectssh $address success"
+        }
         set session_array($address) $spawn_id
         send "set cli screen-length 0\n"
         expect -re $prompt {send "set cli screen-width 0\n"}
@@ -297,6 +325,7 @@ namespace eval ::juniperconnect {
         return -code error "[info proc]: ERROR: unexpected value for style: '$style'"
       }
     }
+    log_user 1
     return $spawn_id
   }
 
@@ -366,6 +395,12 @@ namespace eval ::juniperconnect {
     variable session_array
     set spawn_id $session_array($address)
 
+    #suppress output if outputlevel is set to quiet
+    variable options
+    if {$options(outputlevel) eq "quiet"} {
+      log_user 0
+    }
+
     #send initial carriage-return then expect first prompt
     send "\n"
     expect {
@@ -431,6 +466,7 @@ namespace eval ::juniperconnect {
     }
     set output [string trimright [textproc::nrange $output 0 end-1]]
     set output [join [split $output "\r"] ""]
+    log_user 1
     return $output
   }
 
@@ -492,6 +528,12 @@ namespace eval ::juniperconnect {
     variable session_array
     set spawn_id $session_array(nc:$address)
 
+    #suppress output if outputlevel is set to quiet
+    variable options
+    if {$options(outputlevel) eq "quiet"} {
+      log_user 0
+    }
+
     variable end_of_message
 
     #send rpc and end sequence
@@ -522,6 +564,7 @@ namespace eval ::juniperconnect {
     set nc_output [nrange $nc_output 1 end-1]
     set doc [dom parse $nc_output]
     $doc xslt $juniperconnect::xslt_remove_namespace cleandoc
+    log_user 1
     switch -- $style {
       default -
       "strip" {
@@ -554,6 +597,11 @@ namespace eval ::juniperconnect {
       set result $netconf_hello($address)
     }
     return $result
+  }
+
+  proc quiet {} {
+    variable options
+    set options(outputlevel) "quiet"
   }
 
 }
