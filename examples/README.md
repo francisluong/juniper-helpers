@@ -5,6 +5,11 @@ userpass
 --------
 A sample username/password file.  One line each, username comes first.
 
+```
+username
+password
+```
+
 001_basic.tcl
 -------------
 
