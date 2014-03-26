@@ -5,9 +5,10 @@ package require Tcl     8.5
 package require tdom  0.8.3
 package require base64
 package require yaml
+package require homeless
 
 namespace eval ::juniperconnect {
-  namespace export connectssh disconnectssh send_textblock build_rpc send_rpc grep_output import_userpass
+  namespace export connectssh disconnectssh send_textblock send_config build_rpc send_rpc grep_output import_userpass
 
   variable version 1.0
   variable session_array
@@ -208,7 +209,7 @@ namespace eval ::juniperconnect {
       if {$catch_result>0} {
         return -code error "juniperconnect::connectssh $username@$address: failed to connect: $reason\n"
       }
-      set timeout 120
+      set timeout $juniperconnect::options(connect_timeout_sec)
       send "\n"
       expect {
         $end_of_message {
@@ -299,7 +300,7 @@ namespace eval ::juniperconnect {
       }
       return -code error "juniperconnect::connectssh: Error count exceeded for error $err_string error"
     }
-    set timeout 10
+    set timeout [timeout]
     switch -- $style {
       "cli" {
         if {$options(outputlevel) ne "quiet" } {
@@ -364,7 +365,8 @@ namespace eval ::juniperconnect {
     #revert the expect_timeout value to default
     variable expect_timeout
     variable expect_timeout_default
-    set expect_timeout $expect_timeout_default
+    #we get the timeout from config.yml:timeout_sec
+    set expect_timeout $juniperconnect::options(timeout_sec)
   }
 
   proc timeout {} {
@@ -384,14 +386,12 @@ namespace eval ::juniperconnect {
     variable rp_prompt_array
     set prompt $rp_prompt_array(Juniper)
     set procname "send_commands"
-    set tclfilename [namespace current]
 
     #initialize return output
     variable output
     set output {}
 
     set timeout [timeout]
-    set mode "cli"
     variable session_array
     set spawn_id $session_array($address)
 
@@ -413,6 +413,110 @@ namespace eval ::juniperconnect {
       }
     }
     #loop through commands list
+    _send_commands_loop $spawn_id $commands_list output
+    set output [string trimright [textproc::nrange $output 0 end-1]]
+    set output [join [split $output "\r"] ""]
+    log_user 1
+    return $output
+  }
+
+  proc send_config {address config_textblock {merge_set_override "cli"} {confirmed "0"}} {
+    #send a list of commands to the router expecting prompt between each
+    set prompt $juniperconnect::rp_prompt_array(Juniper)
+    set procname "send_config"
+
+    #initialize return output
+    variable output
+    set output {}
+
+    set timeout [timeout]
+    variable session_array
+    set spawn_id $session_array($address)
+
+    #suppress output if outputlevel is set to quiet
+    variable options
+    if {$options(outputlevel) eq "quiet"} {
+      log_user 0
+    }
+
+    #send initial carriage-return then expect first prompt
+    _verify_initial_send_prompt $spawn_id
+    #enter configuration mode
+    send "configure private\r"
+    expect {
+      "The configuration has been changed but not committed" {
+        return -code error "ERROR: Juniper router $router has uncommited changes - exitting"
+      }
+      "Entering configuration mode" {
+        append output [string trimleft $expect_out(buffer)]
+      }
+    }
+    #initiate load
+    set config_textblock [string trim $config_textblock]
+    expect {
+      -re $prompt {
+        append output [string trimleft $expect_out(buffer)]
+      }
+      timeout {
+        return -code error "$procname: TIMEOUT waiting for prompt"
+      }
+    }
+    switch -- $merge_set_override {
+      "patch" -
+      "override" -
+      "set" -
+      "merge" {
+        send "load $merge_set_override terminal\r"
+        #add CTRL-d to config textblock
+        append config_textblock "\n\004"
+        #loop through config textblock
+        foreach line [nsplit $config_textblock] {
+          expect -re ".*(\r|\n)" {
+            append output $expect_out(buffer)
+          }
+          send "$line\r"
+        }
+        expect {
+          "load complete" {}
+          timeout {
+            return -code error "$procname: TIMEOUT waiting for 'load complete'"
+          }
+        }
+      }
+      "cli" {
+        set commands_list [nsplit $config_textblock]
+        _send_commands_loop $spawn_id $commands_list output
+      }
+      default {
+        return -code error "ERROR: unexpected value for merge_set_override: $merge_set_override"
+      }
+    }
+    _commit_and_quit_config $spawn_id output
+    set output [string trimright [textproc::nrange $output 0 end-1]]
+    set output [join [split $output "\r"] ""]
+    log_user 1
+  }
+
+  proc _verify_initial_send_prompt {expect_spawn_id} {
+    set spawn_id $expect_spawn_id
+    set timeout [timeout]
+    set prompt $juniperconnect::rp_prompt_array(Juniper)
+    send "\n"
+    expect {
+      -re $prompt {
+      }
+      timeout {
+        return -code error "ERROR: $procname: TIMEOUT waiting for initial prompt"
+      }
+    }
+  }
+
+  proc _send_commands_loop {expect_spawn_id commands_list output_varname} {
+    upvar $output_varname output
+    set spawn_id $expect_spawn_id
+    set timeout [timeout]
+    set mode "cli"
+    set prompt $juniperconnect::rp_prompt_array(Juniper)
     foreach this_command $commands_list {
       #determine if we need to adjust the prompt based on mode switches
       # need a simpler prompt for shell
@@ -422,9 +526,7 @@ namespace eval ::juniperconnect {
           switch -- $this_command {
             "start shell" {
               set mode "shell"
-              variable basic_rp_prompt_regexp
-              #set prompt "%"
-              set prompt $basic_rp_prompt_regexp
+              set prompt $juniperconnect::basic_rp_prompt_regexp
             }
           }
         }
@@ -433,7 +535,7 @@ namespace eval ::juniperconnect {
           switch -- $this_command {
             "exit" {
               set mode "cli"
-              set prompt $rp_prompt_array(Juniper)
+              set prompt $juniperconnect::rp_prompt_array(Juniper)
             }
           }
         }
@@ -446,7 +548,6 @@ namespace eval ::juniperconnect {
         -re $prompt {
           #got prompt - exit condition for expect-loop
           append output $expect_out(buffer)
-          #puts "\n\n>> EXIT PROMPT MATCH: $expect_out(0,string)\nexit buffer:\n>---\n$expect_out(buffer)\n---<\n\n"
           if {!$output_received} {
             exp_continue
           }
@@ -455,20 +556,59 @@ namespace eval ::juniperconnect {
           #this resets the timeout timer using newline-continues
           set output_received 1
           append output $expect_out(buffer)
-          #puts "\n>> loop buffer:\n>---\n$expect_out(buffer)\n---<\n\n"
           exp_continue
         }
         timeout {
           puts "$procname: TIMEOUT waiting for prompt"
-          #because of the for-loop this sucker may just keep going, but it's possible the cli has siezed up
+          #no crash because of the for-loop this sucker may just keep going, but it's possible the cli has siezed up
         }
       }
     }
-    set output [string trimright [textproc::nrange $output 0 end-1]]
-    set output [join [split $output "\r"] ""]
-    log_user 1
-    return $output
   }
+
+  proc _commit_and_quit_config {expect_spawn_id output_varname} {
+    upvar $output_varname output
+    set prompt $juniperconnect::rp_prompt_array(Juniper)
+    set spawn_id $expect_spawn_id
+    set timeout $juniperconnect::options(commit_timeout_sec)
+    send "show | compare\r"
+    expect {
+      -re $prompt {}
+      timeout {
+        return -code error "ERROR: $procname: timeout waiting for initial prompt"
+      }
+    }
+    send "commit and-quit\r"
+    expect {
+      "error: configuration check-out failed" {
+        return -code error "ERROR: Juniper configuration commit failed" 
+      }
+      {re0:} {
+        append output $expect_out(buffer)
+        exp_continue
+      }
+      {re1:} {
+        append output $expect_out(buffer)
+        exp_continue
+      }
+      "configuration check succeeds" {
+        append output $expect_out(buffer)
+        exp_continue
+      }
+      "commit complete" {
+        append output $expect_out(buffer)
+        exp_continue
+      }
+      -re $prompt {
+        append output $expect_out(buffer)
+      }
+      timeout {
+        puts "EXPECT TIMEOUT: $procname: waiting for final prompt"
+      }
+    }
+    set timeout [timeout]
+  }
+
 
   proc build_rpc {path_statement_textblock {indent "none"}} {
     variable netconf_msgid
@@ -516,7 +656,6 @@ namespace eval ::juniperconnect {
   proc send_rpc {address rpc {style "strip"}} {
     #send netconf rpc to the router and return the nc_output
     set procname "send_rpc"
-    set tclfilename [namespace current]
 
     #initialize return nc_output
     variable nc_output

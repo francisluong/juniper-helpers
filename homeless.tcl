@@ -25,6 +25,5 @@ namespace eval ::homeless {
   }
 
 
-
 }
 namespace import homeless::*

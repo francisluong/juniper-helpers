@@ -173,8 +173,5 @@ namespace eval ::gen {
     return $result_dict
   }
 
-  proc tmp {} {
-  }
-
 }
 namespace import gen::*
