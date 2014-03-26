@@ -20,7 +20,7 @@ Prerequisites
    * expect 
  - OpenSSH
 
-Installing these packages
+*Installing these packages*
 
 Ubuntu Install: 
 
