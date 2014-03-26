@@ -21,8 +21,18 @@ Prerequisites
  - OpenSSH
 
 Installing these packages
- * Ubuntu Install: _sudo apt-get install -y tcl8.5 expect tcllib tdom openssh_
- * Fedora/Redhat/Centos Install: _sudo yum install -y tcl expect tcllib tdom openssh_
+
+Ubuntu Install: 
+
+```
+sudo apt-get install -y tcl8.5 expect tcllib tdom openssh
+```
+ 
+Fedora/Redhat/Centos Install: 
+
+```
+sudo yum install -y tcl expect tcllib tdom openssh
+```
 
 Getting Started
 ---------------
