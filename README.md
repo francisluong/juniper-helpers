@@ -35,7 +35,7 @@ Steps for BASH:
    * _export TCLLIBPATH=/home/fluong/juniper-helpers_
  - ...or you can symlink the folder from a place listed in $tcl_pkgPath
    * e.g. 'sudo ln -s /home/fluong/juniper-helpers /usr/lib/juniper-helpers'
- - create a userpass file
+ - create a [userpass](https://github.com/francisluong/juniper-helpers/blob/master/examples/userpass) file
    * first line should be username
    * second line should have the password
    * e.g. _examples/userpass_
