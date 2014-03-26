@@ -29,6 +29,10 @@ lab@R1> show chassis hardware detail | display xml rpc
 
 003_netconf_basic.tcl
 ---------------------
-
 A netconf variant on a simple testcase. Login to a router as netconf, verify that the Chassis is either JunosV or MX. Saves a results file to /var/tmp/results.
+
+100_yaml_config_template.tcl
+-----------------------------
+Takes a command-line argument: path to a yaml file which specifies the config to be generated.  An [example](https://github.com/francisluong/juniper-helpers/blob/master/examples/100_example.yml) is provided.  Outputs the generated configuration to stdout.
+
 
