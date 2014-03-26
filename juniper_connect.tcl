@@ -392,8 +392,7 @@ namespace eval ::juniperconnect {
     set output {}
 
     set timeout [timeout]
-    variable session_array
-    set spawn_id $session_array($address)
+    set spawn_id $juniperconnect::session_array($address)
 
     #suppress output if outputlevel is set to quiet
     variable options
@@ -402,16 +401,7 @@ namespace eval ::juniperconnect {
     }
 
     #send initial carriage-return then expect first prompt
-    send "\n"
-    expect {
-      -re $prompt {
-        append output [string trimleft $expect_out(buffer)]
-        #puts "\n\n>> ENTER PROMPT MATCH: $expect_out(0,string)\nCommands: $commands_list\n\n"
-      }
-      timeout {
-        return -code error "ERROR: $procname: TIMEOUT waiting for initial prompt"
-      }
-    }
+    _verify_initial_send_prompt $spawn_id output
     #loop through commands list
     _send_commands_loop $spawn_id $commands_list output
     set output [string trimright [textproc::nrange $output 0 end-1]]
@@ -430,8 +420,7 @@ namespace eval ::juniperconnect {
     set output {}
 
     set timeout [timeout]
-    variable session_array
-    set spawn_id $session_array($address)
+    set spawn_id $juniperconnect::session_array($address)
 
     #suppress output if outputlevel is set to quiet
     variable options
@@ -440,7 +429,7 @@ namespace eval ::juniperconnect {
     }
 
     #send initial carriage-return then expect first prompt
-    _verify_initial_send_prompt $spawn_id
+    _verify_initial_send_prompt $spawn_id output
     #enter configuration mode
     send "configure private\r"
     expect {
@@ -466,11 +455,13 @@ namespace eval ::juniperconnect {
       "override" -
       "set" -
       "merge" {
+        #load set/merge/patch/override terminal
         send "load $merge_set_override terminal\r"
         #add CTRL-d to config textblock
         append config_textblock "\n\004"
         #loop through config textblock
         foreach line [nsplit $config_textblock] {
+          after 5
           expect -re ".*(\r|\n)" {
             append output $expect_out(buffer)
           }
@@ -484,6 +475,7 @@ namespace eval ::juniperconnect {
         }
       }
       "cli" {
+        #default mode... act like send_commands
         set commands_list [nsplit $config_textblock]
         _send_commands_loop $spawn_id $commands_list output
       }
@@ -497,13 +489,15 @@ namespace eval ::juniperconnect {
     log_user 1
   }
 
-  proc _verify_initial_send_prompt {expect_spawn_id} {
+  proc _verify_initial_send_prompt {expect_spawn_id output_varname} {
+    upvar $output_varname output
     set spawn_id $expect_spawn_id
     set timeout [timeout]
     set prompt $juniperconnect::rp_prompt_array(Juniper)
     send "\n"
     expect {
       -re $prompt {
+        append output [string trimleft $expect_out(buffer)]
       }
       timeout {
         return -code error "ERROR: $procname: TIMEOUT waiting for initial prompt"
