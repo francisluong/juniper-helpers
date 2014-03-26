@@ -2,3 +2,5 @@ outputlevel: normal
 connect_timeout_sec: 120
 commit_timeout_sec: 120
 timeout_sec: 10
+load_timeout_sec: 30
+commit_confirmed_timeout_min: 5

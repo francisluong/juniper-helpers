@@ -14,17 +14,26 @@ import_userpass [lindex $argv 1]
 puts "r_username: '$juniperconnect::r_username'"
 
 connectssh $router
-send_config $router "
+
+#1
+set config_textblock "
   annotate system 020_config.tcl
   annotate interfaces 020_config.tcl
-" set
-send_config $router "
-snmp {
+"
+send_config $router $config_textblock set
+
+#2
+set config_textblock "
+interfaces lo0 {
     description 020_config.tcl;
 }
-" merge
-send_config $router "
-  annotate system \"\"
-  annotate interfaces \"\"
-  delete snmp
 "
+send_config $router $config_textblock merge
+
+#3
+set config_textblock "
+  annotate system ''
+  annotate interfaces ''
+  delete interfaces lo0 description
+"
+send_config $router $config_textblock cli confirmed
