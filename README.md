@@ -53,6 +53,11 @@ Steps for BASH:
    * Usage: *examples/001\_basic.tcl (router_address) (path_to_userpass_file)*
    * you will need a Juniper router you have access to in order to execute this script
 
+```
+export TCLLIBPATH=/home/fluong/juniper-helpers
+sudo ln -s /home/fluong/juniper-helpers /usr/lib/juniper-helpers
+```
+
 Library Packages
 -----------------
  - JuniperConnect - Expect-based SSH/Netconf handlers
