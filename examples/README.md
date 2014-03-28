@@ -55,9 +55,9 @@ A netconf variant on a simple testcase. Login to a router as netconf, verify tha
 -----------------------------
 
 ```
-Usage: ./100_yaml_config_template.tcl <path_to_YAML_file - e.g. 100_example.yml>
+Usage: ./100_yaml_config_template.tcl <path_to_YAML_file - e.g. 101_misc_examples_template.yml>
 ```
 
-Takes a command-line argument: path to a yaml file which specifies the config to be generated.  An [example](https://github.com/francisluong/juniper-helpers/blob/master/examples/100_example.yml) is provided.  Outputs the generated configuration to stdout.
+Takes a command-line argument: path to a yaml file which specifies the config to be generated.  An [example](https://github.com/francisluong/juniper-helpers/blob/master/examples/101_misc_examples_template.yml) is provided.  Outputs the [generated configuration](https://github.com/francisluong/juniper-helpers/blob/master/examples/101_misc_examples_template.yml.output.txt) to stdout.
 
 

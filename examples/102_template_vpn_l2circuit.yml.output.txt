@@ -1,0 +1,565 @@
+#l2circuit-site-a
+set interface ge-0/0/0 flexible-vlan-tagging
+set interface ge-0/0/0 encapsulation flexible-ethernet-services
+set interface ge-0/0/0 mtu 9188
+set interface ge-0/0/0 unit 1 vlan-id 1000
+set interface ge-0/0/0 unit 1 encapsulation vlan-ccc
+set interface ge-0/0/0 unit 1 family ccc
+protocols l2circuit neighbor 10.1.1.1 interface ge-0/0/0.1 virtual-circuit-id 20000
+set interface ge-0/0/1 flexible-vlan-tagging
+set interface ge-0/0/1 encapsulation flexible-ethernet-services
+set interface ge-0/0/1 mtu 9188
+set interface ge-0/0/1 unit 2 vlan-id 1000
+set interface ge-0/0/1 unit 2 encapsulation vlan-ccc
+set interface ge-0/0/1 unit 2 family ccc
+protocols l2circuit neighbor 10.1.1.1 interface ge-0/0/1.2 virtual-circuit-id 20001
+set interface ge-0/0/2 flexible-vlan-tagging
+set interface ge-0/0/2 encapsulation flexible-ethernet-services
+set interface ge-0/0/2 mtu 9188
+set interface ge-0/0/2 unit 3 vlan-id 1000
+set interface ge-0/0/2 unit 3 encapsulation vlan-ccc
+set interface ge-0/0/2 unit 3 family ccc
+protocols l2circuit neighbor 10.1.1.1 interface ge-0/0/2.3 virtual-circuit-id 20002
+set interface ge-0/0/3 flexible-vlan-tagging
+set interface ge-0/0/3 encapsulation flexible-ethernet-services
+set interface ge-0/0/3 mtu 9188
+set interface ge-0/0/3 unit 4 vlan-id 1000
+set interface ge-0/0/3 unit 4 encapsulation vlan-ccc
+set interface ge-0/0/3 unit 4 family ccc
+protocols l2circuit neighbor 10.1.1.1 interface ge-0/0/3.4 virtual-circuit-id 20003
+set interface ge-0/0/4 flexible-vlan-tagging
+set interface ge-0/0/4 encapsulation flexible-ethernet-services
+set interface ge-0/0/4 mtu 9188
+set interface ge-0/0/4 unit 5 vlan-id 1000
+set interface ge-0/0/4 unit 5 encapsulation vlan-ccc
+set interface ge-0/0/4 unit 5 family ccc
+protocols l2circuit neighbor 10.1.1.1 interface ge-0/0/4.5 virtual-circuit-id 20004
+set interface ge-0/0/5 flexible-vlan-tagging
+set interface ge-0/0/5 encapsulation flexible-ethernet-services
+set interface ge-0/0/5 mtu 9188
+set interface ge-0/0/5 unit 6 vlan-id 1000
+set interface ge-0/0/5 unit 6 encapsulation vlan-ccc
+set interface ge-0/0/5 unit 6 family ccc
+protocols l2circuit neighbor 10.1.1.1 interface ge-0/0/5.6 virtual-circuit-id 20005
+set interface ge-0/0/6 flexible-vlan-tagging
+set interface ge-0/0/6 encapsulation flexible-ethernet-services
+set interface ge-0/0/6 mtu 9188
+set interface ge-0/0/6 unit 7 vlan-id 1000
+set interface ge-0/0/6 unit 7 encapsulation vlan-ccc
+set interface ge-0/0/6 unit 7 family ccc
+protocols l2circuit neighbor 10.1.1.1 interface ge-0/0/6.7 virtual-circuit-id 20006
+set interface ge-0/0/7 flexible-vlan-tagging
+set interface ge-0/0/7 encapsulation flexible-ethernet-services
+set interface ge-0/0/7 mtu 9188
+set interface ge-0/0/7 unit 8 vlan-id 1000
+set interface ge-0/0/7 unit 8 encapsulation vlan-ccc
+set interface ge-0/0/7 unit 8 family ccc
+protocols l2circuit neighbor 10.1.1.1 interface ge-0/0/7.8 virtual-circuit-id 20007
+set interface ge-0/0/8 flexible-vlan-tagging
+set interface ge-0/0/8 encapsulation flexible-ethernet-services
+set interface ge-0/0/8 mtu 9188
+set interface ge-0/0/8 unit 9 vlan-id 1000
+set interface ge-0/0/8 unit 9 encapsulation vlan-ccc
+set interface ge-0/0/8 unit 9 family ccc
+protocols l2circuit neighbor 10.1.1.1 interface ge-0/0/8.9 virtual-circuit-id 20008
+set interface ge-0/0/9 flexible-vlan-tagging
+set interface ge-0/0/9 encapsulation flexible-ethernet-services
+set interface ge-0/0/9 mtu 9188
+set interface ge-0/0/9 unit 10 vlan-id 1000
+set interface ge-0/0/9 unit 10 encapsulation vlan-ccc
+set interface ge-0/0/9 unit 10 family ccc
+protocols l2circuit neighbor 10.1.1.1 interface ge-0/0/9.10 virtual-circuit-id 20009
+set interface ge-0/1/0 flexible-vlan-tagging
+set interface ge-0/1/0 encapsulation flexible-ethernet-services
+set interface ge-0/1/0 mtu 9188
+set interface ge-0/1/0 unit 11 vlan-id 1000
+set interface ge-0/1/0 unit 11 encapsulation vlan-ccc
+set interface ge-0/1/0 unit 11 family ccc
+protocols l2circuit neighbor 10.1.1.1 interface ge-0/1/0.11 virtual-circuit-id 20010
+set interface ge-0/1/1 flexible-vlan-tagging
+set interface ge-0/1/1 encapsulation flexible-ethernet-services
+set interface ge-0/1/1 mtu 9188
+set interface ge-0/1/1 unit 12 vlan-id 1000
+set interface ge-0/1/1 unit 12 encapsulation vlan-ccc
+set interface ge-0/1/1 unit 12 family ccc
+protocols l2circuit neighbor 10.1.1.1 interface ge-0/1/1.12 virtual-circuit-id 20011
+set interface ge-0/1/2 flexible-vlan-tagging
+set interface ge-0/1/2 encapsulation flexible-ethernet-services
+set interface ge-0/1/2 mtu 9188
+set interface ge-0/1/2 unit 13 vlan-id 1000
+set interface ge-0/1/2 unit 13 encapsulation vlan-ccc
+set interface ge-0/1/2 unit 13 family ccc
+protocols l2circuit neighbor 10.1.1.1 interface ge-0/1/2.13 virtual-circuit-id 20012
+set interface ge-0/1/3 flexible-vlan-tagging
+set interface ge-0/1/3 encapsulation flexible-ethernet-services
+set interface ge-0/1/3 mtu 9188
+set interface ge-0/1/3 unit 14 vlan-id 1000
+set interface ge-0/1/3 unit 14 encapsulation vlan-ccc
+set interface ge-0/1/3 unit 14 family ccc
+protocols l2circuit neighbor 10.1.1.1 interface ge-0/1/3.14 virtual-circuit-id 20013
+set interface ge-0/1/4 flexible-vlan-tagging
+set interface ge-0/1/4 encapsulation flexible-ethernet-services
+set interface ge-0/1/4 mtu 9188
+set interface ge-0/1/4 unit 15 vlan-id 1000
+set interface ge-0/1/4 unit 15 encapsulation vlan-ccc
+set interface ge-0/1/4 unit 15 family ccc
+protocols l2circuit neighbor 10.1.1.1 interface ge-0/1/4.15 virtual-circuit-id 20014
+set interface ge-0/1/5 flexible-vlan-tagging
+set interface ge-0/1/5 encapsulation flexible-ethernet-services
+set interface ge-0/1/5 mtu 9188
+set interface ge-0/1/5 unit 16 vlan-id 1000
+set interface ge-0/1/5 unit 16 encapsulation vlan-ccc
+set interface ge-0/1/5 unit 16 family ccc
+protocols l2circuit neighbor 10.1.1.1 interface ge-0/1/5.16 virtual-circuit-id 20015
+set interface ge-0/1/6 flexible-vlan-tagging
+set interface ge-0/1/6 encapsulation flexible-ethernet-services
+set interface ge-0/1/6 mtu 9188
+set interface ge-0/1/6 unit 17 vlan-id 1000
+set interface ge-0/1/6 unit 17 encapsulation vlan-ccc
+set interface ge-0/1/6 unit 17 family ccc
+protocols l2circuit neighbor 10.1.1.1 interface ge-0/1/6.17 virtual-circuit-id 20016
+set interface ge-0/1/7 flexible-vlan-tagging
+set interface ge-0/1/7 encapsulation flexible-ethernet-services
+set interface ge-0/1/7 mtu 9188
+set interface ge-0/1/7 unit 18 vlan-id 1000
+set interface ge-0/1/7 unit 18 encapsulation vlan-ccc
+set interface ge-0/1/7 unit 18 family ccc
+protocols l2circuit neighbor 10.1.1.1 interface ge-0/1/7.18 virtual-circuit-id 20017
+set interface ge-0/1/8 flexible-vlan-tagging
+set interface ge-0/1/8 encapsulation flexible-ethernet-services
+set interface ge-0/1/8 mtu 9188
+set interface ge-0/1/8 unit 19 vlan-id 1000
+set interface ge-0/1/8 unit 19 encapsulation vlan-ccc
+set interface ge-0/1/8 unit 19 family ccc
+protocols l2circuit neighbor 10.1.1.1 interface ge-0/1/8.19 virtual-circuit-id 20018
+set interface ge-0/1/9 flexible-vlan-tagging
+set interface ge-0/1/9 encapsulation flexible-ethernet-services
+set interface ge-0/1/9 mtu 9188
+set interface ge-0/1/9 unit 20 vlan-id 1000
+set interface ge-0/1/9 unit 20 encapsulation vlan-ccc
+set interface ge-0/1/9 unit 20 family ccc
+protocols l2circuit neighbor 10.1.1.1 interface ge-0/1/9.20 virtual-circuit-id 20019
+set interface ge-0/2/0 flexible-vlan-tagging
+set interface ge-0/2/0 encapsulation flexible-ethernet-services
+set interface ge-0/2/0 mtu 9188
+set interface ge-0/2/0 unit 21 vlan-id 1000
+set interface ge-0/2/0 unit 21 encapsulation vlan-ccc
+set interface ge-0/2/0 unit 21 family ccc
+protocols l2circuit neighbor 10.1.1.1 interface ge-0/2/0.21 virtual-circuit-id 20020
+set interface ge-0/2/1 flexible-vlan-tagging
+set interface ge-0/2/1 encapsulation flexible-ethernet-services
+set interface ge-0/2/1 mtu 9188
+set interface ge-0/2/1 unit 22 vlan-id 1000
+set interface ge-0/2/1 unit 22 encapsulation vlan-ccc
+set interface ge-0/2/1 unit 22 family ccc
+protocols l2circuit neighbor 10.1.1.1 interface ge-0/2/1.22 virtual-circuit-id 20021
+set interface ge-0/2/2 flexible-vlan-tagging
+set interface ge-0/2/2 encapsulation flexible-ethernet-services
+set interface ge-0/2/2 mtu 9188
+set interface ge-0/2/2 unit 23 vlan-id 1000
+set interface ge-0/2/2 unit 23 encapsulation vlan-ccc
+set interface ge-0/2/2 unit 23 family ccc
+protocols l2circuit neighbor 10.1.1.1 interface ge-0/2/2.23 virtual-circuit-id 20022
+set interface ge-0/2/3 flexible-vlan-tagging
+set interface ge-0/2/3 encapsulation flexible-ethernet-services
+set interface ge-0/2/3 mtu 9188
+set interface ge-0/2/3 unit 24 vlan-id 1000
+set interface ge-0/2/3 unit 24 encapsulation vlan-ccc
+set interface ge-0/2/3 unit 24 family ccc
+protocols l2circuit neighbor 10.1.1.1 interface ge-0/2/3.24 virtual-circuit-id 20023
+set interface ge-0/2/4 flexible-vlan-tagging
+set interface ge-0/2/4 encapsulation flexible-ethernet-services
+set interface ge-0/2/4 mtu 9188
+set interface ge-0/2/4 unit 25 vlan-id 1000
+set interface ge-0/2/4 unit 25 encapsulation vlan-ccc
+set interface ge-0/2/4 unit 25 family ccc
+protocols l2circuit neighbor 10.1.1.1 interface ge-0/2/4.25 virtual-circuit-id 20024
+set interface ge-0/2/5 flexible-vlan-tagging
+set interface ge-0/2/5 encapsulation flexible-ethernet-services
+set interface ge-0/2/5 mtu 9188
+set interface ge-0/2/5 unit 26 vlan-id 1000
+set interface ge-0/2/5 unit 26 encapsulation vlan-ccc
+set interface ge-0/2/5 unit 26 family ccc
+protocols l2circuit neighbor 10.1.1.1 interface ge-0/2/5.26 virtual-circuit-id 20025
+set interface ge-0/2/6 flexible-vlan-tagging
+set interface ge-0/2/6 encapsulation flexible-ethernet-services
+set interface ge-0/2/6 mtu 9188
+set interface ge-0/2/6 unit 27 vlan-id 1000
+set interface ge-0/2/6 unit 27 encapsulation vlan-ccc
+set interface ge-0/2/6 unit 27 family ccc
+protocols l2circuit neighbor 10.1.1.1 interface ge-0/2/6.27 virtual-circuit-id 20026
+set interface ge-0/2/7 flexible-vlan-tagging
+set interface ge-0/2/7 encapsulation flexible-ethernet-services
+set interface ge-0/2/7 mtu 9188
+set interface ge-0/2/7 unit 28 vlan-id 1000
+set interface ge-0/2/7 unit 28 encapsulation vlan-ccc
+set interface ge-0/2/7 unit 28 family ccc
+protocols l2circuit neighbor 10.1.1.1 interface ge-0/2/7.28 virtual-circuit-id 20027
+set interface ge-0/2/8 flexible-vlan-tagging
+set interface ge-0/2/8 encapsulation flexible-ethernet-services
+set interface ge-0/2/8 mtu 9188
+set interface ge-0/2/8 unit 29 vlan-id 1000
+set interface ge-0/2/8 unit 29 encapsulation vlan-ccc
+set interface ge-0/2/8 unit 29 family ccc
+protocols l2circuit neighbor 10.1.1.1 interface ge-0/2/8.29 virtual-circuit-id 20028
+set interface ge-0/2/9 flexible-vlan-tagging
+set interface ge-0/2/9 encapsulation flexible-ethernet-services
+set interface ge-0/2/9 mtu 9188
+set interface ge-0/2/9 unit 30 vlan-id 1000
+set interface ge-0/2/9 unit 30 encapsulation vlan-ccc
+set interface ge-0/2/9 unit 30 family ccc
+protocols l2circuit neighbor 10.1.1.1 interface ge-0/2/9.30 virtual-circuit-id 20029
+set interface ge-0/3/0 flexible-vlan-tagging
+set interface ge-0/3/0 encapsulation flexible-ethernet-services
+set interface ge-0/3/0 mtu 9188
+set interface ge-0/3/0 unit 31 vlan-id 1000
+set interface ge-0/3/0 unit 31 encapsulation vlan-ccc
+set interface ge-0/3/0 unit 31 family ccc
+protocols l2circuit neighbor 10.1.1.1 interface ge-0/3/0.31 virtual-circuit-id 20030
+set interface ge-0/3/1 flexible-vlan-tagging
+set interface ge-0/3/1 encapsulation flexible-ethernet-services
+set interface ge-0/3/1 mtu 9188
+set interface ge-0/3/1 unit 32 vlan-id 1000
+set interface ge-0/3/1 unit 32 encapsulation vlan-ccc
+set interface ge-0/3/1 unit 32 family ccc
+protocols l2circuit neighbor 10.1.1.1 interface ge-0/3/1.32 virtual-circuit-id 20031
+set interface ge-0/3/2 flexible-vlan-tagging
+set interface ge-0/3/2 encapsulation flexible-ethernet-services
+set interface ge-0/3/2 mtu 9188
+set interface ge-0/3/2 unit 33 vlan-id 1000
+set interface ge-0/3/2 unit 33 encapsulation vlan-ccc
+set interface ge-0/3/2 unit 33 family ccc
+protocols l2circuit neighbor 10.1.1.1 interface ge-0/3/2.33 virtual-circuit-id 20032
+set interface ge-0/3/3 flexible-vlan-tagging
+set interface ge-0/3/3 encapsulation flexible-ethernet-services
+set interface ge-0/3/3 mtu 9188
+set interface ge-0/3/3 unit 34 vlan-id 1000
+set interface ge-0/3/3 unit 34 encapsulation vlan-ccc
+set interface ge-0/3/3 unit 34 family ccc
+protocols l2circuit neighbor 10.1.1.1 interface ge-0/3/3.34 virtual-circuit-id 20033
+set interface ge-0/3/4 flexible-vlan-tagging
+set interface ge-0/3/4 encapsulation flexible-ethernet-services
+set interface ge-0/3/4 mtu 9188
+set interface ge-0/3/4 unit 35 vlan-id 1000
+set interface ge-0/3/4 unit 35 encapsulation vlan-ccc
+set interface ge-0/3/4 unit 35 family ccc
+protocols l2circuit neighbor 10.1.1.1 interface ge-0/3/4.35 virtual-circuit-id 20034
+set interface ge-0/3/5 flexible-vlan-tagging
+set interface ge-0/3/5 encapsulation flexible-ethernet-services
+set interface ge-0/3/5 mtu 9188
+set interface ge-0/3/5 unit 36 vlan-id 1000
+set interface ge-0/3/5 unit 36 encapsulation vlan-ccc
+set interface ge-0/3/5 unit 36 family ccc
+protocols l2circuit neighbor 10.1.1.1 interface ge-0/3/5.36 virtual-circuit-id 20035
+set interface ge-0/3/6 flexible-vlan-tagging
+set interface ge-0/3/6 encapsulation flexible-ethernet-services
+set interface ge-0/3/6 mtu 9188
+set interface ge-0/3/6 unit 37 vlan-id 1000
+set interface ge-0/3/6 unit 37 encapsulation vlan-ccc
+set interface ge-0/3/6 unit 37 family ccc
+protocols l2circuit neighbor 10.1.1.1 interface ge-0/3/6.37 virtual-circuit-id 20036
+set interface ge-0/3/7 flexible-vlan-tagging
+set interface ge-0/3/7 encapsulation flexible-ethernet-services
+set interface ge-0/3/7 mtu 9188
+set interface ge-0/3/7 unit 38 vlan-id 1000
+set interface ge-0/3/7 unit 38 encapsulation vlan-ccc
+set interface ge-0/3/7 unit 38 family ccc
+protocols l2circuit neighbor 10.1.1.1 interface ge-0/3/7.38 virtual-circuit-id 20037
+set interface ge-0/3/8 flexible-vlan-tagging
+set interface ge-0/3/8 encapsulation flexible-ethernet-services
+set interface ge-0/3/8 mtu 9188
+set interface ge-0/3/8 unit 39 vlan-id 1000
+set interface ge-0/3/8 unit 39 encapsulation vlan-ccc
+set interface ge-0/3/8 unit 39 family ccc
+protocols l2circuit neighbor 10.1.1.1 interface ge-0/3/8.39 virtual-circuit-id 20038
+set interface ge-0/3/9 flexible-vlan-tagging
+set interface ge-0/3/9 encapsulation flexible-ethernet-services
+set interface ge-0/3/9 mtu 9188
+set interface ge-0/3/9 unit 40 vlan-id 1000
+set interface ge-0/3/9 unit 40 encapsulation vlan-ccc
+set interface ge-0/3/9 unit 40 family ccc
+protocols l2circuit neighbor 10.1.1.1 interface ge-0/3/9.40 virtual-circuit-id 20039
+
+#l2circuit-site-b
+set interface ge-1/0/0 flexible-vlan-tagging
+set interface ge-1/0/0 encapsulation flexible-ethernet-services
+set interface ge-1/0/0 mtu 9188
+set interface ge-1/0/0 unit 1 vlan-id 1000
+set interface ge-1/0/0 unit 1 encapsulation vlan-ccc
+set interface ge-1/0/0 unit 1 family ccc
+protocols l2circuit neighbor 10.1.1.2 interface ge-1/0/0.1 virtual-circuit-id 20000
+set interface ge-1/0/1 flexible-vlan-tagging
+set interface ge-1/0/1 encapsulation flexible-ethernet-services
+set interface ge-1/0/1 mtu 9188
+set interface ge-1/0/1 unit 2 vlan-id 1000
+set interface ge-1/0/1 unit 2 encapsulation vlan-ccc
+set interface ge-1/0/1 unit 2 family ccc
+protocols l2circuit neighbor 10.1.1.2 interface ge-1/0/1.2 virtual-circuit-id 20001
+set interface ge-1/0/2 flexible-vlan-tagging
+set interface ge-1/0/2 encapsulation flexible-ethernet-services
+set interface ge-1/0/2 mtu 9188
+set interface ge-1/0/2 unit 3 vlan-id 1000
+set interface ge-1/0/2 unit 3 encapsulation vlan-ccc
+set interface ge-1/0/2 unit 3 family ccc
+protocols l2circuit neighbor 10.1.1.2 interface ge-1/0/2.3 virtual-circuit-id 20002
+set interface ge-1/0/3 flexible-vlan-tagging
+set interface ge-1/0/3 encapsulation flexible-ethernet-services
+set interface ge-1/0/3 mtu 9188
+set interface ge-1/0/3 unit 4 vlan-id 1000
+set interface ge-1/0/3 unit 4 encapsulation vlan-ccc
+set interface ge-1/0/3 unit 4 family ccc
+protocols l2circuit neighbor 10.1.1.2 interface ge-1/0/3.4 virtual-circuit-id 20003
+set interface ge-1/0/4 flexible-vlan-tagging
+set interface ge-1/0/4 encapsulation flexible-ethernet-services
+set interface ge-1/0/4 mtu 9188
+set interface ge-1/0/4 unit 5 vlan-id 1000
+set interface ge-1/0/4 unit 5 encapsulation vlan-ccc
+set interface ge-1/0/4 unit 5 family ccc
+protocols l2circuit neighbor 10.1.1.2 interface ge-1/0/4.5 virtual-circuit-id 20004
+set interface ge-1/0/5 flexible-vlan-tagging
+set interface ge-1/0/5 encapsulation flexible-ethernet-services
+set interface ge-1/0/5 mtu 9188
+set interface ge-1/0/5 unit 6 vlan-id 1000
+set interface ge-1/0/5 unit 6 encapsulation vlan-ccc
+set interface ge-1/0/5 unit 6 family ccc
+protocols l2circuit neighbor 10.1.1.2 interface ge-1/0/5.6 virtual-circuit-id 20005
+set interface ge-1/0/6 flexible-vlan-tagging
+set interface ge-1/0/6 encapsulation flexible-ethernet-services
+set interface ge-1/0/6 mtu 9188
+set interface ge-1/0/6 unit 7 vlan-id 1000
+set interface ge-1/0/6 unit 7 encapsulation vlan-ccc
+set interface ge-1/0/6 unit 7 family ccc
+protocols l2circuit neighbor 10.1.1.2 interface ge-1/0/6.7 virtual-circuit-id 20006
+set interface ge-1/0/7 flexible-vlan-tagging
+set interface ge-1/0/7 encapsulation flexible-ethernet-services
+set interface ge-1/0/7 mtu 9188
+set interface ge-1/0/7 unit 8 vlan-id 1000
+set interface ge-1/0/7 unit 8 encapsulation vlan-ccc
+set interface ge-1/0/7 unit 8 family ccc
+protocols l2circuit neighbor 10.1.1.2 interface ge-1/0/7.8 virtual-circuit-id 20007
+set interface ge-1/0/8 flexible-vlan-tagging
+set interface ge-1/0/8 encapsulation flexible-ethernet-services
+set interface ge-1/0/8 mtu 9188
+set interface ge-1/0/8 unit 9 vlan-id 1000
+set interface ge-1/0/8 unit 9 encapsulation vlan-ccc
+set interface ge-1/0/8 unit 9 family ccc
+protocols l2circuit neighbor 10.1.1.2 interface ge-1/0/8.9 virtual-circuit-id 20008
+set interface ge-1/0/9 flexible-vlan-tagging
+set interface ge-1/0/9 encapsulation flexible-ethernet-services
+set interface ge-1/0/9 mtu 9188
+set interface ge-1/0/9 unit 10 vlan-id 1000
+set interface ge-1/0/9 unit 10 encapsulation vlan-ccc
+set interface ge-1/0/9 unit 10 family ccc
+protocols l2circuit neighbor 10.1.1.2 interface ge-1/0/9.10 virtual-circuit-id 20009
+set interface ge-1/1/0 flexible-vlan-tagging
+set interface ge-1/1/0 encapsulation flexible-ethernet-services
+set interface ge-1/1/0 mtu 9188
+set interface ge-1/1/0 unit 11 vlan-id 1000
+set interface ge-1/1/0 unit 11 encapsulation vlan-ccc
+set interface ge-1/1/0 unit 11 family ccc
+protocols l2circuit neighbor 10.1.1.2 interface ge-1/1/0.11 virtual-circuit-id 20010
+set interface ge-1/1/1 flexible-vlan-tagging
+set interface ge-1/1/1 encapsulation flexible-ethernet-services
+set interface ge-1/1/1 mtu 9188
+set interface ge-1/1/1 unit 12 vlan-id 1000
+set interface ge-1/1/1 unit 12 encapsulation vlan-ccc
+set interface ge-1/1/1 unit 12 family ccc
+protocols l2circuit neighbor 10.1.1.2 interface ge-1/1/1.12 virtual-circuit-id 20011
+set interface ge-1/1/2 flexible-vlan-tagging
+set interface ge-1/1/2 encapsulation flexible-ethernet-services
+set interface ge-1/1/2 mtu 9188
+set interface ge-1/1/2 unit 13 vlan-id 1000
+set interface ge-1/1/2 unit 13 encapsulation vlan-ccc
+set interface ge-1/1/2 unit 13 family ccc
+protocols l2circuit neighbor 10.1.1.2 interface ge-1/1/2.13 virtual-circuit-id 20012
+set interface ge-1/1/3 flexible-vlan-tagging
+set interface ge-1/1/3 encapsulation flexible-ethernet-services
+set interface ge-1/1/3 mtu 9188
+set interface ge-1/1/3 unit 14 vlan-id 1000
+set interface ge-1/1/3 unit 14 encapsulation vlan-ccc
+set interface ge-1/1/3 unit 14 family ccc
+protocols l2circuit neighbor 10.1.1.2 interface ge-1/1/3.14 virtual-circuit-id 20013
+set interface ge-1/1/4 flexible-vlan-tagging
+set interface ge-1/1/4 encapsulation flexible-ethernet-services
+set interface ge-1/1/4 mtu 9188
+set interface ge-1/1/4 unit 15 vlan-id 1000
+set interface ge-1/1/4 unit 15 encapsulation vlan-ccc
+set interface ge-1/1/4 unit 15 family ccc
+protocols l2circuit neighbor 10.1.1.2 interface ge-1/1/4.15 virtual-circuit-id 20014
+set interface ge-1/1/5 flexible-vlan-tagging
+set interface ge-1/1/5 encapsulation flexible-ethernet-services
+set interface ge-1/1/5 mtu 9188
+set interface ge-1/1/5 unit 16 vlan-id 1000
+set interface ge-1/1/5 unit 16 encapsulation vlan-ccc
+set interface ge-1/1/5 unit 16 family ccc
+protocols l2circuit neighbor 10.1.1.2 interface ge-1/1/5.16 virtual-circuit-id 20015
+set interface ge-1/1/6 flexible-vlan-tagging
+set interface ge-1/1/6 encapsulation flexible-ethernet-services
+set interface ge-1/1/6 mtu 9188
+set interface ge-1/1/6 unit 17 vlan-id 1000
+set interface ge-1/1/6 unit 17 encapsulation vlan-ccc
+set interface ge-1/1/6 unit 17 family ccc
+protocols l2circuit neighbor 10.1.1.2 interface ge-1/1/6.17 virtual-circuit-id 20016
+set interface ge-1/1/7 flexible-vlan-tagging
+set interface ge-1/1/7 encapsulation flexible-ethernet-services
+set interface ge-1/1/7 mtu 9188
+set interface ge-1/1/7 unit 18 vlan-id 1000
+set interface ge-1/1/7 unit 18 encapsulation vlan-ccc
+set interface ge-1/1/7 unit 18 family ccc
+protocols l2circuit neighbor 10.1.1.2 interface ge-1/1/7.18 virtual-circuit-id 20017
+set interface ge-1/1/8 flexible-vlan-tagging
+set interface ge-1/1/8 encapsulation flexible-ethernet-services
+set interface ge-1/1/8 mtu 9188
+set interface ge-1/1/8 unit 19 vlan-id 1000
+set interface ge-1/1/8 unit 19 encapsulation vlan-ccc
+set interface ge-1/1/8 unit 19 family ccc
+protocols l2circuit neighbor 10.1.1.2 interface ge-1/1/8.19 virtual-circuit-id 20018
+set interface ge-1/1/9 flexible-vlan-tagging
+set interface ge-1/1/9 encapsulation flexible-ethernet-services
+set interface ge-1/1/9 mtu 9188
+set interface ge-1/1/9 unit 20 vlan-id 1000
+set interface ge-1/1/9 unit 20 encapsulation vlan-ccc
+set interface ge-1/1/9 unit 20 family ccc
+protocols l2circuit neighbor 10.1.1.2 interface ge-1/1/9.20 virtual-circuit-id 20019
+set interface ge-1/2/0 flexible-vlan-tagging
+set interface ge-1/2/0 encapsulation flexible-ethernet-services
+set interface ge-1/2/0 mtu 9188
+set interface ge-1/2/0 unit 21 vlan-id 1000
+set interface ge-1/2/0 unit 21 encapsulation vlan-ccc
+set interface ge-1/2/0 unit 21 family ccc
+protocols l2circuit neighbor 10.1.1.2 interface ge-1/2/0.21 virtual-circuit-id 20020
+set interface ge-1/2/1 flexible-vlan-tagging
+set interface ge-1/2/1 encapsulation flexible-ethernet-services
+set interface ge-1/2/1 mtu 9188
+set interface ge-1/2/1 unit 22 vlan-id 1000
+set interface ge-1/2/1 unit 22 encapsulation vlan-ccc
+set interface ge-1/2/1 unit 22 family ccc
+protocols l2circuit neighbor 10.1.1.2 interface ge-1/2/1.22 virtual-circuit-id 20021
+set interface ge-1/2/2 flexible-vlan-tagging
+set interface ge-1/2/2 encapsulation flexible-ethernet-services
+set interface ge-1/2/2 mtu 9188
+set interface ge-1/2/2 unit 23 vlan-id 1000
+set interface ge-1/2/2 unit 23 encapsulation vlan-ccc
+set interface ge-1/2/2 unit 23 family ccc
+protocols l2circuit neighbor 10.1.1.2 interface ge-1/2/2.23 virtual-circuit-id 20022
+set interface ge-1/2/3 flexible-vlan-tagging
+set interface ge-1/2/3 encapsulation flexible-ethernet-services
+set interface ge-1/2/3 mtu 9188
+set interface ge-1/2/3 unit 24 vlan-id 1000
+set interface ge-1/2/3 unit 24 encapsulation vlan-ccc
+set interface ge-1/2/3 unit 24 family ccc
+protocols l2circuit neighbor 10.1.1.2 interface ge-1/2/3.24 virtual-circuit-id 20023
+set interface ge-1/2/4 flexible-vlan-tagging
+set interface ge-1/2/4 encapsulation flexible-ethernet-services
+set interface ge-1/2/4 mtu 9188
+set interface ge-1/2/4 unit 25 vlan-id 1000
+set interface ge-1/2/4 unit 25 encapsulation vlan-ccc
+set interface ge-1/2/4 unit 25 family ccc
+protocols l2circuit neighbor 10.1.1.2 interface ge-1/2/4.25 virtual-circuit-id 20024
+set interface ge-1/2/5 flexible-vlan-tagging
+set interface ge-1/2/5 encapsulation flexible-ethernet-services
+set interface ge-1/2/5 mtu 9188
+set interface ge-1/2/5 unit 26 vlan-id 1000
+set interface ge-1/2/5 unit 26 encapsulation vlan-ccc
+set interface ge-1/2/5 unit 26 family ccc
+protocols l2circuit neighbor 10.1.1.2 interface ge-1/2/5.26 virtual-circuit-id 20025
+set interface ge-1/2/6 flexible-vlan-tagging
+set interface ge-1/2/6 encapsulation flexible-ethernet-services
+set interface ge-1/2/6 mtu 9188
+set interface ge-1/2/6 unit 27 vlan-id 1000
+set interface ge-1/2/6 unit 27 encapsulation vlan-ccc
+set interface ge-1/2/6 unit 27 family ccc
+protocols l2circuit neighbor 10.1.1.2 interface ge-1/2/6.27 virtual-circuit-id 20026
+set interface ge-1/2/7 flexible-vlan-tagging
+set interface ge-1/2/7 encapsulation flexible-ethernet-services
+set interface ge-1/2/7 mtu 9188
+set interface ge-1/2/7 unit 28 vlan-id 1000
+set interface ge-1/2/7 unit 28 encapsulation vlan-ccc
+set interface ge-1/2/7 unit 28 family ccc
+protocols l2circuit neighbor 10.1.1.2 interface ge-1/2/7.28 virtual-circuit-id 20027
+set interface ge-1/2/8 flexible-vlan-tagging
+set interface ge-1/2/8 encapsulation flexible-ethernet-services
+set interface ge-1/2/8 mtu 9188
+set interface ge-1/2/8 unit 29 vlan-id 1000
+set interface ge-1/2/8 unit 29 encapsulation vlan-ccc
+set interface ge-1/2/8 unit 29 family ccc
+protocols l2circuit neighbor 10.1.1.2 interface ge-1/2/8.29 virtual-circuit-id 20028
+set interface ge-1/2/9 flexible-vlan-tagging
+set interface ge-1/2/9 encapsulation flexible-ethernet-services
+set interface ge-1/2/9 mtu 9188
+set interface ge-1/2/9 unit 30 vlan-id 1000
+set interface ge-1/2/9 unit 30 encapsulation vlan-ccc
+set interface ge-1/2/9 unit 30 family ccc
+protocols l2circuit neighbor 10.1.1.2 interface ge-1/2/9.30 virtual-circuit-id 20029
+set interface ge-1/3/0 flexible-vlan-tagging
+set interface ge-1/3/0 encapsulation flexible-ethernet-services
+set interface ge-1/3/0 mtu 9188
+set interface ge-1/3/0 unit 31 vlan-id 1000
+set interface ge-1/3/0 unit 31 encapsulation vlan-ccc
+set interface ge-1/3/0 unit 31 family ccc
+protocols l2circuit neighbor 10.1.1.2 interface ge-1/3/0.31 virtual-circuit-id 20030
+set interface ge-1/3/1 flexible-vlan-tagging
+set interface ge-1/3/1 encapsulation flexible-ethernet-services
+set interface ge-1/3/1 mtu 9188
+set interface ge-1/3/1 unit 32 vlan-id 1000
+set interface ge-1/3/1 unit 32 encapsulation vlan-ccc
+set interface ge-1/3/1 unit 32 family ccc
+protocols l2circuit neighbor 10.1.1.2 interface ge-1/3/1.32 virtual-circuit-id 20031
+set interface ge-1/3/2 flexible-vlan-tagging
+set interface ge-1/3/2 encapsulation flexible-ethernet-services
+set interface ge-1/3/2 mtu 9188
+set interface ge-1/3/2 unit 33 vlan-id 1000
+set interface ge-1/3/2 unit 33 encapsulation vlan-ccc
+set interface ge-1/3/2 unit 33 family ccc
+protocols l2circuit neighbor 10.1.1.2 interface ge-1/3/2.33 virtual-circuit-id 20032
+set interface ge-1/3/3 flexible-vlan-tagging
+set interface ge-1/3/3 encapsulation flexible-ethernet-services
+set interface ge-1/3/3 mtu 9188
+set interface ge-1/3/3 unit 34 vlan-id 1000
+set interface ge-1/3/3 unit 34 encapsulation vlan-ccc
+set interface ge-1/3/3 unit 34 family ccc
+protocols l2circuit neighbor 10.1.1.2 interface ge-1/3/3.34 virtual-circuit-id 20033
+set interface ge-1/3/4 flexible-vlan-tagging
+set interface ge-1/3/4 encapsulation flexible-ethernet-services
+set interface ge-1/3/4 mtu 9188
+set interface ge-1/3/4 unit 35 vlan-id 1000
+set interface ge-1/3/4 unit 35 encapsulation vlan-ccc
+set interface ge-1/3/4 unit 35 family ccc
+protocols l2circuit neighbor 10.1.1.2 interface ge-1/3/4.35 virtual-circuit-id 20034
+set interface ge-1/3/5 flexible-vlan-tagging
+set interface ge-1/3/5 encapsulation flexible-ethernet-services
+set interface ge-1/3/5 mtu 9188
+set interface ge-1/3/5 unit 36 vlan-id 1000
+set interface ge-1/3/5 unit 36 encapsulation vlan-ccc
+set interface ge-1/3/5 unit 36 family ccc
+protocols l2circuit neighbor 10.1.1.2 interface ge-1/3/5.36 virtual-circuit-id 20035
+set interface ge-1/3/6 flexible-vlan-tagging
+set interface ge-1/3/6 encapsulation flexible-ethernet-services
+set interface ge-1/3/6 mtu 9188
+set interface ge-1/3/6 unit 37 vlan-id 1000
+set interface ge-1/3/6 unit 37 encapsulation vlan-ccc
+set interface ge-1/3/6 unit 37 family ccc
+protocols l2circuit neighbor 10.1.1.2 interface ge-1/3/6.37 virtual-circuit-id 20036
+set interface ge-1/3/7 flexible-vlan-tagging
+set interface ge-1/3/7 encapsulation flexible-ethernet-services
+set interface ge-1/3/7 mtu 9188
+set interface ge-1/3/7 unit 38 vlan-id 1000
+set interface ge-1/3/7 unit 38 encapsulation vlan-ccc
+set interface ge-1/3/7 unit 38 family ccc
+protocols l2circuit neighbor 10.1.1.2 interface ge-1/3/7.38 virtual-circuit-id 20037
+set interface ge-1/3/8 flexible-vlan-tagging
+set interface ge-1/3/8 encapsulation flexible-ethernet-services
+set interface ge-1/3/8 mtu 9188
+set interface ge-1/3/8 unit 39 vlan-id 1000
+set interface ge-1/3/8 unit 39 encapsulation vlan-ccc
+set interface ge-1/3/8 unit 39 family ccc
+protocols l2circuit neighbor 10.1.1.2 interface ge-1/3/8.39 virtual-circuit-id 20038
+set interface ge-1/3/9 flexible-vlan-tagging
+set interface ge-1/3/9 encapsulation flexible-ethernet-services
+set interface ge-1/3/9 mtu 9188
+set interface ge-1/3/9 unit 40 vlan-id 1000
+set interface ge-1/3/9 unit 40 encapsulation vlan-ccc
+set interface ge-1/3/9 unit 40 family ccc
+protocols l2circuit neighbor 10.1.1.2 interface ge-1/3/9.40 virtual-circuit-id 20039
+
+
