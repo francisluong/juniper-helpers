@@ -1,0 +1,55 @@
+l2circuit-site-a:
+  generators:
+    pic: 
+      start: 0
+      stop: 4
+      then:
+        port:
+          start: 0
+          stop: 10
+    unit: 
+      start: 1
+      stop: 41
+    vcid:
+      start: 20000
+      stop: 20040
+  simple_substitutions:
+    fpc: 0
+    vlan: 1000
+    neighbor: 10.1.1.1
+  config: |
+    set interface ge-$fpc/$pic/$port flexible-vlan-tagging
+    set interface ge-$fpc/$pic/$port encapsulation flexible-ethernet-services
+    set interface ge-$fpc/$pic/$port mtu 9188
+    set interface ge-$fpc/$pic/$port unit $unit vlan-id $vlan
+    set interface ge-$fpc/$pic/$port unit $unit encapsulation vlan-ccc
+    set interface ge-$fpc/$pic/$port unit $unit family ccc
+    protocols l2circuit neighbor $neighbor interface ge-$fpc/$pic/$port.$unit virtual-circuit-id $vcid
+
+l2circuit-site-b:
+  generators:
+    pic: 
+      start: 0
+      stop: 4
+      then:
+        port:
+          start: 0
+          stop: 10
+    unit: 
+      start: 1
+      stop: 41
+    vcid:
+      start: 20000
+      stop: 20040
+  simple_substitutions:
+    fpc: 1
+    vlan: 1000
+    neighbor: 10.1.1.2
+  config: |
+    set interface ge-$fpc/$pic/$port flexible-vlan-tagging
+    set interface ge-$fpc/$pic/$port encapsulation flexible-ethernet-services
+    set interface ge-$fpc/$pic/$port mtu 9188
+    set interface ge-$fpc/$pic/$port unit $unit vlan-id $vlan
+    set interface ge-$fpc/$pic/$port unit $unit encapsulation vlan-ccc
+    set interface ge-$fpc/$pic/$port unit $unit family ccc
+    protocols l2circuit neighbor $neighbor interface ge-$fpc/$pic/$port.$unit virtual-circuit-id $vcid
