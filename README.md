@@ -49,13 +49,48 @@ Steps for BASH:
    * first line should be username
    * second line should have the password
    * e.g. _examples/userpass_
- - Try to run examples/001_basic.tcl  
-   * Usage: *examples/001\_basic.tcl (router_address) (path_to_userpass_file)*
-   * you will need a Juniper router you have access to in order to execute this script
+ - Try to run examples/000_test_install.tcl
 
 ```
 export TCLLIBPATH=/home/fluong/juniper-helpers
 sudo ln -s /home/fluong/juniper-helpers /usr/lib/juniper-helpers
+```
+
+
+
+```
+============================================================
+LIBRARY PATH: /HOME/FLUONG/JUNIPER-HELPERS
+============================================================
+
+  ----------------------------------------------------------
+  tcllib
+  ----------------------------------------------------------
+    Confirmed installation of TCL Standard Library: tcllib//YAML: 0.3.6
+
+  ----------------------------------------------------------
+  tdom
+  ----------------------------------------------------------
+    Confirmed installation of TCL Document Object Model: tdom 0.8.3
+
+  ----------------------------------------------------------
+  ssh
+  ----------------------------------------------------------
+    Confirmed OpenSSH: OpenSSH_5.9p1 Debian-5ubuntu1.1, OpenSSL 1.0.1 14 Mar 2012
+
+  ----------------------------------------------------------
+  Juniper-Helpers Library installation
+  ----------------------------------------------------------
+    Confirmed Juniper-Helpers Library installation
+    ---
+    JuniperConnect 1.0  ==> found at /home/fluong/juniper-helpers/juniper_connect.tcl
+    countdown 1.0       ==> found at /home/fluong/juniper-helpers/countdown.tcl
+    gen 1.0     ==> found at /home/fluong/juniper-helpers/gen.tcl
+    homeless 1.0        ==> found at /home/fluong/juniper-helpers/homeless.tcl
+    output 1.0  ==> found at /home/fluong/juniper-helpers/output.tcl
+    rpc 1.0     ==> found at /home/fluong/juniper-helpers/rpc.tcl
+    test 1.0    ==> found at /home/fluong/juniper-helpers/test.tcl
+    textproc 1.0        ==> found at /home/fluong/juniper-helpers/textproc.tcl
 ```
 
 Library Packages
