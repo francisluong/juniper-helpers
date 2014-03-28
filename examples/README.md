@@ -60,4 +60,7 @@ Usage: ./100_yaml_config_template.tcl <path_to_YAML_file - e.g. 101_misc_example
 
 Takes a command-line argument: path to a yaml file which specifies the config to be generated.  An [example](https://github.com/francisluong/juniper-helpers/blob/master/examples/101_misc_examples_template.yml) is provided.  Outputs the [generated configuration](https://github.com/francisluong/juniper-helpers/blob/master/examples/101_misc_examples_template.yml.output.txt) to stdout.
 
+ * 101_misc_examples_template.yml - misc examples covering the range of generation options
+ * 102_template_vpn_l2circuit.yml - 40 l2circuit configs for both PEs
+ * 103_template_vpn_l3vpn.yml - 20 l3vpn interfaces and instances
 
