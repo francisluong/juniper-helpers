@@ -51,11 +51,14 @@ Steps for BASH:
    * e.g. _examples/userpass_
  - Try to run examples/000_test_install.tcl
 
+Copy/Paste
+
 ```
 export TCLLIBPATH=/home/fluong/juniper-helpers
 sudo ln -s /home/fluong/juniper-helpers /usr/lib/juniper-helpers
 ```
 
+Output of examples/000_test_install.tcl should look something like this:
 
 
 ```
