@@ -1,0 +1,127 @@
+#interface_physical
+set interface ge-4/1/0 flexible-vlan-tagging
+set interface ge-4/1/0 mtu 9188
+
+#logical_interfaces_and_instances
+set interface ge-4/1/0 unit 1 vlan-id 1
+set interface ge-4/1/0 family inet address 10.0.0.1/31
+routing-instances VRF-1 instance-type vrf
+routing-instances VRF-1 interface ge-4/1/0.1
+routing-instances VRF-1 route-distinguisher 701:1
+routing-instances VRF-1 vrf-target 701:1
+set interface ge-4/1/0 unit 2 vlan-id 2
+set interface ge-4/1/0 family inet address 10.0.0.3/31
+routing-instances VRF-2 instance-type vrf
+routing-instances VRF-2 interface ge-4/1/0.2
+routing-instances VRF-2 route-distinguisher 701:2
+routing-instances VRF-2 vrf-target 701:2
+set interface ge-4/1/0 unit 3 vlan-id 3
+set interface ge-4/1/0 family inet address 10.0.0.5/31
+routing-instances VRF-3 instance-type vrf
+routing-instances VRF-3 interface ge-4/1/0.3
+routing-instances VRF-3 route-distinguisher 701:3
+routing-instances VRF-3 vrf-target 701:3
+set interface ge-4/1/0 unit 4 vlan-id 4
+set interface ge-4/1/0 family inet address 10.0.0.7/31
+routing-instances VRF-4 instance-type vrf
+routing-instances VRF-4 interface ge-4/1/0.4
+routing-instances VRF-4 route-distinguisher 701:4
+routing-instances VRF-4 vrf-target 701:4
+set interface ge-4/1/0 unit 5 vlan-id 5
+set interface ge-4/1/0 family inet address 10.0.0.9/31
+routing-instances VRF-5 instance-type vrf
+routing-instances VRF-5 interface ge-4/1/0.5
+routing-instances VRF-5 route-distinguisher 701:5
+routing-instances VRF-5 vrf-target 701:5
+set interface ge-4/1/0 unit 6 vlan-id 6
+set interface ge-4/1/0 family inet address 10.0.0.11/31
+routing-instances VRF-6 instance-type vrf
+routing-instances VRF-6 interface ge-4/1/0.6
+routing-instances VRF-6 route-distinguisher 701:6
+routing-instances VRF-6 vrf-target 701:6
+set interface ge-4/1/0 unit 7 vlan-id 7
+set interface ge-4/1/0 family inet address 10.0.0.13/31
+routing-instances VRF-7 instance-type vrf
+routing-instances VRF-7 interface ge-4/1/0.7
+routing-instances VRF-7 route-distinguisher 701:7
+routing-instances VRF-7 vrf-target 701:7
+set interface ge-4/1/0 unit 8 vlan-id 8
+set interface ge-4/1/0 family inet address 10.0.0.15/31
+routing-instances VRF-8 instance-type vrf
+routing-instances VRF-8 interface ge-4/1/0.8
+routing-instances VRF-8 route-distinguisher 701:8
+routing-instances VRF-8 vrf-target 701:8
+set interface ge-4/1/0 unit 9 vlan-id 9
+set interface ge-4/1/0 family inet address 10.0.0.17/31
+routing-instances VRF-9 instance-type vrf
+routing-instances VRF-9 interface ge-4/1/0.9
+routing-instances VRF-9 route-distinguisher 701:9
+routing-instances VRF-9 vrf-target 701:9
+set interface ge-4/1/0 unit 10 vlan-id 10
+set interface ge-4/1/0 family inet address 10.0.0.19/31
+routing-instances VRF-10 instance-type vrf
+routing-instances VRF-10 interface ge-4/1/0.10
+routing-instances VRF-10 route-distinguisher 701:10
+routing-instances VRF-10 vrf-target 701:10
+set interface ge-4/1/0 unit 11 vlan-id 11
+set interface ge-4/1/0 family inet address 10.0.0.21/31
+routing-instances VRF-11 instance-type vrf
+routing-instances VRF-11 interface ge-4/1/0.11
+routing-instances VRF-11 route-distinguisher 701:11
+routing-instances VRF-11 vrf-target 701:11
+set interface ge-4/1/0 unit 12 vlan-id 12
+set interface ge-4/1/0 family inet address 10.0.0.23/31
+routing-instances VRF-12 instance-type vrf
+routing-instances VRF-12 interface ge-4/1/0.12
+routing-instances VRF-12 route-distinguisher 701:12
+routing-instances VRF-12 vrf-target 701:12
+set interface ge-4/1/0 unit 13 vlan-id 13
+set interface ge-4/1/0 family inet address 10.0.0.25/31
+routing-instances VRF-13 instance-type vrf
+routing-instances VRF-13 interface ge-4/1/0.13
+routing-instances VRF-13 route-distinguisher 701:13
+routing-instances VRF-13 vrf-target 701:13
+set interface ge-4/1/0 unit 14 vlan-id 14
+set interface ge-4/1/0 family inet address 10.0.0.27/31
+routing-instances VRF-14 instance-type vrf
+routing-instances VRF-14 interface ge-4/1/0.14
+routing-instances VRF-14 route-distinguisher 701:14
+routing-instances VRF-14 vrf-target 701:14
+set interface ge-4/1/0 unit 15 vlan-id 15
+set interface ge-4/1/0 family inet address 10.0.0.29/31
+routing-instances VRF-15 instance-type vrf
+routing-instances VRF-15 interface ge-4/1/0.15
+routing-instances VRF-15 route-distinguisher 701:15
+routing-instances VRF-15 vrf-target 701:15
+set interface ge-4/1/0 unit 16 vlan-id 16
+set interface ge-4/1/0 family inet address 10.0.0.31/31
+routing-instances VRF-16 instance-type vrf
+routing-instances VRF-16 interface ge-4/1/0.16
+routing-instances VRF-16 route-distinguisher 701:16
+routing-instances VRF-16 vrf-target 701:16
+set interface ge-4/1/0 unit 17 vlan-id 17
+set interface ge-4/1/0 family inet address 10.0.0.33/31
+routing-instances VRF-17 instance-type vrf
+routing-instances VRF-17 interface ge-4/1/0.17
+routing-instances VRF-17 route-distinguisher 701:17
+routing-instances VRF-17 vrf-target 701:17
+set interface ge-4/1/0 unit 18 vlan-id 18
+set interface ge-4/1/0 family inet address 10.0.0.35/31
+routing-instances VRF-18 instance-type vrf
+routing-instances VRF-18 interface ge-4/1/0.18
+routing-instances VRF-18 route-distinguisher 701:18
+routing-instances VRF-18 vrf-target 701:18
+set interface ge-4/1/0 unit 19 vlan-id 19
+set interface ge-4/1/0 family inet address 10.0.0.37/31
+routing-instances VRF-19 instance-type vrf
+routing-instances VRF-19 interface ge-4/1/0.19
+routing-instances VRF-19 route-distinguisher 701:19
+routing-instances VRF-19 vrf-target 701:19
+set interface ge-4/1/0 unit 20 vlan-id 20
+set interface ge-4/1/0 family inet address 10.0.0.39/31
+routing-instances VRF-20 instance-type vrf
+routing-instances VRF-20 interface ge-4/1/0.20
+routing-instances VRF-20 route-distinguisher 701:20
+routing-instances VRF-20 vrf-target 701:20
+
+
