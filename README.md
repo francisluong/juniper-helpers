@@ -37,16 +37,16 @@ sudo yum install -y tcl expect tcllib tdom openssh
 Getting Started
 ---------------
 
-The library is written in TCL so you just have to clone the repo and add it to your TCLLIBPATH.  Here are sample steps for BASH on Ubuntu:
+Here are simple steps for BASH on Ubuntu (other linux variants may require minor changes):
 
-If you have root/sudo - Clone the repository into /usr/lib (or any path listed in $tcl_pkgPath
+1a. If you have root/sudo - Clone the repository into /usr/lib (or any path listed in $tcl_pkgPath)
 
 ```
 cd /usr/lib
 sudo git clone https://github.com/francisluong/juniper-helpers.git
 ```
 
-Or... If you DON'T have root/sudo - clone to a user folder and add the path of this git repo to TCLLIBPATH (perhaps in your ~/.bashrc)
+1b. Or... If you DON'T have root/sudo - clone to a user folder and add the path of this git repo to TCLLIBPATH (perhaps in your ~/.bashrc)
 
 ```
 mkdir ~/lib
@@ -54,17 +54,16 @@ cd ~/lib
 git clone https://github.com/francisluong/juniper-helpers.git
 export TCLLIBPATH=~/lib
 ```
-create a [userpass](https://github.com/francisluong/juniper-helpers/blob/master/examples/userpass) file
+2. create a [userpass](https://github.com/francisluong/juniper-helpers/blob/master/examples/userpass) file
    * first line should be username
    * second line should have the password
-   * e.g.
 
 ```
 username
 password
 ```
 
-Try to run examples/000_test_install.tcl. Output of examples/000_test_install.tcl should look something like this:
+3. Try to run examples/000_test_install.tcl. Output of examples/000_test_install.tcl should look something like this:
 
 ```
 ============================================================
