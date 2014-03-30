@@ -25,7 +25,7 @@ Prerequisites
 Ubuntu Install: 
 
 ```
-sudo apt-get install -y tcl8.5 expect tcllib tdom openssh
+sudo apt-get install -y tcl8.5 expect tcllib tdom openssh-client
 ```
  
 Fedora/Redhat/Centos Install: 
@@ -37,29 +37,34 @@ sudo yum install -y tcl expect tcllib tdom openssh
 Getting Started
 ---------------
 
-The library is written in TCL so you just have to clone the repo and add it to your TCLLIBPATH.
+The library is written in TCL so you just have to clone the repo and add it to your TCLLIBPATH.  Here are sample steps for BASH on Ubuntu:
 
-Steps for BASH:
- - Clone the repository
- - Either... Add the path of this git repo to TCLLIBPATH in your ~/.bashrc
-   * _export TCLLIBPATH=/home/fluong/juniper-helpers_
- - ...or you can symlink the folder from a place listed in $tcl_pkgPath
-   * e.g. 'sudo ln -s /home/fluong/juniper-helpers /usr/lib/juniper-helpers'
- - create a [userpass](https://github.com/francisluong/juniper-helpers/blob/master/examples/userpass) file
+If you have root/sudo - Clone the repository into /usr/lib (or any path listed in $tcl_pkgPath
+
+```
+cd /usr/lib
+sudo git clone https://github.com/francisluong/juniper-helpers.git
+```
+
+Or... If you DON'T have root/sudo - clone to a user folder and add the path of this git repo to TCLLIBPATH (perhaps in your ~/.bashrc)
+
+```
+mkdir ~/lib
+cd ~/lib
+git clone https://github.com/francisluong/juniper-helpers.git
+export TCLLIBPATH=~/lib
+```
+create a [userpass](https://github.com/francisluong/juniper-helpers/blob/master/examples/userpass) file
    * first line should be username
    * second line should have the password
-   * e.g. _examples/userpass_
- - Try to run examples/000_test_install.tcl
-
-Copy/Paste
+   * e.g.
 
 ```
-export TCLLIBPATH=/home/fluong/juniper-helpers
-sudo ln -s /home/fluong/juniper-helpers /usr/lib/juniper-helpers
+username
+password
 ```
 
-Output of examples/000_test_install.tcl should look something like this:
-
+Try to run examples/000_test_install.tcl. Output of examples/000_test_install.tcl should look something like this:
 
 ```
 ============================================================

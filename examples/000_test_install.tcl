@@ -1,9 +1,19 @@
 #!/usr/bin/env tclsh
 
-if { [catch {package require JuniperConnect}] > 0 } {
-  puts stderr "Unable to verify successful installation of Juniper-Helpers"
-  exit
+puts "Tcl Package Path on your computer:"
+foreach item $tcl_pkgPath {
+  puts " - $item"
 }
+puts "\nAttempting to access package JuniperConnect"
+if { [catch {package require JuniperConnect}] > 0 } {
+  puts stderr " - Unable to verify successful installation of Juniper-Helpers"
+  puts stderr " - Juniper Helpers needs to be a subfolder of a package path or you will need to set the environment variable TCLLIBPATH"
+  puts stderr "      TCLLIBPATH=/path/to/juniper-helpers"
+  exit
+} else {
+  puts " - SUCCESS!\n"
+}
+
 package require output
 package require homeless
 set library_path [file dir [lindex [package ifneeded JuniperConnect 1.0] end]]
