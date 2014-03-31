@@ -1,0 +1,3 @@
+pth_main: ~/juniper-helpers/examples/output_collector
+path_templates: ~/juniper-helpers/examples/output_collector/templates
+output_folder: ~/juniper-helpers/examples/output_collector/output
