@@ -6,6 +6,7 @@ namespace import tcltest::*
 #software under test
 package require gen
 
+#proc range
 test range_1_1 {
   Test: range 1 1 - should be empty ""
 } -body {
@@ -30,6 +31,7 @@ test range_2_10_2 {
   gen::range 2 10 2
 } -result [list 2 4 6 8]
 
+#proc ipv4
 test ipv4_count_0 {
   test: ipv4 with count of 0
 } -body {

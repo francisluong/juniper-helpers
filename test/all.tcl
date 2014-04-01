@@ -1,6 +1,5 @@
 #!/usr/bin/env tclsh8.5
 
-package require gen
 package require tcltest
 namespace import tcltest::*
 
