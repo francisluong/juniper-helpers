@@ -66,14 +66,7 @@ proc process_template {filepath template_dict options_dict} {
   }
 }
 
-proc run_collection {} {
-  #read in etc/config.yml
-  global argv0
-  set collector_dir [file dir $argv0]
-  set options_dict [yaml::yaml2dict [read_file "${collector_dir}/etc/config.yml"]]
-  output::pdict options_dict
-  #verify it
-  verify_options $options_dict
+proc run_collection {options_dict} {
   #now process files in path_templates
   dict with options_dict {
     foreach infile [glob $path_templates/*] {
@@ -92,5 +85,16 @@ if {$argc < 1} {
   puts "Usage: [info script] <path_to_userpass_file>"
   exit
 } 
+#read in userpass file
 import_userpass [lindex $argv 0]
-run_collection
+#read in etc/config.yml
+set collector_dir [file dir $argv0]
+set options_dict [yaml::yaml2dict [read_file "${collector_dir}/etc/config.yml"]]
+output::pdict options_dict
+#verify it
+verify_options $options_dict
+#you can also 'dict set options_dict' to add router lists
+#dict set options_dict router_list_3 $xyz
+
+#now we run collection
+run_collection $options_dict
