@@ -309,6 +309,7 @@ namespace eval ::juniperconnect {
         set session_array($address) $spawn_id
         send "set cli screen-length 0\n"
         expect -re $prompt {send "set cli screen-width 0\n"}
+        expect -re $prompt {send "\n"}
         expect -re $prompt {}
         #absorb final prompt
       }
@@ -406,9 +407,9 @@ namespace eval ::juniperconnect {
     }
 
     #send initial carriage-return then expect first prompt
-    _verify_initial_send_prompt $address output
+    _verify_initial_send_prompt $address
     #loop through commands list
-    _send_commands_loop $address $commands_list output
+    _send_commands_loop $address $commands_list
     set output [string trimright [textproc::nrange $output 0 end-1]]
     set output [join [split $output "\r"] ""]
     log_user 1
@@ -434,9 +435,9 @@ namespace eval ::juniperconnect {
     }
 
     #send initial carriage-return then expect first prompt
-    _verify_initial_send_prompt $address output
+    _verify_initial_send_prompt $address
     #enter configuration mode
-    _enter_configuration_mode $address output
+    _enter_configuration_mode $address
     #initiate load
     set config_textblock [string trim $config_textblock]
     switch -- $merge_set_override {
@@ -483,13 +484,13 @@ namespace eval ::juniperconnect {
       "cli" {
         #default mode... act like send_commands
         set commands_list [nsplit $config_textblock]
-        _send_commands_loop $address $commands_list output
+        _send_commands_loop $address $commands_list
       }
       default {
         return -code error "ERROR: unexpected value for merge_set_override: $merge_set_override"
       }
     }
-    _commit_and_quit_config $address output $confirmed
+    _commit_and_quit_config $address $confirmed
     set output [string trimright [textproc::nrange $output 0 end-1]]
     set output [join [split $output "\r"] ""]
     log_user 1
@@ -499,15 +500,14 @@ namespace eval ::juniperconnect {
   #CLI Internal
   #======================
 
-  proc _verify_initial_send_prompt {address output_varname} {
-    upvar $output_varname output
+  proc _verify_initial_send_prompt {address} {
+    variable output
     set spawn_id $juniperconnect::session_array($address)
     set timeout [timeout]
     set prompt $juniperconnect::rp_prompt_array(Juniper)
     send "\n"
     expect {
       -re $prompt {
-        append output [string trimleft $expect_out(buffer)]
         #absorb final prompt
       }
       timeout {
@@ -516,8 +516,8 @@ namespace eval ::juniperconnect {
     }
   }
 
-  proc _enter_configuration_mode {address output_varname {loose "0"}} {
-    upvar $output_varname output
+  proc _enter_configuration_mode {address {loose "0"}} {
+    variable output
     set spawn_id $juniperconnect::session_array($address)
     set timeout [timeout]
     set prompt $juniperconnect::rp_prompt_array(Juniper)
@@ -565,8 +565,8 @@ namespace eval ::juniperconnect {
     log_user 1
   }
 
-  proc _send_commands_loop {address commands_list output_varname} {
-    upvar $output_varname output
+  proc _send_commands_loop {address commands_list} {
+    variable output
     set procname "_send_commands_loop"
     set spawn_id $juniperconnect::session_array($address)
     set timeout [timeout]
@@ -622,8 +622,8 @@ namespace eval ::juniperconnect {
     #final prompt is absorbed
   }
 
-  proc _commit_and_quit_config {address output_varname {confirmed "0"}} {
-    upvar $output_varname output
+  proc _commit_and_quit_config {address {confirmed "0"}} {
+    variable output
     set procname "_commit_and_quit_config"
     set prompt $juniperconnect::rp_prompt_array(Juniper)
     set spawn_id $juniperconnect::session_array($address)
@@ -670,7 +670,7 @@ namespace eval ::juniperconnect {
         if {!$commit_complete} {
           #send rollback and quit-configuration
           set commands_list [list "rollback" "quit config"]
-          _send_commands_loop $address $commands_list output
+          _send_commands_loop $address $commands_list
           #throw exception
           return -code error "ERROR: $procname: got prompt before seeing 'commit complete'"
         }
@@ -687,8 +687,8 @@ namespace eval ::juniperconnect {
       #reconnect
       set spawn_id [connectssh $address]
       #enter configuration mode
-      _enter_configuration_mode $address output "loose"
-      _commit_and_quit_config $address output
+      _enter_configuration_mode $address "loose"
+      _commit_and_quit_config $address
     }
     set timeout [timeout]
   }

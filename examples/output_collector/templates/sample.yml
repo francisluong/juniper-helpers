@@ -1,0 +1,6 @@
+folder: 001_version_inventory
+router_list_name: sample_router_list
+commands: |
+  show version
+  show chassis hardware detail
+  show configuration

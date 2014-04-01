@@ -1,3 +1,11 @@
-pth_main: ~/juniper-helpers/examples/output_collector
+path_main: ~/juniper-helpers/examples/output_collector
 path_templates: ~/juniper-helpers/examples/output_collector/templates
 output_folder: ~/juniper-helpers/examples/output_collector/output
+
+sample_router_list: >
+  r1
+
+sample_router_list_2: >
+  10.1.1.1
+  10.1.1.2
+
