@@ -1,5 +1,7 @@
-#working folders
+#the script will read yaml templates from this folder
 path_templates: ~/juniper-helpers/examples/output_collector/templates
+
+#output files will be deposited in subfolders of this path
 output_folder: ~/juniper-helpers/examples/output_collector/output
 
 #router lists... use > for multiline
