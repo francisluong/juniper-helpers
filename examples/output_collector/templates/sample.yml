@@ -1,5 +1,10 @@
+#name of the folder we will deposit files into... one for each router
 folder: 001_version_inventory
+
+#the list of routers... set this in config.yml
 router_list_name: sample_router_list
+
+#list of commands... use | for multiline
 commands: |
   show version
   show chassis hardware detail

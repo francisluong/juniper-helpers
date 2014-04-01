@@ -1,7 +1,8 @@
-path_main: ~/juniper-helpers/examples/output_collector
+#working folders
 path_templates: ~/juniper-helpers/examples/output_collector/templates
 output_folder: ~/juniper-helpers/examples/output_collector/output
 
+#router lists... use > for multiline
 sample_router_list: >
   r1
 
