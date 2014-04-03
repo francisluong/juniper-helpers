@@ -114,6 +114,24 @@ namespace eval ::output {
     return [textproc::njoin $result]
   }
 
+  variable output_buffer ""
+
+  proc buffer {text} {
+    #add text to buffer"
+    lappend output::output_buffer $text
+  }
+
+  proc buffer_clear {} {
+    set output::output_buffer ""
+  }
+
+  proc buffer_print {{clear ""}} {
+    print [textproc::njoin $output::buffer]
+    if {[string match -nocase "clear" $clear]} {
+      output::buffer_clear
+    }
+  }
+
   proc pdict { dictVarName {indent 1} {prefixString "    "} {separator " => "} } {
   #copied from http://wiki.tcl.tk/23526...
   # alterations by @francisluong
