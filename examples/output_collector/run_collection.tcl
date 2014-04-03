@@ -81,15 +81,15 @@ proc run_collection {options_dict} {
 }
 
 #usage
-if {$argc < 1} {
-  puts "Usage: [info script] <path_to_userpass_file>"
+if {$argc < 2} {
+  puts "Usage: [info script] <path_to_userpass_file> <path_to_config.yml>"
   exit
 } 
 #read in userpass file
 import_userpass [lindex $argv 0]
 #read in etc/config.yml
-set collector_dir [file dir $argv0]
-set options_dict [yaml::yaml2dict [read_file "${collector_dir}/etc/config.yml"]]
+set filepath_config_yml [lindex $argv 1]
+set options_dict [yaml::yaml2dict [read_file $filepath_config_yml]
 output::pdict options_dict
 #verify it
 verify_options $options_dict
