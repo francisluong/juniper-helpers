@@ -38,8 +38,8 @@ namespace eval ::oc {
   proc verify_template {filepath template_dict} {
     set valid 1
     set keys_list [dict keys $template_dict]
-    foreach key [list "folder" "router_list_name" "commands"] {
-      if {[lsearch -exact $keys_list $key] == -1} {
+    foreach key [list "folder" "router_list_name" "(commands|netconf)"] {
+      if {[lsearch -regexp $keys_list $key] == -1} {
         set valid 0
       }
     }
@@ -65,14 +65,19 @@ namespace eval ::oc {
           set routers_list [dict get $options_dict $router_list_name]
           foreach router $routers_list {
             #connect and get output
-            connectssh $router
-            set output_text [send_textblock $router $commands]
+            if {[info exists "netconf"]} {
+              connectssh $router netconf
+              set output_text [send_rpc $router $netconf]
+              disconnectssh $router netconf
+            } else {
+              connectssh $router
+              set output_text [send_textblock $router $commands]
+              disconnectssh $router
+            }
             #write output to file
             set fl [open "$folder/$router" w]
             puts $fl [string trim $output_text]
             close $fl
-            #disconnect session
-            disconnectssh $router
           }
         }  else {
           print " !! Templated Failed: Folder not writable: $folder - template $filepath"

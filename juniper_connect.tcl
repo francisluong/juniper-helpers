@@ -332,10 +332,15 @@ namespace eval ::juniperconnect {
     return $spawn_id
   }
 
-  proc disconnectssh {address} {
+  proc disconnectssh {address {style "cli"}} {
     variable session_array
     variable rp_prompt_array
     set prompt $rp_prompt_array(Juniper)
+    switch -- $style {
+      "netconf" {
+        set address "nc:$address"
+      }
+    }
     set spawn_id $session_array($address)
     if {$spawn_id ne ""} {
       if {[string match "nc:*" $address]} {
