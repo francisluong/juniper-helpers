@@ -12,7 +12,8 @@ namespace eval ::oc {
 
   proc load_config {filepath_config_yml} {
     variable options_dict
-    set options_dict [yaml::yaml2dict [read_file $filepath_config_yml]
+    set yaml_in [read_file $filepath_config_yml]
+    set options_dict [yaml::yaml2dict $yaml_in]
     output::pdict options_dict
     #verify it
     oc::verify_options
@@ -21,7 +22,7 @@ namespace eval ::oc {
   proc verify_options {} {
     variable options_dict
     set pass 1
-    foreach key [list "path_main" "path_templates" "output_folder"] {
+    foreach key [list "path_templates" "output_folder"] {
       set filepath [file normalize [dict get $options_dict $key]]
       if {([file isdirectory $filepath] && [file writable $filepath])} {
         #good
@@ -81,7 +82,7 @@ namespace eval ::oc {
   }
 
   proc run_collection {} {
-    options_dict
+    variable options_dict
     #now process files in path_templates
     dict with options_dict {
       foreach infile [glob $path_templates/*] {
