@@ -90,7 +90,7 @@ namespace eval ::oc {
     variable options_dict
     #now process files in path_templates
     dict with options_dict {
-      foreach infile [glob $path_templates/*] {
+      foreach infile [lsort [glob $path_templates/*]] {
         set file_contents [read_file $infile]
         #only process non-empty files
         if {$file_contents ne ""} {
