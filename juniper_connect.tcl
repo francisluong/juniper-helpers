@@ -110,7 +110,7 @@ namespace eval ::juniperconnect {
     #open a file containing username and password (each on one line) 
     #assign all of these to the array r_db with index = username, value = password
     #also, set the first two lines as r_username and r_password
-    if {[file exists $filepath]} {
+    if {[file readable $filepath]} {
       catch {file attributes $filepath -permissions "00600"}
       set file_handle [open $filepath r]
       set file_contents [read $file_handle]
@@ -125,7 +125,8 @@ namespace eval ::juniperconnect {
       set juniperconnect::r_password [base64::encode [string trim [lindex $nlist_user_pass 1]]]
       set r_db(__lastuser) $juniperconnect::r_username
     } else {
-      puts "[info proc]: $filepath doesn't exist"
+      puts stderr "juniperconnect: ERROR: Userpass file '$filepath' cannot be opened for reading"
+      exit 1
     }
   }
 
