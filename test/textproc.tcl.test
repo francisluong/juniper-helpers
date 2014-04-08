@@ -32,6 +32,12 @@ test njoin_basic_1 {
 } -result "a\nb\nc"
 
 
+test nrange_0 {
+  nrange_0
+} -body {
+  textproc::nrange "a\nb\nc\nd\ne" 2
+} -result "c"
+
 test nrange_0_0 {
   nrange_0_0
 } -body {
@@ -49,6 +55,48 @@ test nrange_end {
 } -body {
   textproc::nrange "a\nb\nc\nd\ne" end-1 end
 } -result "d\ne"
+
+test column_001 {
+  column_001
+} -body {
+  textproc::column [list 1] "a b c\nd e f" 
+} -result [list a d]
+
+test column_002_2item {
+  column_002_2item
+} -body {
+  textproc::column [list 1 2] "a b c\nd e f"
+} -result [list [list a b] [list d e]]
+
+test column_003_textblock {
+  column_003_textblock
+} -body {
+  textproc::column [list 1 3] "a b c\nd e f" "" "textblock"
+} -result "a c\nd f"
+
+test column_004_textblock {
+  column_004_textblock
+} -body {
+  textproc::column [list 2 3] "a:b:c\nd:e:f" ":" "textblock"
+} -result "b c\ne f"
+
+test split_on_empty_line_001_identity {
+  split_on_empty_line_001_identity
+} -body {
+  textproc::split_on_empty_line "a b c\n1 2 3"
+} -result "a b c\n1 2 3"
+
+test split_on_empty_line_002_basic {
+  split_on_empty_line_002_basic
+} -body {
+  textproc::split_on_empty_line "a b c\n\n1 2 3"
+} -result [list "a b c" "1 2 3"]
+
+test split_on_empty_line_003_basic {
+  split_on_empty_line_003_basic
+} -body {
+  textproc::split_on_empty_line "bob\na b c\n\n1 2 3"
+} -result [list "bob\na b c" "1 2 3"]
 
 
 
