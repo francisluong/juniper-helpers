@@ -17,7 +17,10 @@ namespace eval ::textproc {
     return $result_textblock
   }
 
-  proc nrange {textblock rangestart rangestop} {
+  proc nrange {textblock rangestart {rangestop ""}} {
+    if {$rangestop eq ""} {
+      set rangestop $rangestart
+    }
     #line lrange but for "\n" delimited textblocks
     set lines_list [nsplit $textblock]
     set after_lines_list [lrange $lines_list $rangestart $rangestop]
@@ -27,6 +30,9 @@ namespace eval ::textproc {
   proc split_on_empty_line {textblock} {
     #split a textblock on fully empty lines: \n\n
     set result [textutil::split::splitx $textblock "\n\n"]
+    if {[llength $result] == 1} {
+      set result [lindex $result 0]
+    }
     return $result
   }
 
@@ -37,12 +43,16 @@ namespace eval ::textproc {
     set result_list {}
     foreach line [nsplit $textblock] {
       set new_line_parts_list {}
-      set splitline [split $line $field_separator]
+      if {$field_separator eq ""} {
+        set splitline $line
+      } else {
+        set splitline [split $line $field_separator]
+      }
       foreach index $column_number_list {
         incr index "-1"
         lappend new_line_parts_list [lindex $splitline $index]
       }
-      lappend result_list [join $new_line_parts_list]
+      lappend result_list [join $new_line_parts_list " "]
     }
     switch -- $format {
       "list" {
