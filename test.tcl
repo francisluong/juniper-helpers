@@ -190,6 +190,7 @@ namespace eval ::test {
       set test::pass($test::current_subcase) 0
     }
     set test::lastmode "assert"
+    return $this_pass
   }
 
   proc limit_scope {start_expression {stop_expression {^$}} {options_list ""}} {
@@ -297,6 +298,7 @@ namespace eval ::test {
     }
     print "[njoin $outparts]\n" 8
     set test::lastmode "assert"
+    return $this_pass
   }
 
   proc sanity_boolean_disposition {assertion disposition} {
