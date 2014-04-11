@@ -20,6 +20,12 @@
 # the library using a call to proc "XXX" with the name of the thread_iteration
 # proc as its argument
 #
+# Main
+# ====
+#
+# call concurrency::init before doing anything else. it will run thread_iteration
+#   if certain text is passed through argv
+#
 # Master Script
 # ================
 #
@@ -32,27 +38,13 @@
 # Thread_Iteration Proc
 # =====================
 #
-# should call "thread_finish" when it's done with everything
+# this is technically something a user of this package would write... 
+# but there are some rules
 # 
-#
-#Procs that need to be supplied - application specific
-#=======================================================
-# - proc thread_start - a proc that starts the thread
-#     * needs to generate a an output filename and store it in an array 
-#     * needs to call the thread script and redirect output to /dev/null 
-#     * e.g. exec $runfile $routername $path >& /dev/null &
-# - proc thread_finish - a proc that determines whether a thread is finished
-#     * needs to know what file to check
-#     * needs to know what to match to determine whether a script is finished
-# - proc usage - check argv to see if it is a thread iteration or the main
-#
-#[ ]how do I provide it with inputs?
-#[ ]
-#
-#Other notes
-#===============
-# - application script will have the main and the thread iteration and will call itself for iteration
-# - 
+# 1. proc should call "iter_thread_start" before doing anything else
+# 2. always use print rather than puts when you need output to be logged
+# 99. proc should call "iter_thread_finish" when it's done with everything
+# 
 #
 
 package provide concurrency 1.0
@@ -69,18 +61,28 @@ namespace eval concurrency {
   variable thread_iteration_procname {}
   variable iteration_match_text "RUN_THREAD_ITERATION"
   variable iteration_argv_index 0
+
+  #these are used if it is a thread_iteration
   variable tmp_folder "/var/tmp"
   variable is_thread_iteration 0
+  variable queue_item {}
+  variable ofilename {}
 
   proc init {thread_iteration_procname} {
+    # call this early in your application... 
+    # it will kick off thread_iteration proc if applicable
+    # otherwise we assume it's the main queue handler
     global argc argv   
     variable iteration_match_text
     variable iteration_argv_index
     #if this is an iteration, run it and exit
     if {[lindex $argv $iteration_argv_index] eq $iteration_match_text} {
-      #call thread_iteration and exit 
+      #setup some variables
       variable is_thread_iteration 1
-      exit [$thread_iteration_procname [lindex $argv 1]]
+      variable ofilename [base32::encode $queue_item]
+      variable queue_item [lindex $argv 1]
+      #call thread_iteration and exit 
+      exit [$thread_iteration_procname $queue_item]
     }
     #initialize things
     set concurrency::input_queue {}
@@ -91,6 +93,7 @@ namespace eval concurrency {
   }
 
   proc process_queue {input_queue} {
+    # call this when we are all setup and we want to start the run
     #initialize
     set concurrency::input_queue $input_queue
     set queue_empty 0
@@ -100,8 +103,8 @@ namespace eval concurrency {
       #start a new thread if we can, if not... returns -1
       while {$queue_item != -1} {
         #started a new thread... try to start more until we get a return of -1
-        set queue_item [next_item]
-        thread_start $queue_item
+        set queue_item [_next_item]
+        _main_thread_start $queue_item
       }
       #perform wait unless complete
       if {!$complete} {
@@ -109,14 +112,33 @@ namespace eval concurrency {
       }
       #finish each item that is ready
       foreach queue_item $concurrency::current_queue {
-        thread_finish ${queue_item}
+        _main_thread_finish ${queue_item}
       }
       #check to see if we are done with the queue
-      set queue_empty [queue_is_empty]
+      set queue_empty [_queue_is_empty]
     }
   }
 
-  proc next_item {} {
+  proc iter_thread_start {} {
+    variable queue_item
+    set outfile [_output_filepath $queue_item]
+    #
+  }
+
+  proc iter_thread_finish {} {
+    variable queue_item
+    set ofilename [base32::encode $queue_item]
+    #is a thread_iteration
+    #output flag to indicate thread_iteration is complete
+    print "\n$ofilename"
+    return
+  }
+
+  #======================
+  # INTERNAL PROCS
+  #======================
+
+  proc _next_item {} {
     #get next item or return -1
     #return -1 if no sessions are available
     set this_item "-1"
@@ -131,14 +153,7 @@ namespace eval concurrency {
     return $this_item
   }
 
-  proc output_filepath {queue_item} {
-    set format_string "%G-%m%d"
-    set today [clock format [clock seconds] -format $format_string]
-    set ofilename [base32::encode $queue_item]
-    return "$concurrency::tmp_folder/$today.$ofilename.txt"
-  }
-
-  proc thread_start {queue_item} {
+  proc _main_thread_start {queue_item} {
     #runfile - path to thread script
     #queue_item - the text of the concurrency queue item
     set path [generate_results_path $routername]
@@ -148,44 +163,36 @@ namespace eval concurrency {
     exec [info script] $iteration_match_text $queue_item $outfile >& /dev/null &
   }
 
-  proc thread_finish {queue_item} {
+  proc _main_thread_finish {queue_item} {
     set finished 0
     set outfile [output_filepath $queue_item]
     set ofilename [base32::encode $queue_item]
     variable is_thread_iteration 
-    if {$is_thread_iteration} {
-      #is a thread_iteration
-      #output flag to indicate thread_iteration is complete
-      print "\n$ofilename"
-      return
-    } else {
-      #not a thread_iteration
-      #read file
+    #read file
 
-      #get last line
+    #get last line
 
-      #if last line == $ofilename, thread_iteration is complete
-      if { $last_line eq $ofilename } {
-        set finished 1
-        set index [lsearch -exact $concurrency::current_queue $this_item]
-        if {$index != -1} {
-          #match found
-          #delete this_item from current_list
-          set concurrency::current_queue [lreplace $concurrency::current_queue $index $index]
-          #add this_item to finished_list
-          set concurrency::finished_queue $this_item
-        } else {
-          #match not found
-          return -code error "concurrency::thread_finish: dequeuing problem: $queue_item not found"
-        }
+    #if last line == $ofilename, thread_iteration is complete
+    if { $last_line eq $ofilename } {
+      set finished 1
+      set index [lsearch -exact $concurrency::current_queue $this_item]
+      if {$index != -1} {
+        #match found
+        #delete this_item from current_list
+        set concurrency::current_queue [lreplace $concurrency::current_queue $index $index]
+        #add this_item to finished_list
+        set concurrency::finished_queue $this_item
       } else {
-        #not finished
+        #match not found
+        return -code error "concurrency::thread_finish: dequeuing problem: $queue_item not found"
       }
+    } else {
+      #not finished
     }
     return $finished
   }
 
-  proc queue_is_empty {} {
+  proc _queue_is_empty {} {
     set input_empty 0
     set current_empty 0
     if {[llength $concurrency::input_queue] == 0} {
@@ -201,43 +208,11 @@ namespace eval concurrency {
     }
   }
 
-  proc concurrency_input_list {} {
-    return $concurrency::input_queue
-  }
-
-  proc concurrency_current_list {} {
-    return $concurrency::current_queue
-  }
-
-  proc concurrency_finished_list {} {
-    return $concurrency::finished_queue
-  }
-
-  proc finish_collection {routername} {
-    global results
-    set path [generate_results_path $routername]
-    set grepExpression "LAT FINISH"
-    if { [catch {exec egrep $grepExpression $path}]>0 } {
-      set finished 0
-    } else {
-      set finished 1
-    }
-    if {$finished} {
-      concurrency_finish $routername
-      puts "--"
-      puts "Finish: $routername - Current: [concurrency_current_list]"
-      #log result
-      set file_contents [read_file $path]
-      set file_contents [join [lrange [split $file_contents "\n"] 0 end-2] "\n"]
-      global cfm_sanity
-      set cfm_sanity($routername) $file_contents
-      log_to_file $results [string trim $file_contents]
-      #delete file
-      file delete -force $path
-      puts "--"
-    } else {
-      puts "Incomplete: $routername - Current: [concurrency_current_list]"
-    }
+  proc _output_filepath {queue_item} {
+    set format_string "%G-%m%d"
+    set today [clock format [clock seconds] -format $format_string]
+    set ofilename [base32::encode $queue_item]
+    return "$concurrency::tmp_folder/$today.$ofilename.txt"
   }
 
 }

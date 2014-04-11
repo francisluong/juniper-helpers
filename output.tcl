@@ -126,7 +126,7 @@ namespace eval ::output {
   }
 
   proc buffer_print {{clear ""}} {
-    print [textproc::njoin $output::buffer]
+    print [textproc::njoin $output::output_buffer]
     if {[string match -nocase "clear" $clear]} {
       output::buffer_clear
     }
