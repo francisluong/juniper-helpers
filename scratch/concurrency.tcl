@@ -62,7 +62,7 @@ namespace eval concurrency {
   variable iteration_match_text "RUN_THREAD_ITERATION"
   variable iteration_argv_index 0
 
-  proc init {input_queue thread_iteration_procname} {
+  proc init {thread_iteration_procname} {
     global argc argv   
     variable iteration_match_text
     variable iteration_argv_index
@@ -71,37 +71,36 @@ namespace eval concurrency {
       #call thread_iteration and exit 
       exit [$thread_iteration_procname [lindex $argv 1]]
     }
-    set concurrency::input_queue $input_queue
+    #initialize things
+    set concurrency::input_queue {}
     set concurrency::current_queue {}
     set concurrency::finished_queue {}
     #probably won't need this
     set concurrency::thread_iteration_procname $thread_iteration_procname
   }
 
-  proc main_concurrent {input_queue} {
-    variable max_threads
-    variable wait_seconds
-
+  proc process_queue {input_queue} {
+    #initialize
+    set concurrency::input_queue $input_queue
     set complete 0
+    set queue_item 0
     #loop until we are done with the queue
     while {!$complete} {
-
       #start a new thread if we can, if not... returns -1
-      set queue_item [next_item]
       while {$queue_item != -1} {
-
         #started a new thread... try to start more until we get a return of -1
-        thread_start $queue_item
         set queue_item [next_item]
+        thread_start $queue_item
       }
-      
       #perform wait unless complete
-      if {!$complete} {countdown_sec $wait_seconds 1}
-
+      if {!$complete} {
+        after [expr $concurrency::wait_seconds * 1000]
+      }
       #finish each item that is ready
       foreach queue_item $concurrency::current_queue {
         thread_finish ${queue_item}
       }
+      #check to see if we are done with the queue
       set complete [concurrency_complete]
     }
   }
@@ -110,8 +109,8 @@ namespace eval concurrency {
     #get next item or return -1
     #return -1 if no sessions are available
     set this_item "-1"
-    set current_sessions [llength concurrency::current_queue
-    if {[llength $concurrency::input_queue] != 0 && $current_sessions < $concurrency::max_threads} {
+    set current_sessions [llength concurrency::current_queue]
+    if {[llength $concurrency::input_queue] != 0 && ($current_sessions < $concurrency::max_threads)} {
       #dequeue
       set this_item [lindex $concurrency::input_queue 0]
       set concurrency::input_queue [lrange $concurrency(input_list) 1 end]
@@ -123,18 +122,17 @@ namespace eval concurrency {
     return $this_item
   }
 
-  proc concurrency_finish {this_item} {
+  proc thread_finish {this_item} {
     set index [lsearch -exact $concurrency::current_queue $this_item]
     if {$index != -1} {
       #match found
       #delete this_item from current_list
-      set concurrency::current_queue [lreplace $concurrency(current_list) $index $index]
+      set concurrency::current_queue [lreplace $concurrency::current_queue $index $index]
       #add this_item to finished_list
       set concurrency::finished_queue $this_item
-      #decrement concurrency(current_sessions)
-      incr concurrency(current_sessions) -1
       return 1
     } else {
+      #match not found
       return 0
     }
   }
