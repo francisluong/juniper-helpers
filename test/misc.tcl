@@ -5,6 +5,6 @@ package require textproc
 
 #tcl allows you to have variables with default values
 proc blah {{text "default"}} {
-  puts $text
+    puts $text
 }
 blah

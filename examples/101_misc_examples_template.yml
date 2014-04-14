@@ -41,61 +41,61 @@
 #       count: 6
 
 no_subs:
-  config: |
-    annotate system hi
+    config: |
+        annotate system hi
 
 simple_sub:
-  simple_substitutions:
-    SRLGNAME: 10001
-    SRLGID: 10001
-    SRLGCOST: 10000
-  config: |
-    set routing-options srlg $SRLGNAME srlg-value $SRLGID srlg-cost $SRLGCOST
+    simple_substitutions:
+        SRLGNAME: 10001
+        SRLGID: 10001
+        SRLGCOST: 10000
+    config: |
+        set routing-options srlg $SRLGNAME srlg-value $SRLGID srlg-cost $SRLGCOST
 
 with_generators:
-  generators:
-    NAMEID: 
-      start: 10001
-      stop: 10010
-  this:
-    is:
-      level: 3
-  simple_substitutions:
-    SRLGCOST: 10000
-  config: |
-    set routing-options srlg $NAMEID srlg-value $NAMEID srlg-cost $SRLGCOST
+    generators:
+        NAMEID: 
+            start: 10001
+            stop: 10010
+    this:
+        is:
+            level: 3
+    simple_substitutions:
+        SRLGCOST: 10000
+    config: |
+        set routing-options srlg $NAMEID srlg-value $NAMEID srlg-cost $SRLGCOST
 
 aggregated_ethernet:
-  simple_substitutions:
-    INTF: xe-7/2/3
-    BDNAME: BD-Google-Cache-SW
-    BUNDLE: 30
-  config: |
-    set interfaces $INTF gigether-options 802.3ad ae$BUNDLE
-    set interfaces ae$BUNDLE mtu 9086
-    set interfaces ae$BUNDLE encapsulation ethernet-bridge
-    set interfaces ae$BUNDLE aggregated-ether-options lacp accept-data
-    set interfaces ae$BUNDLE unit 0
-    set bridge-domains $BDNAME interface ae$BUNDLE.0
+    simple_substitutions:
+        INTF: xe-7/2/3
+        BDNAME: BD-Google-Cache-SW
+        BUNDLE: 30
+    config: |
+        set interfaces $INTF gigether-options 802.3ad ae$BUNDLE
+        set interfaces ae$BUNDLE mtu 9086
+        set interfaces ae$BUNDLE encapsulation ethernet-bridge
+        set interfaces ae$BUNDLE aggregated-ether-options lacp accept-data
+        set interfaces ae$BUNDLE unit 0
+        set bridge-domains $BDNAME interface ae$BUNDLE.0
 
 ipv4:
-  generators:
-    PIC: 
-      start: 0
-      stop: 4
-      then:
-        PORT:
-          start: 0
-          stop: 10
-    ADDRESS:
-      type: ipv4
-      start: 10.0.0.1
-      increment: 0.0.0.2
-      count: 40
-  simple_substitutions:
-    FPC: 0
-    UNIT: 0
-    CIDR: 31
-  config: |
-    set interface ge-$FPC/$PIC/$PORT.$UNIT family inet address $ADDRESS/$CIDR
+    generators:
+        PIC: 
+            start: 0
+            stop: 4
+            then:
+                PORT:
+                    start: 0
+                    stop: 10
+        ADDRESS:
+            type: ipv4
+            start: 10.0.0.1
+            increment: 0.0.0.2
+            count: 40
+    simple_substitutions:
+        FPC: 0
+        UNIT: 0
+        CIDR: 31
+    config: |
+        set interface ge-$FPC/$PIC/$PORT.$UNIT family inet address $ADDRESS/$CIDR
 

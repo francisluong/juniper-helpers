@@ -1,31 +1,31 @@
 interface_physical:
-  simple_substitutions:
-    INTF: ge-4/1/0
-  config: |
-    set interface $INTF flexible-vlan-tagging
-    set interface $INTF mtu 9188
+    simple_substitutions:
+        INTF: ge-4/1/0
+    config: |
+        set interface $INTF flexible-vlan-tagging
+        set interface $INTF mtu 9188
 
 logical_interfaces_and_instances:
-  generators:
-    UNIT: 
-      start: 1
-      stop: 21
-    VLAN:
-      start: 1
-      stop: 21
-    ADDRESS:
-      type: ipv4
-      start: 10.0.0.1
-      increment: 0.0.0.2
-      count: 40
-  simple_substitutions:
-    INTF: ge-4/1/0
-    CIDR: 31
-    ASN: 701
-  config: |
-    set interface $INTF unit $UNIT vlan-id $VLAN
-    set interface $INTF family inet address $ADDRESS/$CIDR
-    routing-instances VRF-$UNIT instance-type vrf
-    routing-instances VRF-$UNIT interface $INTF.$UNIT
-    routing-instances VRF-$UNIT route-distinguisher $ASN:$UNIT
-    routing-instances VRF-$UNIT vrf-target $ASN:$UNIT
+    generators:
+        UNIT: 
+            start: 1
+            stop: 21
+        VLAN:
+            start: 1
+            stop: 21
+        ADDRESS:
+            type: ipv4
+            start: 10.0.0.1
+            increment: 0.0.0.2
+            count: 40
+    simple_substitutions:
+        INTF: ge-4/1/0
+        CIDR: 31
+        ASN: 701
+    config: |
+        set interface $INTF unit $UNIT vlan-id $VLAN
+        set interface $INTF family inet address $ADDRESS/$CIDR
+        routing-instances VRF-$UNIT instance-type vrf
+        routing-instances VRF-$UNIT interface $INTF.$UNIT
+        routing-instances VRF-$UNIT route-distinguisher $ASN:$UNIT
+        routing-instances VRF-$UNIT vrf-target $ASN:$UNIT

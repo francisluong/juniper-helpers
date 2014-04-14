@@ -6,8 +6,8 @@ package require test
 init_logfile "/var/tmp/results"
 #usage
 if {$argc < 2} {
-  puts "Usage: [info script] <router_address> <path_to_userpass_file>"
-  exit
+    puts "Usage: [info script] <router_address> <path_to_userpass_file>"
+    exit
 } 
 set router [lindex $argv 0]
 import_userpass [lindex $argv 1]
@@ -17,8 +17,8 @@ connectssh $router
 
 #1
 set config_textblock "
-  annotate system 020_config.tcl
-  annotate interfaces 020_config.tcl
+    annotate system 020_config.tcl
+    annotate interfaces 020_config.tcl
 "
 send_config $router $config_textblock set
 
@@ -32,8 +32,8 @@ send_config $router $config_textblock merge
 
 #3
 set config_textblock "
-  annotate system ''
-  annotate interfaces ''
-  delete interfaces lo0 description
+    annotate system ''
+    annotate interfaces ''
+    delete interfaces lo0 description
 "
 send_config $router $config_textblock cli confirmed

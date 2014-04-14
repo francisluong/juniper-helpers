@@ -1,8 +1,8 @@
 #!/usr/bin/tclsh
 
 if {$argc < 1} {
-  puts "Usage: pkg_mkIndex.tcl <path>"
-  exit
+    puts "Usage: pkg_mkIndex.tcl <path>"
+    exit
 }
 
 set path [lindex $argv 0]

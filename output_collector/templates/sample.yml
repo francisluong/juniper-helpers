@@ -6,6 +6,6 @@ router_list_name: sample_router_list
 
 #list of commands... use | for multiline
 commands: |
-  show version
-  show chassis hardware detail
-  show configuration
+    show version
+    show chassis hardware detail
+    show configuration

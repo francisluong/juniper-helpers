@@ -6,4 +6,4 @@ router_list_name: sample_router_list
 
 #list of commands... use | for multiline
 netconf: |
- <rpc><get-chassis-inventory><detail/></get-chassis-inventory></rpc>
+    <rpc><get-chassis-inventory><detail/></get-chassis-inventory></rpc>

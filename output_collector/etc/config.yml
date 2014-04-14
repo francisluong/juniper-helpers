@@ -6,9 +6,9 @@ output_folder: ~/juniper-helpers/examples/output_collector/output
 
 #router lists... use > for multiline
 sample_router_list: >
-  r1
+    r1
 
 sample_router_list_2: >
-  10.1.1.1
-  10.1.1.2
+    10.1.1.1
+    10.1.1.2
 
