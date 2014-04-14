@@ -36,8 +36,10 @@ namespace eval ::gen {
     foreach key [dict keys $yaml_full] {
       set dict_yaml_section [dict get $yaml_full $key]
       puts "#$key"
-      puts [gen::_process_yaml_config_section $dict_yaml_section]
+      set config_section [gen::_process_yaml_config_section $dict_yaml_section]
+      puts $config_section
     }
+    return $config_section
   }
 
   proc _process_yaml_config_section {dict_yaml_section} {
