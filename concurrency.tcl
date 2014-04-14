@@ -51,6 +51,7 @@ package provide concurrency 1.0
 package require base32
 package require output
 package require homeless
+package require countdown
 
 namespace eval concurrency {
     namespace export iter_thread_start iter_thread_finish
@@ -107,9 +108,10 @@ namespace eval concurrency {
         # call this when we are all setup and we want to start the run
         #initialize
         set concurrency::input_queue $input_queue
-        set wait_seconds 0
-        set queue_empty 0
+        set wait_seconds 1
+        puts "Queue Start"
         #loop until we are done with the queue
+        set queue_empty [_queue_is_empty]
         while {!$queue_empty} {
             #start a new thread if we can, if not... returns -1
             set queue_item [_next_item]
@@ -120,7 +122,9 @@ namespace eval concurrency {
             }
             #perform wait unless complete
             if {!$queue_empty} {
-                after [expr $wait_seconds * 1000]
+                puts -nonewline "  "
+                countdown::wait $wait_seconds 
+                #after [expr $wait_seconds * 1000]
             }
             set wait_seconds $concurrency::wait_seconds
             #finish each item that is ready
@@ -129,10 +133,8 @@ namespace eval concurrency {
             }
             #check to see if we are done with the queue
             set queue_empty [_queue_is_empty]
-            #puts "...queue_empty: $queue_empty"
-            #puts "...-- input: $concurrency::input_queue"
-            #puts "...>> current: $concurrency::current_queue"
         }
+        puts "Queue Finish"
         #how do I pass data back to the guy who called process_queue?
     }
 
@@ -141,7 +143,6 @@ namespace eval concurrency {
         set outfile [_output_filepath $queue_item]
         #initialize logfile
         init_logfile $outfile
-        print "TEST"
     }
 
     proc iter_thread_finish {returncode} {
@@ -185,7 +186,7 @@ namespace eval concurrency {
     proc _main_thread_start {queue_item} {
         #runfile - path to thread script
         #queue_item - the text of the concurrency queue item
-        puts "Start: $queue_item -- [_output_filepath $queue_item]"
+        puts "  Start: $queue_item -- [_output_filepath $queue_item]"
         variable iteration_match_text
         set outfile [_output_filepath $queue_item]
         exec [info script] $iteration_match_text $queue_item $outfile >& /dev/null &
@@ -209,11 +210,12 @@ namespace eval concurrency {
                 #delete queue_item from current_list
                 set concurrency::current_queue [lreplace $concurrency::current_queue $index $index]
                 #add queue_item to finished_list
-                set concurrency::finished_queue $queue_item
+                lappend concurrency::finished_queue $queue_item
                 variable results_array
                 variable returncode_array
                 set results_array($queue_item) $filetext
                 set returncode_array($queue_item) [lindex $last_line end]
+                file delete -force $outfile
             } else {
                 #match not found
                 return -code error "concurrency::thread_finish: dequeuing problem: $queue_item not found"
@@ -227,10 +229,20 @@ namespace eval concurrency {
     proc _queue_is_empty {} {
         set input_empty 0
         set current_empty 0
-        if {[llength $concurrency::input_queue] == 0} {
+        variable input_queue
+        variable current_queue
+        variable finished_queue
+        set ilen [llength $input_queue]
+        set clen [llength $current_queue]
+        set flen [llength $finished_queue]
+        puts "  Queues (in/curr/fin): $ilen/$clen/$flen"
+        if {$clen > 0} {
+            puts "    >> current: $current_queue"
+        }
+        if {$ilen == 0} {
             set input_empty 1
         }
-        if {[llength $concurrency::current_queue] == 0} {
+        if {$clen == 0} {
             set current_empty 1
         }
         if {$input_empty && $current_empty} {
