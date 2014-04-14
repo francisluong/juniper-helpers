@@ -50,17 +50,27 @@
 package provide concurrency 1.0
 package require base32
 package require output
+package require homeless
 
 namespace eval concurrency {
+    namespace export iter_thread_start iter_thread_finish
 
     variable max_threads 5
     variable wait_seconds 10
     variable input_queue {}
-    variable active_queue {}
+    variable current_queue {}
     variable finished_queue {}
     variable thread_iteration_procname {}
     variable iteration_match_text "RUN_THREAD_ITERATION"
     variable iteration_argv_index 0
+    #long form results are stored here
+    variable results_array
+    array unset results_array
+    array set results_array {}
+    #result codes are stored here
+    variable returncode_array
+    array unset returncode_array
+    array set returncode_array {}
 
     #these are used if it is a thread_iteration
     variable tmp_folder "/var/tmp"
@@ -79,10 +89,11 @@ namespace eval concurrency {
         if {[lindex $argv $iteration_argv_index] eq $iteration_match_text} {
             #setup some variables
             variable is_thread_iteration 1
-            variable ofilename [base32::encode $queue_item]
             variable queue_item [lindex $argv 1]
+            variable ofilename [base32::encode $queue_item]
             #call thread_iteration and exit 
-            exit [$thread_iteration_procname $queue_item]
+            $thread_iteration_procname $queue_item
+            exit
         }
         #initialize things
         set concurrency::input_queue {}
@@ -96,42 +107,60 @@ namespace eval concurrency {
         # call this when we are all setup and we want to start the run
         #initialize
         set concurrency::input_queue $input_queue
+        set wait_seconds 0
         set queue_empty 0
-        set queue_item 0
         #loop until we are done with the queue
         while {!$queue_empty} {
             #start a new thread if we can, if not... returns -1
+            set queue_item [_next_item]
             while {$queue_item != -1} {
                 #started a new thread... try to start more until we get a return of -1
-                set queue_item [_next_item]
                 _main_thread_start $queue_item
+                set queue_item [_next_item]
             }
             #perform wait unless complete
-            if {!$complete} {
-                after [expr $concurrency::wait_seconds * 1000]
+            if {!$queue_empty} {
+                after [expr $wait_seconds * 1000]
             }
+            set wait_seconds $concurrency::wait_seconds
             #finish each item that is ready
             foreach queue_item $concurrency::current_queue {
                 _main_thread_finish ${queue_item}
             }
             #check to see if we are done with the queue
             set queue_empty [_queue_is_empty]
+            #puts "...queue_empty: $queue_empty"
+            #puts "...-- input: $concurrency::input_queue"
+            #puts "...>> current: $concurrency::current_queue"
         }
+        #how do I pass data back to the guy who called process_queue?
     }
 
     proc iter_thread_start {} {
         variable queue_item
         set outfile [_output_filepath $queue_item]
-        #
+        #initialize logfile
+        init_logfile $outfile
+        print "TEST"
     }
 
-    proc iter_thread_finish {} {
+    proc iter_thread_finish {returncode} {
         variable queue_item
         set ofilename [base32::encode $queue_item]
         #is a thread_iteration
         #output flag to indicate thread_iteration is complete
-        print "\n$ofilename"
+        print "\n$ofilename - RETURNCODE: $returncode"
         return
+    }
+
+    proc get_result {queue_item} {
+        variable results_array
+        return $results_array($queue_item)
+    }
+
+    proc get_returncode {queue_item} {
+        variable returncode_array
+        return $returncode_array($queue_item)
     }
 
     #======================
@@ -156,32 +185,35 @@ namespace eval concurrency {
     proc _main_thread_start {queue_item} {
         #runfile - path to thread script
         #queue_item - the text of the concurrency queue item
-        set path [generate_results_path $routername]
-        puts "Start: $routername - $path"
+        puts "Start: $queue_item -- [_output_filepath $queue_item]"
         variable iteration_match_text
-        set outfile [output_filepath $queue_item]
+        set outfile [_output_filepath $queue_item]
         exec [info script] $iteration_match_text $queue_item $outfile >& /dev/null &
+        #puts [exec [info script] $iteration_match_text $queue_item $outfile ]
     }
 
     proc _main_thread_finish {queue_item} {
         set finished 0
-        set outfile [output_filepath $queue_item]
+        set outfile [_output_filepath $queue_item]
         set ofilename [base32::encode $queue_item]
-        variable is_thread_iteration 
         #read file
-
+        set filetext [string trim [read_file $outfile]]
         #get last line
-
-        #if last line == $ofilename, thread_iteration is complete
-        if { $last_line eq $ofilename } {
+        set last_line [lindex [nsplit $filetext] end]
+        #if last line begins with $ofilename, thread_iteration is complete
+        if { [string match "*$ofilename*" $last_line] } {
             set finished 1
-            set index [lsearch -exact $concurrency::current_queue $this_item]
+            set index [lsearch -exact $concurrency::current_queue $queue_item]
             if {$index != -1} {
                 #match found
-                #delete this_item from current_list
+                #delete queue_item from current_list
                 set concurrency::current_queue [lreplace $concurrency::current_queue $index $index]
-                #add this_item to finished_list
-                set concurrency::finished_queue $this_item
+                #add queue_item to finished_list
+                set concurrency::finished_queue $queue_item
+                variable results_array
+                variable returncode_array
+                set results_array($queue_item) $filetext
+                set returncode_array($queue_item) [lindex $last_line end]
             } else {
                 #match not found
                 return -code error "concurrency::thread_finish: dequeuing problem: $queue_item not found"
@@ -216,3 +248,4 @@ namespace eval concurrency {
     }
 
 }
+namespace import concurrency::*

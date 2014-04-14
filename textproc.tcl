@@ -7,7 +7,7 @@ namespace eval ::textproc {
 
     proc nsplit {textblock} {
         #take a textblock and return a list consisting of lines
-        set lines_list [split $textblock "\n"]
+        set lines_list [split $textblock "\n\r"]
         return $lines_list
     }
 
