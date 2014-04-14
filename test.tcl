@@ -79,7 +79,7 @@ namespace eval ::test {
     set test::lastmode "analyze"
   }
 
-  proc apply_config {router commands_textblock} {
+  proc apply_config {router commands_textblock {merge_set_override "cli"} {confirmed "0"}} {
     variable analyze_buffer
     juniperconnect::set_timeout 30
     set outparts {}
@@ -87,24 +87,8 @@ namespace eval ::test {
       lappend outparts [output::hr "-" 4]
     }
     lappend outparts "Apply Configuration to $router:"
-    #sanitize config - add configure private and/or commit and-quit if needed
-    set commands_list [nsplit [string trim $commands_textblock]]
-    set first [lindex $commands_list 0]
-    set changed 0
-    if {![string match "*config*" $first]} {
-      set commands_list [linsert $commands_list 0 "configure private"]
-      set changed 1
-    }
-    set last [lindex $commands_list end]
-    if {![string match "*commit*" $last]} {
-      set commands_list [linsert $commands_list end "commit and-quit"]
-      set changed 1
-    }
-    if {$changed} {
-      set commands_textblock [njoin $commands_list]
-    }
     #add commands to output
-    foreach line [nsplit $commands_textblock] {
+    foreach line [nsplit [string trim $commands_textblock]] {
       set line [string trim $line]
       if {$line ne ""} {
         lappend outparts "  + $line"
@@ -117,7 +101,7 @@ namespace eval ::test {
       connectssh $router
     }
     #send commands
-    set analyze_buffer [send_textblock $router $commands_textblock]
+    set analyze_buffer [send_config $router $commands_textblock $merge_set_override $confirmed]
     variable full_analyze_buffer $analyze_buffer
     set test::lastmode "analyze"
     juniperconnect::restore_timeout
