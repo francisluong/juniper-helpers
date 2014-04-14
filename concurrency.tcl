@@ -73,6 +73,9 @@ namespace eval concurrency {
     array unset returncode_array
     array set returncode_array {}
 
+    #debug
+    variable debug 0
+
     #these are used if it is a thread_iteration
     variable tmp_folder "/var/tmp"
     variable is_thread_iteration 0
@@ -189,8 +192,13 @@ namespace eval concurrency {
         puts "  Start: $queue_item -- [_output_filepath $queue_item]"
         variable iteration_match_text
         set outfile [_output_filepath $queue_item]
-        exec [info script] $iteration_match_text $queue_item $outfile >& /dev/null &
-        #puts [exec [info script] $iteration_match_text $queue_item $outfile ]
+        if {$concurrency::debug eq 0} {
+            exec [info script] $iteration_match_text $queue_item $outfile >& /dev/null &
+        } else {
+            #DO NOT background execute
+            h2 "_main_thread_start $queue_item (debug/not-concurrent)"
+            print [exec [info script] $iteration_match_text $queue_item $outfile ]
+        }
     }
 
     proc _main_thread_finish {queue_item} {
