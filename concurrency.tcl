@@ -45,6 +45,10 @@
 # 2. always use print rather than puts when you need output to be logged
 # 99. proc should call "iter_thread_finish" when it's done with everything
 # 
+# Stdin Gen Proc (optional)
+# =================================
+# this proc will take queue_item as an argument and return text to be 
+# presented to stdin for the thread iteration proc
 #
 
 package provide concurrency 1.0
@@ -54,10 +58,10 @@ package require homeless
 package require countdown
 
 namespace eval concurrency {
-    namespace export iter_thread_start iter_thread_finish
+    namespace export iter_thread_start iter_thread_finish iter_get_stdin
 
     variable max_threads 5
-    variable wait_seconds 10
+    variable wait_seconds 2
     variable input_queue {}
     variable current_queue {}
     variable finished_queue {}
@@ -81,6 +85,7 @@ namespace eval concurrency {
     variable is_thread_iteration 0
     variable queue_item {}
     variable ofilename {}
+    variable stdin_text {}
 
     proc init {thread_iteration_procname} {
         # call this early in your application... 
@@ -91,6 +96,8 @@ namespace eval concurrency {
         variable iteration_argv_index
         #if this is an iteration, run it and exit
         if {[lindex $argv $iteration_argv_index] eq $iteration_match_text} {
+            #read stdin
+            variable stdin_text [read stdin]
             #setup some variables
             variable is_thread_iteration 1
             variable queue_item [lindex $argv 1]
@@ -107,7 +114,7 @@ namespace eval concurrency {
         set concurrency::thread_iteration_procname $thread_iteration_procname
     }
 
-    proc process_queue {input_queue} {
+    proc process_queue {input_queue {stdin_gen_procname ""}} {
         # call this when we are all setup and we want to start the run
         #initialize
         set concurrency::input_queue $input_queue
@@ -120,7 +127,7 @@ namespace eval concurrency {
             set queue_item [_next_item]
             while {$queue_item != -1} {
                 #started a new thread... try to start more until we get a return of -1
-                _main_thread_start $queue_item
+                _main_thread_start $queue_item $stdin_gen_procname
                 set queue_item [_next_item]
             }
             #perform wait unless complete
@@ -157,6 +164,11 @@ namespace eval concurrency {
         return
     }
 
+    proc iter_get_stdin {} {
+        variable stdin_text
+        return $stdin_text
+    }
+
     proc get_result {queue_item} {
         variable results_array
         return $results_array($queue_item)
@@ -186,18 +198,23 @@ namespace eval concurrency {
         return $this_item
     }
 
-    proc _main_thread_start {queue_item} {
+    proc _main_thread_start {queue_item {stdin_gen_procname ""}} {
         #runfile - path to thread script
         #queue_item - the text of the concurrency queue item
         puts "  Start: $queue_item -- [_output_filepath $queue_item]"
         variable iteration_match_text
         set outfile [_output_filepath $queue_item]
+        if {$stdin_gen_procname ne ""} {
+            set text_to_stdin [eval $stdin_gen_procname $queue_item]
+        } else {
+            set text_to_stdin ""
+        }
         if {$concurrency::debug eq 0} {
-            exec [info script] $iteration_match_text $queue_item $outfile >& /dev/null &
+            exec [info script] $iteration_match_text $queue_item $outfile << $text_to_stdin >& /dev/null &
         } else {
             #DO NOT background execute
             h2 "_main_thread_start $queue_item (debug/not-concurrent)"
-            print [exec [info script] $iteration_match_text $queue_item $outfile ]
+            print [exec [info script] $iteration_match_text $queue_item $outfile << $text_to_stdin ]
         }
     }
 
