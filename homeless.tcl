@@ -80,6 +80,7 @@ namespace eval ::homeless {
                 if {$element ne $last} {
                     lappend result $element
                 }
+                set last $element
             }
         } else {
             #more searches to keep the order
