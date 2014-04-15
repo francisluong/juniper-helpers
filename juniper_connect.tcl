@@ -309,7 +309,8 @@ namespace eval ::juniperconnect {
                 }
                 set session_array($address) $spawn_id
                 send "set cli screen-length 0\n"
-                expect -re $prompt {send "set cli screen-width 0\n"}
+                expect -re $prompt {send "set cli screen-width 1024\n"}
+                expect -re $prompt {send "set cli timestamp\n"}
                 expect -re $prompt {send "\n"}
                 expect -re $prompt {}
                 #absorb final prompt
@@ -507,14 +508,17 @@ namespace eval ::juniperconnect {
     #CLI Internal
     #======================
 
-    proc _verify_initial_send_prompt {address} {
-        variable output
+    proc _verify_initial_send_prompt {address {capture_output 1}} {
         set spawn_id $juniperconnect::session_array($address)
         set timeout [timeout]
         set prompt $juniperconnect::rp_prompt_array(Juniper)
         send "\n"
         expect {
             -re $prompt {
+                if {$capture_output} {
+                    variable output
+                    append output [string trimleft $expect_out(buffer)]
+                }
                 #absorb final prompt
             }
             timeout {

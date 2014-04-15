@@ -68,5 +68,30 @@ namespace eval ::homeless {
         }
     }
 
+    proc list_filter_distinct {input_list {keep_order "sort"}} {
+      ###########################################
+      # abstract: takes a list and returns a list without any duplicates
+      ###########################################
+        set result {}
+        if {$keep_order eq "sort"} {
+            #faster if we sort
+            set last "-1-1-1-1-1"
+            foreach element [lsort $input_list] {
+                if {$element ne $last} {
+                    lappend result $element
+                }
+                set last $element
+            }
+        } else {
+            #more searches to keep the order
+            foreach element $input_list {
+                if {[lsearch -exact $result $element]==-1} {
+                    lappend result $element
+                }
+            }
+        }
+        return $result
+    }
+
 }
 namespace import homeless::*
