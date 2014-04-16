@@ -42,7 +42,7 @@
 # but there are some rules
 # 
 # 1. proc should call "iter_thread_start" before doing anything else
-# 2. always use print rather than puts when you need output to be logged
+# 2. always use iter_output rather than puts when you need output to be logged
 # 99. proc should call "iter_thread_finish" when it's done with everything
 # 
 # Stdin Gen Proc (optional)
@@ -53,12 +53,11 @@
 
 package provide concurrency 1.0
 package require base32
-package require output
 package require homeless
 package require countdown
 
 namespace eval concurrency {
-    namespace export iter_thread_start iter_thread_finish iter_get_stdin
+    namespace export iter_thread_start iter_thread_finish iter_get_stdin iter_output
 
     variable max_threads 5
     variable wait_seconds 2
@@ -157,27 +156,37 @@ namespace eval concurrency {
             puts "iter_thread_start: outfile: $outfile"
         }
         #initialize logfile
-        init_logfile $outfile
-        set output::default_indent_count 0
+        set file_handle [open $outfile w]
+        close $file_handle
     }
 
     proc iter_thread_finish {returncode} {
         variable queue_item
-        set ofilename [_output_filename $queue_item]
-        set outfile [_output_filepath $queue_item]
-        #is a thread_iteration
         #output flag to indicate thread_iteration is complete
-        output::print "\n$ofilename - RETURNCODE: $returncode"
+        set outfile [_output_filepath $queue_item]
+        set ofilename [_output_filename $queue_item]
+        set file_handle [open $outfile a]
+        puts $file_handle "\n$ofilename - RETURNCODE: $returncode"
         if {$concurrency::debug eq 1} {
             puts "\niter_thread_finish: outfile: $outfile"
-            puts "output: logfile:............ $output::logfile"
         }
+        #close outfile
+        close $file_handle
+        #exit script execution
         exit
     }
 
     proc iter_get_stdin {} {
         variable stdin_text
         return $stdin_text
+    }
+
+    proc iter_output {text} {
+        variable queue_item
+        set outfile [_output_filepath $queue_item]
+        set file_handle [open $outfile a]
+        puts $file_handle $text
+        close $file_handle
     }
 
     proc get_result {queue_item} {

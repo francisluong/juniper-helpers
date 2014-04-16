@@ -19,7 +19,7 @@ proc run_iteration {ping_target} {
     set options [yaml::yaml2dict [iter_get_stdin]]
     set count [dict get $options "count"]
     set returncode [ catch {exec ping -c $count $ping_target} output ]
-    print $output
+    iter_output $output
     #child thread proc needs to call iter_thread_finish as final action with return code as only arg
     iter_thread_finish $returncode
 }

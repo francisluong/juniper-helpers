@@ -27,7 +27,7 @@ proc child_thread_iteration {router} {
     if {$returncode == 0} {
         set returncode [catch {send_config $router $commands_textblock "set" "confirmed"} output]
     }
-    print $output
+    iter_output $output
     #child thread proc needs to call iter_thread_finish as final action with return code as only arg
     iter_thread_finish $returncode
 }
