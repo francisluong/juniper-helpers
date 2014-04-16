@@ -8,6 +8,7 @@ namespace eval ::output {
     variable logfile ""
     variable logfile_active 0
     variable quiet_stdout 0
+    variable default_indent_count 4
 
     proc init_logfile {filepath} {
         ### set logfile
@@ -49,29 +50,36 @@ namespace eval ::output {
         output::print $this_text 0
     }
 
-    proc print {text {indent_space_count 4}} {
+    proc print {text {indent_space_count "default"}} {
+        variable logfile_active
+        variable logfile
+        variable quiet_stdout
+        if {$indent_space_count eq "default"} {
+            variable default_indent_count
+            set indent_space_count $default_indent_count
+        }
         set this_text [indent $text $indent_space_count]
-        if {$output::logfile_active} {
-            set filepath $output::logfile
-            set fname [open $filepath a]
-            if {$text ne ""} {
-                set lines [textproc::nsplit $this_text]
-                foreach line $lines {
-                    puts $fname $line
+        if {$text ne ""} {
+            if {$logfile_active} {
+                set filepath $logfile
+                set fname [open $filepath a]
+                puts $fname $this_text
+                close $fname
+            }
+            if {!$quiet_stdout} {
+                foreach line [textproc::nsplit $this_text] {
+                    puts $line
                     after 1
                 }
-            }
-            close $fname
-        }
-        if {!$output::quiet_stdout} {
-            foreach line [textproc::nsplit $this_text] {
-                puts $line
-                after 1
             }
         }
     }
 
-    proc printline {text {indent_space_count 4}} {
+    proc printline {text {indent_space_count "default"}} {
+        if {$indent_space_count eq "default"} {
+            variable default_indent_count
+            set indent_space_count $default_indent_count
+        }
         output [hr "-" $indent_space_count]
     }
 
