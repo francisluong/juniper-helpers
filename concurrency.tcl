@@ -117,6 +117,9 @@ namespace eval concurrency {
     proc process_queue {input_queue {stdin_gen_procname ""}} {
         # call this when we are all setup and we want to start the run
         #initialize
+        set concurrency::input_queue {}
+        set concurrency::current_queue {}
+        set concurrency::finished_queue {}
         set concurrency::input_queue $input_queue
         set wait_seconds 1
         puts "Queue Start"
@@ -133,8 +136,7 @@ namespace eval concurrency {
             #perform wait unless complete
             if {!$queue_empty} {
                 puts -nonewline "  "
-                countdown::wait $wait_seconds 
-                #after [expr $wait_seconds * 1000]
+                after [expr $wait_seconds * 1000]
             }
             set wait_seconds $concurrency::wait_seconds
             #finish each item that is ready
