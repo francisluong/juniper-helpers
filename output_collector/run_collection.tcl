@@ -9,7 +9,8 @@ if {$argc < 2} {
     exit
 } 
 #read in userpass file
-import_userpass [lindex $argv 0]
+oc::init [lindex $argv 0]
+
 #read in config.yml
 set filepath_config_yml [lindex $argv 1]
 oc::load_config $filepath_config_yml
