@@ -295,12 +295,12 @@ namespace eval ::juniperconnect {
                 }
                 -re "(Username: |login: )" {
                     append output $expect_out(buffer)
-                    send -s "$username\r"
+                    send "$username\r"
                     exp_continue
                 }
                 -re "($address's password:|Password:|Telnet password:)" {
                     append output $expect_out(buffer)
-                    send -s "[base64::decode $password]\r"
+                    send "[base64::decode $password]\r"
                     exp_continue
                 }
                 timeout {
