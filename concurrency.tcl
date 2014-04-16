@@ -101,7 +101,7 @@ namespace eval concurrency {
             #setup some variables
             variable is_thread_iteration 1
             variable queue_item [lindex $argv 1]
-            variable ofilename [base32::encode $queue_item]
+            variable ofilename [_output_filename $queue_item]
             #call thread_iteration and exit 
             $thread_iteration_procname $queue_item
             exit
@@ -157,7 +157,7 @@ namespace eval concurrency {
 
     proc iter_thread_finish {returncode} {
         variable queue_item
-        set ofilename [base32::encode $queue_item]
+        set ofilename [_output_filename $queue_item]
         #is a thread_iteration
         #output flag to indicate thread_iteration is complete
         print "\n$ofilename - RETURNCODE: $returncode"
@@ -221,7 +221,7 @@ namespace eval concurrency {
 
     proc _main_thread_finish {queue_item} {
         set outfile [_output_filepath $queue_item]
-        set ofilename [base32::encode $queue_item]
+        set ofilename [_output_filename $queue_item]
         #read file
         if {[file readable $outfile]} {
             set filetext [string trim [read_file $outfile]]
@@ -281,10 +281,14 @@ namespace eval concurrency {
         }
     }
 
+    proc _output_filename {queue_item} {
+        return "[file tail [info script]].[string trimright [base32::encode $queue_item] "="]"
+    }
+
     proc _output_filepath {queue_item} {
         set format_string "%G-%m%d"
         set today [clock format [clock seconds] -format $format_string]
-        set ofilename [string trimright [base32::encode $queue_item] "="]
+        set ofilename [_output_filename $queue_item]
         return "$concurrency::tmp_folder/$today.$ofilename.txt"
     }
 
