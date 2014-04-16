@@ -164,6 +164,8 @@ namespace eval ::juniperconnect {
         variable rp_prompt_array
         variable end_of_message
         variable options
+        #local
+        set output {}
         if {!$options(initialized)} {
             #read in config.yml from same folder as juniperconnect
             set jcpath [lindex [package ifneeded JuniperConnect $juniperconnect::version] end]
@@ -214,6 +216,7 @@ namespace eval ::juniperconnect {
             send "\n"
             expect {
                 $end_of_message {
+                    append output $expect_out(buffer)
                     if {$style eq "netconf"} {
                         append netconf_tags $expect_out(buffer)
                         set success 1
@@ -222,12 +225,14 @@ namespace eval ::juniperconnect {
                     }
                 }
                 -re "<.*>" {
+                    append output $expect_out(buffer)
                     if {$style eq "netconf"} {
                         append netconf_tags $expect_out(buffer)
                     }
                     exp_continue
                 }
                 -re $prompt {
+                    append output $expect_out(buffer)
                     if {$style eq "cli"} {
                         set success 1
                     } else {
@@ -235,59 +240,71 @@ namespace eval ::juniperconnect {
                     }
                 }
                 "no hostkey alg" {
-                    return -code error "ERROR: juniperconnect::connectssh: no hostkey alg"
+                    append output $expect_out(buffer)
+                    return -code error "ERROR: juniperconnect::connectssh: no hostkey alg\n$output"
                 }
                 "Host key verification failed." {
-                    return -code error $ssh_mismatch_msg
+                    append output $expect_out(buffer)
+                    return -code error "$ssh_mismatch_msg\n$output"
                 }
                 "REMOTE HOST IDENTIFICATION HAS CHANGED" {
-                    return -code error $ssh_mismatch_msg
+                    append output $expect_out(buffer)
+                    return -code error "$ssh_mismatch_msg\n$output"
                 }
                 "Could not resolve hostname"              {
+                    append output $expect_out(buffer)
                       puts "juniperconnect::connectssh: $expect_out(0,string)"
                       exp_close; exp_wait
                       set retries -2
                       break
                 }
                 "Permission denied, please try again" {
+                    append output $expect_out(buffer)
                       puts "juniperconnect::connectssh: $expect_out(0,string)"
                       exp_close; exp_wait
                       set retries -1
                       break
                 }
                 "% Bad passwords" {
+                    append output $expect_out(buffer)
                       puts "juniperconnect::connectssh: $expect_out(0,string)"
                       exp_close; exp_wait
                       set retries -1
                       break
                 }
                 "can't be established." {
+                    append output $expect_out(buffer)
                     expect {(yes/no)?} {
                         send "yes\r"
                     }
                     exp_continue
                 }
                 -re "Connection (refused|closed)" {
+                    append output $expect_out(buffer)
                     puts "juniperconnect::connectssh: $expect_out(0,string)"
                     exp_close; exp_wait
                     after 2000
                 }
                 -re "(% Login invalid|Login incorrect|% Authentication failed.|ermission denied|Password Incorrect)" { 
+                    append output $expect_out(buffer)
                     exp_continue
                 }
                 -re "( JUNOS )" {
+                    append output $expect_out(buffer)
                     exp_continue
                 }
                 -re "(Username: |login: )" {
+                    append output $expect_out(buffer)
                     send -s "$username\r"
                     exp_continue
                 }
                 -re "($address's password:|Password:|Telnet password:)" {
+                    append output $expect_out(buffer)
                     send -s "[base64::decode $password]\r"
                     exp_continue
                 }
                 timeout {
-                    return -code error "juniperconnect::connectssh: TIMEOUT: timed out during login into $address"
+                    return -code error "juniperconnect::connectssh: TIMEOUT: timed out during login into $address\n$output"
                 }
             }
             after 1000
@@ -299,7 +316,7 @@ namespace eval ::juniperconnect {
                 "-1"      {set err_string "'Bad passwords'" }
                 "-2"      {set err_string "'Bad Hostname'" }
             }
-            return -code error "juniperconnect::connectssh: Error count exceeded for error $err_string error"
+            return -code error "juniperconnect::connectssh: Error count exceeded for error $err_string error\n$output"
         }
         set timeout [timeout]
         switch -- $style {
@@ -641,7 +658,9 @@ namespace eval ::juniperconnect {
         set timeout $juniperconnect::options(commit_timeout_sec)
         send "show | compare\r"
         expect {
-            -re $prompt {}
+            -re $prompt {
+                append output $expect_out(buffer)
+            }
             timeout {
                 return -code error "ERROR: $procname: timeout waiting for initial prompt"
             }
