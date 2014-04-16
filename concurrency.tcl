@@ -204,6 +204,7 @@ namespace eval concurrency {
         puts "  Start: $queue_item -- [_output_filepath $queue_item]"
         variable iteration_match_text
         set outfile [_output_filepath $queue_item]
+        file delete -force $outfile
         if {$stdin_gen_procname ne ""} {
             set text_to_stdin [eval $stdin_gen_procname $queue_item]
         } else {
@@ -219,11 +220,14 @@ namespace eval concurrency {
     }
 
     proc _main_thread_finish {queue_item} {
-        set finished 0
         set outfile [_output_filepath $queue_item]
         set ofilename [base32::encode $queue_item]
         #read file
-        set filetext [string trim [read_file $outfile]]
+        if {[file readable $outfile]} {
+            set filetext [string trim [read_file $outfile]]
+        } else {
+            set filetext ""
+        }
         #get last line
         set last_line [lindex [nsplit $filetext] end]
         #if last line begins with $ofilename, thread_iteration is complete
@@ -246,7 +250,7 @@ namespace eval concurrency {
                 return -code error "concurrency::thread_finish: dequeuing problem: $queue_item not found"
             }
         } else {
-            #not finished
+            set finished 0
         }
         return $finished
     }
@@ -280,7 +284,7 @@ namespace eval concurrency {
     proc _output_filepath {queue_item} {
         set format_string "%G-%m%d"
         set today [clock format [clock seconds] -format $format_string]
-        set ofilename [base32::encode $queue_item]
+        set ofilename [string trimright [base32::encode $queue_item] "="]
         return "$concurrency::tmp_folder/$today.$ofilename.txt"
     }
 
