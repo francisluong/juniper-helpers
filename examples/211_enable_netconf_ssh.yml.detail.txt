@@ -1,0 +1,370 @@
+$ ~/juniper-helpers/examples/210_concurrency_push_config_yaml.tcl ~/bin/.rad ./211_enable_netconf_ssh.yml er10-wdc1 er10-wdc2 er11-wdc1 er11-wdc2
+
+============================================================
+ROUTERS
+============================================================
+  
+  ----------------------------------------------------------
+  -- FINAL ROUTER LIST ------------------
+  ----------------------------------------------------------
+     - er10-wdc1
+     - er10-wdc2
+     - er11-wdc1
+     - er11-wdc2
+
+============================================================
+CONFIG
+============================================================
+#enable_netconf_ssh
+set system services netconf ssh
+
+    set system services netconf ssh
+--
+Review Configuration...
+ Press ENTER to Continue -- or -- Press CTRL-C to Cancel.
+
+============================================================
+START TEST: APPLY CONFIGS TO ROUTERS
+============================================================
+Queue Start
+  Queues (in/curr/fin): 4/0/0
+  Start: er10-wdc1 -- /var/tmp/2014-0416.MVZDCMBNO5SGGMI.txt
+  Start: er10-wdc2 -- /var/tmp/2014-0416.MVZDCMBNO5SGGMQ.txt
+  Start: er11-wdc1 -- /var/tmp/2014-0416.MVZDCMJNO5SGGMI.txt
+  Start: er11-wdc2 -- /var/tmp/2014-0416.MVZDCMJNO5SGGMQ.txt
+  sleeping for 1 seconds...1...0
+  Queues (in/curr/fin): 0/4/0
+    >> current: er10-wdc1 er10-wdc2 er11-wdc1 er11-wdc2
+  sleeping for 2 seconds...2...0
+  Queues (in/curr/fin): 0/4/0
+    >> current: er10-wdc1 er10-wdc2 er11-wdc1 er11-wdc2
+  sleeping for 2 seconds...2...0
+  Queues (in/curr/fin): 0/4/0
+    >> current: er10-wdc1 er10-wdc2 er11-wdc1 er11-wdc2
+  sleeping for 2 seconds...2...0
+  Queues (in/curr/fin): 0/4/0
+    >> current: er10-wdc1 er10-wdc2 er11-wdc1 er11-wdc2
+  sleeping for 2 seconds...2...0
+  Queues (in/curr/fin): 0/4/0
+    >> current: er10-wdc1 er10-wdc2 er11-wdc1 er11-wdc2
+  sleeping for 2 seconds...2...0
+  Queues (in/curr/fin): 0/3/1
+    >> current: er10-wdc1 er10-wdc2 er11-wdc1
+  sleeping for 2 seconds...2...0
+  Queues (in/curr/fin): 0/1/3
+    >> current: er10-wdc1
+  sleeping for 2 seconds...2...0
+  Queues (in/curr/fin): 0/1/3
+    >> current: er10-wdc1
+  sleeping for 2 seconds...2...0
+  Queues (in/curr/fin): 0/1/3
+    >> current: er10-wdc1
+  sleeping for 2 seconds...2...0
+  Queues (in/curr/fin): 0/1/3
+    >> current: er10-wdc1
+  sleeping for 2 seconds...2...0
+  Queues (in/curr/fin): 0/1/3
+    >> current: er10-wdc1
+  sleeping for 2 seconds...2...0
+  Queues (in/curr/fin): 0/1/3
+    >> current: er10-wdc1
+  sleeping for 2 seconds...2...0
+  Queues (in/curr/fin): 0/1/3
+    >> current: er10-wdc1
+  sleeping for 2 seconds...2...0
+  Queues (in/curr/fin): 0/1/3
+    >> current: er10-wdc1
+  sleeping for 2 seconds...2...0
+  Queues (in/curr/fin): 0/1/3
+    >> current: er10-wdc1
+  sleeping for 2 seconds...2...0
+  Queues (in/curr/fin): 0/1/3
+    >> current: er10-wdc1
+  sleeping for 2 seconds...2...0
+  Queues (in/curr/fin): 0/1/3
+    >> current: er10-wdc1
+  sleeping for 2 seconds...2...0
+  Queues (in/curr/fin): 0/1/3
+    >> current: er10-wdc1
+  sleeping for 2 seconds...2...0
+  Queues (in/curr/fin): 0/1/3
+    >> current: er10-wdc1
+  sleeping for 2 seconds...2...0
+  Queues (in/curr/fin): 0/1/3
+    >> current: er10-wdc1
+  sleeping for 2 seconds...2...0
+  Queues (in/curr/fin): 0/1/3
+    >> current: er10-wdc1
+  sleeping for 2 seconds...2...0
+  Queues (in/curr/fin): 0/0/4
+Queue Finish
+  
+  ----------------------------------------------------------
+  Subcase: Configure er10-wdc1
+  ----------------------------------------------------------
+    Analyzing textblock: send_config output for er10-wdc1
+    --------------------------------------------------------
+    > Verification of Assertions:
+      -  Confirmed: 'commit complete' is present
+      -  Confirmed: 'configuration check succeeds' is present
+    --------------------------------------------------------
+    > Relevant CLI/RPC Output:
+      {master}
+          fluong@ces-er10-wdc1-stlab-re0>configure exclusive 
+          Apr 16 14:54:34
+          warning: uncommitted changes will be discarded on exit
+          Entering configuration mode{master}[edit]
+          fluong@ces-er10-wdc1-stlab-re0#load set terminal 
+          Apr 16 14:54:34
+          [Type ^D at a new line to end input]
+          set system services netconf ssh
+          load complete{master}[edit]
+          fluong@ces-er10-wdc1-stlab-re0# show | compare 
+          
+          {master}[edit]
+          fluong@ces-er10-wdc1-stlab-re0# commit confirmed 5 and-quit 
+          Apr 16 14:54:35
+          re0: 
+          configuration check succeeds
+          commit confirmed will be automatically rolled back in 5 minutes unless confirmed
+          re1: 
+          commit complete
+          commit confirmed will be automatically rolled back in 5 minutes unless confirmed
+          re0: 
+          commit complete
+          Exiting configuration mode
+          
+          # commit confirmed will be rolled back in 5 minutes
+          {master}
+          fluong@ces-er10-wdc1-stlab-re0>configure exclusive 
+          Apr 16 14:54:40
+          warning: uncommitted changes will be discarded on exit
+          Entering configuration mode# commit confirmed will be rolled back in 5 minutes
+          {master}[edit]
+          fluong@ces-er10-wdc1-stlab-re0# show | compare 
+          
+          # commit confirmed will be rolled back in 5 minutes
+          {master}[edit]
+          fluong@ces-er10-wdc1-stlab-re0# commit and-quit 
+          Apr 16 14:54:41
+          re0: 
+          configuration check succeeds
+          re1: 
+          commit complete
+          re0: 
+          commit complete
+          Exiting configuration mode
+          
+          {master}
+          
+          MVZDCMBNO5SGGMI= - RETURNCODE: 0
+    Analyzing textblock: send_config returncode
+      -  Confirmed: '0' is present
+    --------------------------------------------------------
+    > Relevant CLI/RPC Output:
+      0
+  
+  ----------------------------------------------------------
+  Subcase: Configure er10-wdc2
+  ----------------------------------------------------------
+    Analyzing textblock: send_config output for er10-wdc2
+    --------------------------------------------------------
+    > Verification of Assertions:
+      -  Confirmed: 'commit complete' is present
+      -  Confirmed: 'configuration check succeeds' is present
+    --------------------------------------------------------
+    > Relevant CLI/RPC Output:
+      {master}
+          fluong@ces-er10-wdc2-stlab-re0>configure exclusive 
+          Apr 16 14:54:34
+          warning: uncommitted changes will be discarded on exit
+          Entering configuration mode{master}[edit]
+          fluong@ces-er10-wdc2-stlab-re0#load set terminal 
+          Apr 16 14:54:34
+          [Type ^D at a new line to end input]
+          set system services netconf ssh
+          load complete{master}[edit]
+          fluong@ces-er10-wdc2-stlab-re0# show | compare 
+          
+          {master}[edit]
+          fluong@ces-er10-wdc2-stlab-re0# commit confirmed 5 and-quit 
+          Apr 16 14:54:36
+          re0: 
+          configuration check succeeds
+          commit confirmed will be automatically rolled back in 5 minutes unless confirmed
+          re1: 
+          commit complete
+          commit confirmed will be automatically rolled back in 5 minutes unless confirmed
+          re0: 
+          commit complete
+          Exiting configuration mode
+          
+          # commit confirmed will be rolled back in 5 minutes
+          {master}
+          fluong@ces-er10-wdc2-stlab-re0>configure exclusive 
+          Apr 16 14:54:39
+          warning: uncommitted changes will be discarded on exit
+          Entering configuration mode# commit confirmed will be rolled back in 5 minutes
+          {master}[edit]
+          fluong@ces-er10-wdc2-stlab-re0# show | compare 
+          
+          # commit confirmed will be rolled back in 5 minutes
+          {master}[edit]
+          fluong@ces-er10-wdc2-stlab-re0# commit and-quit 
+          Apr 16 14:54:41
+          re0: 
+          configuration check succeeds
+          re1: 
+          commit complete
+          re0: 
+          commit complete
+          Exiting configuration mode
+          
+          {master}
+          
+          MVZDCMBNO5SGGMQ= - RETURNCODE: 0
+    Analyzing textblock: send_config returncode
+      -  Confirmed: '0' is present
+    --------------------------------------------------------
+    > Relevant CLI/RPC Output:
+      0
+  
+  ----------------------------------------------------------
+  Subcase: Configure er11-wdc1
+  ----------------------------------------------------------
+    Analyzing textblock: send_config output for er11-wdc1
+    --------------------------------------------------------
+    > Verification of Assertions:
+      -  Confirmed: 'commit complete' is present
+      -  Confirmed: 'configuration check succeeds' is present
+    --------------------------------------------------------
+    > Relevant CLI/RPC Output:
+      {master}
+          fluong@ces-er11-wdc1-stlab-re0>configure exclusive 
+          Apr 16 14:54:34
+          warning: uncommitted changes will be discarded on exit
+          Entering configuration mode{master}[edit]
+          fluong@ces-er11-wdc1-stlab-re0#load set terminal 
+          Apr 16 14:54:34
+          [Type ^D at a new line to end input]
+          set system services netconf ssh
+          load complete{master}[edit]
+          fluong@ces-er11-wdc1-stlab-re0# show | compare 
+          
+          {master}[edit]
+          fluong@ces-er11-wdc1-stlab-re0# commit confirmed 5 and-quit 
+          Apr 16 14:54:35
+          re0: 
+          configuration check succeeds
+          commit confirmed will be automatically rolled back in 5 minutes unless confirmed
+          re1: 
+          commit complete
+          commit confirmed will be automatically rolled back in 5 minutes unless confirmed
+          re0: 
+          commit complete
+          Exiting configuration mode
+          
+          # commit confirmed will be rolled back in 5 minutes
+          {master}
+          fluong@ces-er11-wdc1-stlab-re0>configure exclusive 
+          Apr 16 14:54:40
+          warning: uncommitted changes will be discarded on exit
+          Entering configuration mode# commit confirmed will be rolled back in 5 minutes
+          {master}[edit]
+          fluong@ces-er11-wdc1-stlab-re0# show | compare 
+          
+          # commit confirmed will be rolled back in 5 minutes
+          {master}[edit]
+          fluong@ces-er11-wdc1-stlab-re0# commit and-quit 
+          Apr 16 14:54:41
+          re0: 
+          configuration check succeeds
+          re1: 
+          commit complete
+          re0: 
+          commit complete
+          Exiting configuration mode
+          
+          {master}
+          
+          MVZDCMJNO5SGGMI= - RETURNCODE: 0
+    Analyzing textblock: send_config returncode
+      -  Confirmed: '0' is present
+    --------------------------------------------------------
+    > Relevant CLI/RPC Output:
+      0
+  
+  ----------------------------------------------------------
+  Subcase: Configure er11-wdc2
+  ----------------------------------------------------------
+    Analyzing textblock: send_config output for er11-wdc2
+    --------------------------------------------------------
+    > Verification of Assertions:
+      -  Confirmed: 'commit complete' is present
+      -  Confirmed: 'configuration check succeeds' is present
+    --------------------------------------------------------
+    > Relevant CLI/RPC Output:
+      {master}
+          fluong@ces-er11-wdc2-stlab-re0>configure exclusive 
+          Apr 16 14:54:34
+          warning: uncommitted changes will be discarded on exit
+          Entering configuration mode{master}[edit]
+          fluong@ces-er11-wdc2-stlab-re0#load set terminal 
+          Apr 16 14:54:34
+          [Type ^D at a new line to end input]
+          set system services netconf ssh
+          load complete{master}[edit]
+          fluong@ces-er11-wdc2-stlab-re0# show | compare 
+          
+          {master}[edit]
+          fluong@ces-er11-wdc2-stlab-re0# commit confirmed 5 and-quit 
+          Apr 16 14:54:35
+          re0: 
+          configuration check succeeds
+          commit confirmed will be automatically rolled back in 5 minutes unless confirmed
+          re1: 
+          commit complete
+          commit confirmed will be automatically rolled back in 5 minutes unless confirmed
+          re0: 
+          commit complete
+          Exiting configuration mode
+          
+          # commit confirmed will be rolled back in 5 minutes
+          {master}
+          fluong@ces-er11-wdc2-stlab-re0>configure exclusive 
+          Apr 16 14:54:39
+          warning: uncommitted changes will be discarded on exit
+          Entering configuration mode# commit confirmed will be rolled back in 5 minutes
+          {master}[edit]
+          fluong@ces-er11-wdc2-stlab-re0# show | compare 
+          
+          # commit confirmed will be rolled back in 5 minutes
+          {master}[edit]
+          fluong@ces-er11-wdc2-stlab-re0# commit and-quit 
+          Apr 16 14:54:40
+          re0: 
+          configuration check succeeds
+          re1: 
+          commit complete
+          re0: 
+          commit complete
+          Exiting configuration mode
+          
+          {master}
+          
+          MVZDCMJNO5SGGMQ= - RETURNCODE: 0
+    Analyzing textblock: send_config returncode
+      -  Confirmed: '0' is present
+    --------------------------------------------------------
+    > Relevant CLI/RPC Output:
+      0
+  
+  ----------------------------------------------------------
+  Test Result Summary --> PASS
+  ----------------------------------------------------------
+    ** Subcase: Configure er10-wdc1 --> PASS
+    ** Subcase: Configure er10-wdc2 --> PASS
+    ** Subcase: Configure er11-wdc1 --> PASS
+    ** Subcase: Configure er11-wdc2 --> PASS
+
+============================================================

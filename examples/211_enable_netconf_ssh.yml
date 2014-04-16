@@ -1,0 +1,3 @@
+enable_netconf_ssh:
+    config: |
+        set system services netconf ssh
