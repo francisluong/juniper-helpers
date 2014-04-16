@@ -151,17 +151,26 @@ namespace eval concurrency {
     proc iter_thread_start {} {
         variable queue_item
         set outfile [_output_filepath $queue_item]
+        if {$concurrency::debug eq 1} {
+            puts "iter_thread_start: outfile: $outfile"
+        }
         #initialize logfile
         init_logfile $outfile
+        set output::default_indent_count 0
     }
 
     proc iter_thread_finish {returncode} {
         variable queue_item
         set ofilename [_output_filename $queue_item]
+        set outfile [_output_filepath $queue_item]
         #is a thread_iteration
         #output flag to indicate thread_iteration is complete
-        print "\n$ofilename - RETURNCODE: $returncode"
-        return
+        output::print "\n$ofilename - RETURNCODE: $returncode"
+        if {$concurrency::debug eq 1} {
+            puts "\niter_thread_finish: outfile: $outfile"
+            puts "output: logfile:............ $output::logfile"
+        }
+        exit
     }
 
     proc iter_get_stdin {} {
@@ -186,14 +195,17 @@ namespace eval concurrency {
     proc _next_item {} {
         #get next item or return -1
         #return -1 if no sessions are available
+        variable max_threads
+        variable current_queue
+        variable input_queue
         set this_item "-1"
-        set current_sessions [llength concurrency::current_queue]
-        if {[llength $concurrency::input_queue] != 0 && ($current_sessions < $concurrency::max_threads)} {
+        set current_sessions [llength $current_queue]
+        if {[llength $input_queue] != 0 && ($current_sessions < $max_threads)} {
             #dequeue
-            set this_item [lindex $concurrency::input_queue 0]
-            set concurrency::input_queue [lrange $concurrency::input_queue 1 end]
+            set this_item [lindex $input_queue 0]
+            set input_queue [lrange $input_queue 1 end]
             #add to current_list
-            lappend concurrency::current_queue $this_item
+            lappend current_queue $this_item
         }
         return $this_item
     }
@@ -215,7 +227,7 @@ namespace eval concurrency {
         } else {
             #DO NOT background execute
             h2 "_main_thread_start $queue_item (debug/not-concurrent)"
-            print [exec [info script] $iteration_match_text $queue_item $outfile << $text_to_stdin ]
+            puts [exec [info script] $iteration_match_text $queue_item $outfile << $text_to_stdin ]
         }
     }
 
@@ -244,7 +256,9 @@ namespace eval concurrency {
                 variable returncode_array
                 set results_array($queue_item) $filetext
                 set returncode_array($queue_item) [lindex $last_line end]
-                file delete -force $outfile
+                if {!$concurrency::debug} {
+                    file delete -force $outfile
+                }
             } else {
                 #match not found
                 return -code error "concurrency::thread_finish: dequeuing problem: $queue_item not found"
@@ -282,7 +296,8 @@ namespace eval concurrency {
     }
 
     proc _output_filename {queue_item} {
-        return "[file tail [info script]].[string trimright [base32::encode $queue_item] "="]"
+        global argv0
+        return "[file tail $argv0].[string trimright [base32::encode $queue_item] "="]"
     }
 
     proc _output_filepath {queue_item} {
