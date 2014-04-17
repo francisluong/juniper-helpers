@@ -8,4 +8,4 @@
 # script is sourced, the variable $dir must contain the
 # full path name of this file's directory.
 
-package ifneeded oc 1.0 [list source [file join $dir output_collector.tcl]]
+package ifneeded oc 1.0 [list source [file join $dir oc.tcl]]

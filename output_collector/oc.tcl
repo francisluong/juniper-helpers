@@ -80,7 +80,7 @@ namespace eval ::oc {
                 #process queue concurrently
                 concurrency::process_queue $routers_list "oc::stdin_gen"
             }  else {
-                print " !! Templated Failed: Folder not writable: $folder - template $filepath"
+                output::print " !! Templated Failed: Folder not writable: $folder - template $filepath"
             }
         }
     }
@@ -139,7 +139,7 @@ namespace eval ::oc {
             puts $fl [string trim $output_text]
             close $fl
         }
-        output::print $output_text
+        iter_output $output_text
         #child thread proc needs to call iter_thread_finish as final action with return code as only arg
         iter_thread_finish $returncode
     }
