@@ -330,6 +330,7 @@ namespace eval ::test {
             }
         }
         set analyze_buffer $test::full_analyze_buffer
+        return $test::pass($test::current_subcase)
     }
 
     proc wait {wait_seconds} {
