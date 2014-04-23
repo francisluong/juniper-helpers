@@ -440,7 +440,7 @@ namespace eval ::juniperconnect {
         return $output
     }
 
-    proc send_config {address config_textblock {merge_set_override "cli"} {confirmed "0"}} {
+    proc send_config {address config_textblock {merge_set_override "cli"} {confirmed_simulate "0"}} {
         #send a list of commands to the router expecting prompt between each
         set prompt $juniperconnect::rp_prompt_array(Juniper)
         set procname "send_config"
@@ -514,7 +514,7 @@ namespace eval ::juniperconnect {
                 return -code error "ERROR: unexpected value for merge_set_override: $merge_set_override"
             }
         }
-        _commit_and_quit_config $address $confirmed
+        _commit_and_quit_config $address $confirmed_simulate
         set output [string trimright [textproc::nrange $output 0 end-1]]
         set output [join [split $output "\r"] ""]
         log_user 1
@@ -650,7 +650,7 @@ namespace eval ::juniperconnect {
         #final prompt is absorbed
     }
 
-    proc _commit_and_quit_config {address {confirmed "0"}} {
+    proc _commit_and_quit_config {address {confirmed_simulate "0"}} {
         variable output
         set procname "_commit_and_quit_config"
         set prompt $juniperconnect::rp_prompt_array(Juniper)
@@ -666,52 +666,93 @@ namespace eval ::juniperconnect {
             }
         }
         #send commit
-        if {![string match -nocase "*confirm*" $confirmed]} {
-            send "commit and-quit\r"
-        } else {
-            set minutes $juniperconnect::options(commit_confirmed_timeout_min)
-            send "commit confirmed $minutes and-quit\r"
+        switch -glob -nocase -- $confirmed_simulate {
+            "*confirm*" {
+                set minutes $juniperconnect::options(commit_confirmed_timeout_min)
+                send "commit confirmed $minutes and-quit\r"
+            }
+            "*check*" -
+            "*test*" -
+            "*simulate*" {
+                send "commit check\r"
+            } 
+            default {
+                send "commit and-quit\r"
+            }
         }
         #process commit - if we do not get commit complete, rollback and throw an exception
-        set commit_complete 0
-        expect {
-            "commit complete" {
-                append output $expect_out(buffer)
-                set commit_complete 1
-                exp_continue
-            }
-            "error: configuration check-out failed" {
-                return -code error "ERROR: Juniper configuration commit failed" 
-            }
-            {re0:} {
-                append output $expect_out(buffer)
-                exp_continue
-            }
-            {re1:} {
-                append output $expect_out(buffer)
-                exp_continue
-            }
-            "configuration check succeeds" {
-                append output $expect_out(buffer)
-                exp_continue
-            }
-            -re $prompt {
-                append output $expect_out(buffer)
-                if {!$commit_complete} {
-                    #send rollback and quit-configuration
-                    set commands_list [list "rollback" "quit config"]
-                    _send_commands_loop $address $commands_list
-                    #throw exception
-                    return -code error "ERROR: $procname: got prompt before seeing 'commit complete'"
+        switch -glob -nocase -- $confirmed_simulate {
+            "*check*" -
+            "*test*" -
+            "*simulate*" {
+                expect {
+                    {re0:} {
+                        append output $expect_out(buffer)
+                        exp_continue
+                    }
+                    {re1:} {
+                        append output $expect_out(buffer)
+                        exp_continue
+                    }
+                    "configuration check succeeds" {
+                        append output $expect_out(buffer)
+                        exp_continue
+                    }
+                    -re $prompt {
+                        append output $expect_out(buffer)
+                        #send rollback and quit-configuration
+                        set commands_list [list "rollback" "quit config"]
+                        _send_commands_loop $address $commands_list
+                        #final prompt is absorbed
+                    }
+                    timeout {
+                        return -code error "EXPECT TIMEOUT($timeout): $procname: waiting for final prompt"
+                    }
                 }
-                #absorb final prompt
-            }
-            timeout {
-                return -code error "EXPECT TIMEOUT($timeout): $procname: waiting for final prompt"
+            } 
+            "*confirm*" -
+            default {
+                set commit_complete 0
+                expect {
+                    "commit complete" {
+                        append output $expect_out(buffer)
+                        set commit_complete 1
+                        exp_continue
+                    }
+                    "error: configuration check-out failed" {
+                        return -code error "ERROR: Juniper configuration commit failed" 
+                    }
+                    {re0:} {
+                        append output $expect_out(buffer)
+                        exp_continue
+                    }
+                    {re1:} {
+                        append output $expect_out(buffer)
+                        exp_continue
+                    }
+                    "configuration check succeeds" {
+                        append output $expect_out(buffer)
+                        exp_continue
+                    }
+                    -re $prompt {
+                        append output $expect_out(buffer)
+                        if {!$commit_complete} {
+                            #send rollback and quit-configuration
+                            set commands_list [list "rollback" "quit config"]
+                            _send_commands_loop $address $commands_list
+                            #throw exception
+                            return -code error "ERROR: $procname: got prompt before seeing 'commit complete'"
+                        }
+                        #absorb final prompt
+                    }
+                    timeout {
+                        return -code error "EXPECT TIMEOUT($timeout): $procname: waiting for final prompt"
+                    }
+                }
             }
         }
         #if commit confirmed, send second commit
-        if {[string match -nocase "*confirm*" $confirmed]} {
+        if {[string match -nocase "*confirm*" $confirmed_simulate]} {
             #disconnect
             disconnectssh $address
             #reconnect

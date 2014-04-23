@@ -79,7 +79,7 @@ namespace eval ::test {
         set test::lastmode "analyze"
     }
 
-    proc apply_config {router commands_textblock {merge_set_override "cli"} {confirmed "0"}} {
+    proc apply_config {router commands_textblock {merge_set_override "cli"} {confirmed_simulate "0"}} {
         variable analyze_buffer
         juniperconnect::set_timeout 30
         set outparts {}
@@ -101,7 +101,7 @@ namespace eval ::test {
             connectssh $router
         }
         #send commands
-        set analyze_buffer [send_config $router $commands_textblock $merge_set_override $confirmed]
+        set analyze_buffer [send_config $router $commands_textblock $merge_set_override $confirmed_simulate]
         variable full_analyze_buffer $analyze_buffer
         set test::lastmode "analyze"
         juniperconnect::restore_timeout

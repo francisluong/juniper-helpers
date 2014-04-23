@@ -32,6 +32,15 @@ send_config $router $config_textblock merge
 
 #3
 set config_textblock "
+    delete system
+    delete interfaces
+    delete protocols
+    delete routing-options
+"
+send_config $router $config_textblock set simulate
+
+#4
+set config_textblock "
     annotate system ''
     annotate interfaces ''
     delete interfaces lo0 description
