@@ -145,7 +145,7 @@ namespace eval ::juniperconnect {
         #revert r_username and r_password
         # convenience proc for temporary login changes
         variable r_db
-        return [change_rdb_user $r_db(__lastuser)]
+        return [juniperconnect::change_rdb_user $r_db(__lastuser)]
     }
 
     proc session_exists {address} {
@@ -318,7 +318,7 @@ namespace eval ::juniperconnect {
             }
             return -code error "juniperconnect::connectssh: Error count exceeded for error $err_string error\n$output"
         }
-        set timeout [timeout]
+        set timeout [juniperconnect::timeout]
         switch -- $style {
             "cli" {
                 if {$options(outputlevel) ne "quiet" } {
@@ -365,7 +365,7 @@ namespace eval ::juniperconnect {
             if {[string match "nc:*" $address]} {
                 #close NETCONF session
                 set address [lindex [split $address ":"] end]
-                send_rpc $address [build_rpc "close-session"]
+                juniperconnect::send_rpc $address [juniperconnect::build_rpc "close-session"]
             } else {
                 #CLI: send exit
                 set timeout 1
@@ -408,7 +408,7 @@ namespace eval ::juniperconnect {
     proc send_textblock {address commands_textblock} {
         set textblock [string trim $commands_textblock]
         set commands_list [textproc::nsplit $textblock]
-        return [send_commands $address $commands_list]
+        return [juniperconnect::send_commands $address $commands_list]
     }
 
     proc send_commands {address commands_list} {
@@ -421,7 +421,7 @@ namespace eval ::juniperconnect {
         variable output
         set output {}
 
-        set timeout [timeout]
+        set timeout [juniperconnect::timeout]
         set spawn_id $juniperconnect::session_array($address)
 
         #suppress output if outputlevel is set to quiet
@@ -433,7 +433,7 @@ namespace eval ::juniperconnect {
         #send initial carriage-return then expect first prompt
         _verify_initial_send_prompt $address
         #loop through commands list
-        _send_commands_loop $address $commands_list
+        juniperconnect::_send_commands_loop $address $commands_list
         set output [string trimright [textproc::nrange $output 0 end-1]]
         set output [join [split $output "\r"] ""]
         log_user 1
@@ -449,7 +449,7 @@ namespace eval ::juniperconnect {
         variable output
         set output {}
 
-        set timeout [timeout]
+        set timeout [juniperconnect::timeout]
         set spawn_id $juniperconnect::session_array($address)
 
         #suppress output if outputlevel is set to quiet
@@ -459,9 +459,9 @@ namespace eval ::juniperconnect {
         }
 
         #send initial carriage-return then expect first prompt
-        _verify_initial_send_prompt $address
+        juniperconnect::_verify_initial_send_prompt $address
         #enter configuration mode
-        _enter_configuration_mode $address
+        juniperconnect::_enter_configuration_mode $address $confirmed_simulate
         #initiate load
         set config_textblock [string trim $config_textblock]
         switch -- $merge_set_override {
@@ -479,7 +479,7 @@ namespace eval ::juniperconnect {
                     }
                 }
                 #loop through config textblock
-                foreach line [nsplit $config_textblock] {
+                foreach line [textproc::nsplit $config_textblock] {
                     set line [string trimleft $line]
                     #insert delay
                     after 10
@@ -503,12 +503,12 @@ namespace eval ::juniperconnect {
                         return -code error "$procname: TIMEOUT($timeout) waiting for 'load complete'"
                     }
                 }
-                set timeout [timeout]
+                set timeout [juniperconnect::timeout]
             }
             "cli" {
                 #default mode... act like send_commands
                 set commands_list [nsplit $config_textblock]
-                _send_commands_loop $address $commands_list
+                juniperconnect::_send_commands_loop $address $commands_list
             }
             default {
                 return -code error "ERROR: unexpected value for merge_set_override: $merge_set_override"
@@ -527,7 +527,7 @@ namespace eval ::juniperconnect {
 
     proc _verify_initial_send_prompt {address {capture_output 1}} {
         set spawn_id $juniperconnect::session_array($address)
-        set timeout [timeout]
+        set timeout [juniperconnect::timeout]
         set prompt $juniperconnect::rp_prompt_array(Juniper)
         send "\n"
         expect {
@@ -544,29 +544,40 @@ namespace eval ::juniperconnect {
         }
     }
 
-    proc _enter_configuration_mode {address {loose "0"}} {
+    proc _enter_configuration_mode {address confirmed_simulate {loose "0"}} {
         variable output
         set spawn_id $juniperconnect::session_array($address)
-        set timeout [timeout]
+        set timeout [juniperconnect::timeout]
         set prompt $juniperconnect::rp_prompt_array(Juniper)
-        send "configure exclusive\r"
-        expect {
-            "commit confirmed will be rolled back in" {
-                if {$loose == 0} {
+        switch -glob -nocase -- $confirmed_simulate {
+            "*confirm*" {
+                send "configure exclusive\r"
+            }
+            default {
+                send "configure private\r"
+            }
+        }
+        if {$loose == 0} {
+            #NOT loose
+            expect {
+                "commit confirmed will be rolled back in" {
                     return -code error "ERROR: Juniper router $router has pending rollback"
-                } else {
                     exp_continue
                 }
-            }
-            "The configuration has been changed but not committed" {
-                if {$loose == 0} {
+                "The configuration has been changed but not committed" {
                     return -code error "ERROR: Juniper router $router has uncommited changes - exitting"
-                } else {
                     exp_continue
                 }
+                "Entering configuration mode" {
+                    append output [string trimleft $expect_out(buffer)]
+                }
             }
-            "Entering configuration mode" {
-                append output [string trimleft $expect_out(buffer)]
+        } else {
+            #loose/permissive
+            expect {
+                "Entering configuration mode" {
+                    append output [string trimleft $expect_out(buffer)]
+                }
             }
         }
         expect {
@@ -597,7 +608,7 @@ namespace eval ::juniperconnect {
         variable output
         set procname "_send_commands_loop"
         set spawn_id $juniperconnect::session_array($address)
-        set timeout [timeout]
+        set timeout [juniperconnect::timeout]
         set mode "cli"
         set prompt $juniperconnect::rp_prompt_array(Juniper)
         foreach this_command $commands_list {
@@ -702,7 +713,7 @@ namespace eval ::juniperconnect {
                         append output $expect_out(buffer)
                         #send rollback and quit-configuration
                         set commands_list [list "rollback" "quit config"]
-                        _send_commands_loop $address $commands_list
+                        juniperconnect::_send_commands_loop $address $commands_list
                         #final prompt is absorbed
                     }
                     timeout {
@@ -739,7 +750,7 @@ namespace eval ::juniperconnect {
                         if {!$commit_complete} {
                             #send rollback and quit-configuration
                             set commands_list [list "rollback" "quit config"]
-                            _send_commands_loop $address $commands_list
+                            juniperconnect::_send_commands_loop $address $commands_list
                             #throw exception
                             return -code error "ERROR: $procname: got prompt before seeing 'commit complete'"
                         }
@@ -758,10 +769,10 @@ namespace eval ::juniperconnect {
             #reconnect
             set spawn_id [connectssh $address]
             #enter configuration mode
-            _enter_configuration_mode $address "loose"
+            _enter_configuration_mode $address $confirmed_simulate "loose"
             _commit_and_quit_config $address
         }
-        set timeout [timeout]
+        set timeout [juniperconnect::timeout]
     }
 
     #======================
@@ -819,7 +830,7 @@ namespace eval ::juniperconnect {
         variable nc_output
         set nc_output {}
 
-        set timeout [timeout]
+        set timeout [juniperconnect::timeout]
         set mode "netconf"
 
         variable session_array
@@ -872,7 +883,7 @@ namespace eval ::juniperconnect {
             }
             "ascii" {
                 set rpc_ascii [add_ascii_format_to_rpc $rpc]
-                set ascii_output [send_rpc $address $rpc_ascii]
+                set ascii_output [juniperconnect::send_rpc $address $rpc_ascii]
                 set ascii_doc [dom parse $ascii_output]
                 set output [$ascii_doc selectNodes "//output"]
                 set rpc_reply [$cleandoc firstChild]
