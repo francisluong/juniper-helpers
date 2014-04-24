@@ -1,6 +1,6 @@
-package provide output 1.0
+package provide output 1.1
 package require Tcl 8.5
-package require textproc 1.0
+package require textproc
 
 namespace eval ::output {
     namespace export h1 h2 indent blockanchor lineanchor init_logfile print printline
@@ -14,7 +14,7 @@ namespace eval ::output {
         ### set logfile
         set output::logfile $filepath
         set output::logfile_active 1
-        log_results_clear $filepath
+        output::log_results_clear $filepath
     }
 
     proc log_results_clear {target_filepath} {
@@ -41,12 +41,12 @@ namespace eval ::output {
 
 
     proc h1 {text} {
-        set this_text [format_header $text "=" 0 1]
+        set this_text [output::format_header $text "=" 0 1]
         output::print $this_text 0
     }
 
     proc h2 {text} {
-        set this_text [format_header $text "-" 2]
+        set this_text [output::format_header $text "-" 2]
         output::print $this_text 0
     }
 
@@ -58,7 +58,7 @@ namespace eval ::output {
             variable default_indent_count
             set indent_space_count $default_indent_count
         }
-        set this_text [indent $text $indent_space_count]
+        set this_text [output::indent $text $indent_space_count]
         if {$text ne ""} {
             if {$logfile_active} {
                 set filepath $logfile
@@ -80,7 +80,7 @@ namespace eval ::output {
             variable default_indent_count
             set indent_space_count $default_indent_count
         }
-        output [hr "-" $indent_space_count]
+        output [output::hr "-" $indent_space_count]
     }
 
     proc hr {dashmark {indent_space_count 0}} {
@@ -99,7 +99,7 @@ namespace eval ::output {
             append result_textblock "\n"
             append result_textblock $item
         }
-        return [indent $result_textblock $indent_space_count]
+        return [output::indent $result_textblock $indent_space_count]
     }
 
     proc indent {text num_spaces} {
@@ -134,7 +134,7 @@ namespace eval ::output {
     }
 
     proc buffer_print {{clear ""}} {
-        print [textproc::njoin $output::output_buffer]
+        output::print [textproc::njoin $output::output_buffer]
         if {[string match -nocase "clear" $clear]} {
             output::buffer_clear
         }
@@ -143,44 +143,44 @@ namespace eval ::output {
     proc pdict { dictVarName {indent 1} {prefixString "    "} {separator " => "} } {
     #copied from http://wiki.tcl.tk/23526...
     # alterations by @francisluong
-            set fRepExist [expr {0 < [llength\
-                            [info commands tcl::unsupported::representation]]}]
-            #output dictionary name if first iteration
-            if { (![string is list $dictVarName] || [llength $dictVarName] == 1)
-                            && [uplevel 1 [list info exists $dictVarName]] } {
-                    set dictName $dictVarName
-                    unset dictVarName
-                    upvar 1 $dictName dictVarName
-                    puts "dict $dictName"
+        set fRepExist [expr {0 < [llength\
+                        [info commands tcl::unsupported::representation]]}]
+        #output dictionary name if first iteration
+        if { (![string is list $dictVarName] || [llength $dictVarName] == 1)
+                        && [uplevel 1 [list info exists $dictVarName]] } {
+                set dictName $dictVarName
+                unset dictVarName
+                upvar 1 $dictName dictVarName
+                puts "dict $dictName"
+        }
+        #throw an exception if we are not dealing with a key value list
+        if { ! [string is list $dictVarName] || [llength $dictVarName] % 2 != 0 } {
+                return -code error  "error: pdict - argument is not a dict"
+        }
+        set prefix [string repeat $prefixString $indent]
+        #set max to the string length of the longest key
+        set max 0
+        foreach key [dict keys $dictVarName] {
+            if { [string length $key] > $max } {
+                set max [string length $key]
             }
-            #throw an exception if we are not dealing with a key value list
-            if { ! [string is list $dictVarName] || [llength $dictVarName] % 2 != 0 } {
-                    return -code error  "error: pdict - argument is not a dict"
+        }
+        #output keys at this level and call pdict for inside levels
+        dict for {key val} ${dictVarName} {
+            puts -nonewline "$indent:${prefix}[format "%-${max}s" $key]$separator"
+            if {    $fRepExist && [string match "value is a dict*"\
+                    [tcl::unsupported::representation $val]]
+                    || ! $fRepExist && [string is list $val]
+                    && [llength $val] % 2 == 0 } {
+                #it's a dict... recurse!
+                puts ""
+                pdict $val [expr {$indent+1}] $prefixString $separator
+            } else {
+                #scalar value... print and return
+                puts "'${val}'"
             }
-            set prefix [string repeat $prefixString $indent]
-            #set max to the string length of the longest key
-            set max 0
-            foreach key [dict keys $dictVarName] {
-                    if { [string length $key] > $max } {
-                            set max [string length $key]
-                    }
-            }
-            #output keys at this level and call pdict for inside levels
-            dict for {key val} ${dictVarName} {
-                    puts -nonewline "$indent:${prefix}[format "%-${max}s" $key]$separator"
-                    if {    $fRepExist && [string match "value is a dict*"\
-                                            [tcl::unsupported::representation $val]]
-                                    || ! $fRepExist && [string is list $val]
-                                            && [llength $val] % 2 == 0 } {
-                            #it's a dict... recurse!
-                            puts ""
-                            pdict $val [expr {$indent+1}] $prefixString $separator
-                    } else {
-                            #scalar value... print and return
-                            puts "'${val}'"
-                    }
-            }
-            return
+        }
+        return
     }
 
 }
