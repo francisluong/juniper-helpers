@@ -1,5 +1,6 @@
 package provide homeless 1.0
 package require Tcl 8.5
+package require Expect
 
 namespace eval ::homeless {
     #homeless procs... I'll find a place for them later... all get imported into root namespace (I know...)
@@ -24,13 +25,13 @@ namespace eval ::homeless {
         return $file_contents
     }
 
-    proc prompt_user {prompt_text timeout_value} {
+    proc prompt_user {prompt_text timeout_seconds} {
         #prompt_text is presented to stdout
         #timeout is in seconds... -1 means wait forever
         send_user -- "$prompt_text"
         set result -1
         #timeout is in seconds... -1 means wait forever
-        set timeout $timeout_value
+        set timeout $timeout_seconds
         expect_user {
              -re "(.*)\n" { 
                  set result 1
@@ -50,8 +51,8 @@ namespace eval ::homeless {
         while {!$done && $this_iteration < $iteration_limit} {
             incr this_iteration
             ding 2
-            set result [prompt_user $prompt $timeout]
-            set prompt "o"
+            set result [[namespace current]::prompt_user $prompt $timeout]
+            set prompt "."
             if {$result != -1} {set done 1}
         }
     }

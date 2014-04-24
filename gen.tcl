@@ -33,13 +33,15 @@ namespace eval ::gen {
         #generate a router config from yaml
         set yaml_full [yaml::yaml2dict [read_file $yaml_filepath]]
         #one top level key for each section of config - repeat for each section
+        set result_config_parts {}
         foreach key [dict keys $yaml_full] {
             set dict_yaml_section [dict get $yaml_full $key]
             puts "#$key"
             set config_section [gen::_process_yaml_config_section $dict_yaml_section]
             puts $config_section
+            lappend result_config_parts $config_section
         }
-        return $config_section
+        return [join $result_config_parts "\n"]
     }
 
     proc _process_yaml_config_section {dict_yaml_section} {
@@ -55,7 +57,7 @@ namespace eval ::gen {
         array set gen_values [list "count" 1]
         if {[lsearch -exact $keys "generators"] != -1} {
             set dict_generators [dict get $dict_yaml_section generators]
-            array set gen_values [::gen:_process_yaml_generators $dict_generators]
+            array set gen_values [[namespace current]::_process_yaml_generators $dict_generators]
         }
         #perform substitutions into config section
         set config [dict get $dict_yaml_section config]
@@ -84,7 +86,7 @@ namespace eval ::gen {
         }
         #array set this_gen $kv_range_params
         #calculate and append count to key-value list
-        dict set result_dict "count" [::gen:_shortest_list_in_dict $result_dict]
+        dict set result_dict "count" [[namespace current]::_shortest_list_in_dict $result_dict]
         return $result_dict
     }
 
@@ -116,10 +118,10 @@ namespace eval ::gen {
                 set result_dict {}
                 foreach key [dict keys $then] {
                     #merge each result_dict into main result_dict
-                    set this_result_dict [::gen:_iteration_yaml_generator $key [dict get $then $key]]
+                    set this_result_dict [[namespace current]::_iteration_yaml_generator $key [dict get $then $key]]
                     set result_dict [dict merge $result_dict $this_result_dict]
                     #update repeat_times based on shortest list length
-                    set repeat_times [::gen:_shortest_list_in_dict $result_dict]
+                    set repeat_times [[namespace current]::_shortest_list_in_dict $result_dict]
                 }
             } else {
                 set result_dict {}
