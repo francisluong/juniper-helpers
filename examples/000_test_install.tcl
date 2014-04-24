@@ -51,6 +51,7 @@ set chan [open $pkgindex]
 while {[gets $chan line] >= 0} {
     if {[string match "package *" $line]} {
         print "[lrange $line 2 3] \t==> found at [lindex [eval [lrange $line 0 3]] end]"
+        package require [lindex $line 2]
     }
 }
 close $chan
