@@ -1,4 +1,4 @@
-package provide gen 1.0
+package provide gen 1.1
 package require Tcl 8.5
 package require ip
 package require yaml
@@ -55,7 +55,7 @@ namespace eval ::gen {
         array set gen_values [list "count" 1]
         if {[lsearch -exact $keys "generators"] != -1} {
             set dict_generators [dict get $dict_yaml_section generators]
-            array set gen_values [_process_yaml_generators $dict_generators]
+            array set gen_values [::gen:_process_yaml_generators $dict_generators]
         }
         #perform substitutions into config section
         set config [dict get $dict_yaml_section config]
@@ -84,7 +84,7 @@ namespace eval ::gen {
         }
         #array set this_gen $kv_range_params
         #calculate and append count to key-value list
-        dict set result_dict "count" [_shortest_list_in_dict $result_dict]
+        dict set result_dict "count" [::gen:_shortest_list_in_dict $result_dict]
         return $result_dict
     }
 
@@ -116,10 +116,10 @@ namespace eval ::gen {
                 set result_dict {}
                 foreach key [dict keys $then] {
                     #merge each result_dict into main result_dict
-                    set this_result_dict [_iteration_yaml_generator $key [dict get $then $key]]
+                    set this_result_dict [::gen:_iteration_yaml_generator $key [dict get $then $key]]
                     set result_dict [dict merge $result_dict $this_result_dict]
                     #update repeat_times based on shortest list length
-                    set repeat_times [_shortest_list_in_dict $result_dict]
+                    set repeat_times [::gen:_shortest_list_in_dict $result_dict]
                 }
             } else {
                 set result_dict {}
