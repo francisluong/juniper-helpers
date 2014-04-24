@@ -100,7 +100,7 @@ namespace eval concurrency {
             #setup some variables
             variable is_thread_iteration 1
             variable queue_item [lindex $argv 1]
-            variable ofilename [_output_filename $queue_item]
+            variable ofilename [[namespace current]::_output_filename $queue_item]
             #call thread_iteration and exit 
             $thread_iteration_procname $queue_item
             exit
@@ -123,14 +123,14 @@ namespace eval concurrency {
         set wait_seconds 1
         puts "Queue Start"
         #loop until we are done with the queue
-        set queue_empty [_queue_is_empty]
+        set queue_empty [[namespace current]::_queue_is_empty]
         while {!$queue_empty} {
             #start a new thread if we can, if not... returns -1
-            set queue_item [_next_item]
+            set queue_item [[namespace current]::_next_item]
             while {$queue_item != -1} {
                 #started a new thread... try to start more until we get a return of -1
-                _main_thread_start $queue_item $stdin_gen_procname
-                set queue_item [_next_item]
+                [namespace current]::_main_thread_start $queue_item $stdin_gen_procname
+                set queue_item [[namespace current]::_next_item]
             }
             #perform wait unless complete
             if {!$queue_empty} {
@@ -143,35 +143,63 @@ namespace eval concurrency {
                 _main_thread_finish ${queue_item}
             }
             #check to see if we are done with the queue
-            set queue_empty [_queue_is_empty]
+            set queue_empty [[namespace current]::_queue_is_empty]
         }
         puts "Queue Finish"
         #how do I pass data back to the guy who called process_queue?
     }
 
+    proc report_detail {} {
+        variable finished_queue
+        #print test results
+        foreach queue_item $finished_queue {
+            set this_result [[namespace current]::get_result $queue_item]
+            output::h2 "Thread Output: $queue_item"
+            output::print $this_result
+        }
+        #print closing HR
+        output::print "\n[output::hr "="]" 0
+    }
+
+    proc report_pass_fail {} {
+        variable finished_queue
+        #print test result codes
+        set outparts {}
+        set overall_pass "PASS"
+        foreach queue_item $finished_queue {
+            set this_resultcode [[namespace current]::get_returncode $queue_item]
+            set outcome "PASS"
+            if {$this_resultcode > 0} {
+                set outcome "FAIL"
+                set overall_pass "FAIL"
+            }
+            lappend outparts "** $queue_item --> $outcome"
+        }
+        output::h2 "Test Result Summary --> $overall_pass"
+        output::print [textproc::njoin $outparts]
+        #print closing HR
+        output::print "\n[output::hr "="]" 0
+    }
+
     proc iter_thread_start {} {
         variable queue_item
-        set outfile [_output_filepath $queue_item]
+        set outfile [[namespace current]::_output_filepath $queue_item]
         if {$concurrency::debug eq 1} {
             puts "iter_thread_start: outfile: $outfile"
         }
         #initialize logfile
-        set file_handle [open $outfile w]
-        close $file_handle
+        output::init_logfile $outfile
     }
 
     proc iter_thread_finish {returncode} {
         variable queue_item
         #output flag to indicate thread_iteration is complete
-        set outfile [_output_filepath $queue_item]
-        set ofilename [_output_filename $queue_item]
-        set file_handle [open $outfile a]
-        puts $file_handle "\n$ofilename - RETURNCODE: $returncode"
+        set ofilename [[namespace current]::_output_filename $queue_item]
+        [namespace current]::iter_output "\n$ofilename - RETURNCODE: $returncode"
         if {$concurrency::debug eq 1} {
+            set outfile [[namespace current]::_output_filepath $queue_item]
             puts "\niter_thread_finish: outfile: $outfile"
         }
-        #close outfile
-        close $file_handle
         #exit script execution
         exit
     }
@@ -181,12 +209,8 @@ namespace eval concurrency {
         return $stdin_text
     }
 
-    proc iter_output {text} {
-        variable queue_item
-        set outfile [_output_filepath $queue_item]
-        set file_handle [open $outfile a]
-        puts $file_handle $text
-        close $file_handle
+    proc iter_output {outtext {indent_space_count "0"}} {
+        output::print $outtext $indent_space_count
     }
 
     proc get_result {queue_item} {
@@ -224,9 +248,9 @@ namespace eval concurrency {
     proc _main_thread_start {queue_item {stdin_gen_procname ""}} {
         #runfile - path to thread script
         #queue_item - the text of the concurrency queue item
-        puts "  Start: $queue_item -- [_output_filepath $queue_item]"
+        puts "  Start: $queue_item -- [[namespace current]::_output_filepath $queue_item]"
         variable iteration_match_text
-        set outfile [_output_filepath $queue_item]
+        set outfile [[namespace current]::_output_filepath $queue_item]
         file delete -force $outfile
         if {$stdin_gen_procname ne ""} {
             set text_to_stdin [eval $stdin_gen_procname $queue_item]
@@ -237,14 +261,14 @@ namespace eval concurrency {
             exec [info script] $iteration_match_text $queue_item $outfile << $text_to_stdin >& /dev/null &
         } else {
             #DO NOT background execute
-            h2 "_main_thread_start $queue_item (debug/not-concurrent)"
+            output::h2 "_main_thread_start $queue_item (debug/not-concurrent)"
             puts [exec [info script] $iteration_match_text $queue_item $outfile << $text_to_stdin ]
         }
     }
 
     proc _main_thread_finish {queue_item} {
-        set outfile [_output_filepath $queue_item]
-        set ofilename [_output_filename $queue_item]
+        set outfile [[namespace current]::_output_filepath $queue_item]
+        set ofilename [[namespace current]::_output_filename $queue_item]
         #read file
         if {[file readable $outfile]} {
             set filetext [string trim [read_file $outfile]]
@@ -314,7 +338,7 @@ namespace eval concurrency {
     proc _output_filepath {queue_item} {
         set format_string "%G-%m%d"
         set today [clock format [clock seconds] -format $format_string]
-        set ofilename [_output_filename $queue_item]
+        set ofilename [[namespace current]::_output_filename $queue_item]
         return "$concurrency::tmp_folder/$today.$ofilename.txt"
     }
 

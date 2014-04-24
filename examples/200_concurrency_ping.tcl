@@ -18,8 +18,11 @@ proc run_iteration {ping_target} {
     iter_thread_start
     set options [yaml::yaml2dict [iter_get_stdin]]
     set count [dict get $options "count"]
+    test::subcase "Ping $ping_target"
     set returncode [ catch {exec ping -c $count $ping_target} output ]
-    iter_output $output
+    test::analyze_textblock "Ping output for $ping_target" $output
+    test::assert "0% packet loss"
+    test::end_analyze
     #child thread proc needs to call iter_thread_finish as final action with return code as only arg
     iter_thread_finish $returncode
 }
@@ -41,16 +44,8 @@ init_logfile "/var/tmp/results"
 
 
 #main test instance
-test::start "Ping All Targets"
 #process queue concurrently, sending the return value of [stdin_gen $queue_item] to each thread instance
 concurrency::process_queue $argv "stdin_gen"
+concurrency::report_detail
+concurrency::report_pass_fail
 
-#iterate through results outputs
-foreach queue_item $argv {
-    test::subcase "Ping $queue_item"
-    test::analyze_textblock "Ping output for $queue_item" [concurrency::get_result $queue_item]
-    test::assert "0% packet loss"
-    test::end_analyze
-}
-
-test::finish
