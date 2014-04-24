@@ -198,20 +198,17 @@ namespace eval ::juniperconnect {
         while {$success==0 && $retries>0} {
             switch -- $style {
                 "cli" {
-                    set catch_result [ catch {spawn ssh $username@$address} reason ]
+                    spawn ssh $username@$address
                 }
                 "netconf" {
                     log_user 0
-                    set catch_result [ catch {spawn ssh $username@$address -p 830 -s "netconf"} reason ]
+                    spawn ssh $username@$address -p 830 -s "netconf"
                 }
                 default {
                     return -code error "[info proc]: ERROR: unexpected value for style: '$style'"
                 }
             }
             set netconf_tags {}
-            if {$catch_result>0} {
-                return -code error "juniperconnect::connectssh $username@$address: failed to connect: $reason\n"
-            }
             set timeout $juniperconnect::options(connect_timeout_sec)
             send "\n"
             expect {
@@ -251,7 +248,7 @@ namespace eval ::juniperconnect {
                     append output $expect_out(buffer)
                     return -code error "$ssh_mismatch_msg\n$output"
                 }
-                "Could not resolve hostname"              {
+                -re "(Could not resolve hostname|node name or service name not known)" {
                     append output $expect_out(buffer)
                       puts "juniperconnect::connectssh: $expect_out(0,string)"
                       exp_close; exp_wait
