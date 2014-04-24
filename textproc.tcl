@@ -22,9 +22,9 @@ namespace eval ::textproc {
             set rangestop $rangestart
         }
         #line lrange but for "\n" delimited textblocks
-        set lines_list [nsplit $textblock]
+        set lines_list [textproc::nsplit $textblock]
         set after_lines_list [lrange $lines_list $rangestart $rangestop]
-        set result [njoin $after_lines_list]
+        set result [textproc::njoin $after_lines_list]
     }
 
     proc split_on_empty_line {textblock} {
@@ -41,7 +41,7 @@ namespace eval ::textproc {
         #return a lindex-split for all lines in textblock
         #column numbers start with 1, not 0
         set result_list {}
-        foreach line [nsplit $textblock] {
+        foreach line [textproc::nsplit $textblock] {
             set new_line_parts_list {}
             if {$field_separator eq ""} {
                 set splitline $line
@@ -59,7 +59,7 @@ namespace eval ::textproc {
                 return $result_list
             }
             "textblock" {
-                set result [njoin $result_list]
+                set result [textproc::njoin $result_list]
                 return $result
             }
             default {
@@ -99,14 +99,14 @@ namespace eval ::textproc {
                 set expression "$expression.*\$"
             }
             if {$ignore_case} {
-                return [njoin [regexp -all -inline -line -nocase $expression $textblock]]
+                return [textproc::njoin [regexp -all -inline -line -nocase $expression $textblock]]
             } else {
-                return [njoin [regexp -all -inline -line $expression $textblock]]
+                return [textproc::njoin [regexp -all -inline -line $expression $textblock]]
             }
         }
         #inverse matching requires line-by-line
         set result {}
-        foreach line [nsplit $textblock] {
+        foreach line [textproc::nsplit $textblock] {
             if {$ignore_case} {
                 set regexp_true [regexp -line -nocase -- $expression $line]
             } else {
@@ -116,7 +116,7 @@ namespace eval ::textproc {
                 lappend result $line
             }
         }
-        return [njoin $result]
+        return [textproc::njoin $result]
     }
 
     proc grep_until {start_expression stop_expression textblock {options_list ""} } {
@@ -158,7 +158,7 @@ namespace eval ::textproc {
         set result {}
         set state "init"
         set this_block {}
-        foreach line [nsplit $textblock] {
+        foreach line [textproc::nsplit $textblock] {
             string trim $line
             switch -- $state {
                 "init" { 
@@ -197,7 +197,7 @@ namespace eval ::textproc {
                 "printuntilstop" { 
                     lappend this_block $line 
                     if {$match} {
-                        lappend result [njoin $this_block]
+                        lappend result [textproc::njoin $this_block]
                         if {$once} {break}
                         set state "init"
                         set this_block {}
