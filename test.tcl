@@ -1,7 +1,7 @@
 package provide test 1.0
 package require Tcl 8.5
-package require JuniperConnect 1.0
-package require output 1.0
+package require JuniperConnect 
+package require output 
 package require countdown
 
 namespace eval ::test {

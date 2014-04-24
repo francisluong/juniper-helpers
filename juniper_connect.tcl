@@ -1,10 +1,10 @@
 package provide JuniperConnect 1.0
-package require textproc 1.0
+package require textproc 
 package require Expect 5.43
 package require Tcl 8.5
 package require tdom 0.8.3
 package require base64
-package require yaml
+package require yaml 0.3.6
 package require homeless
 
 namespace eval ::juniperconnect {
