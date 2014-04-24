@@ -41,9 +41,9 @@ namespace eval ::countdown {
               puts -nonewline $current_display_value
               set index [expr $count-$current_click_offset]
               if {$index<$increment} {
-                  dotdotdot $index 
+                  ::countdown:dotdotdot $index
               } else {
-                  dotdotdot $increment
+                  ::countdown:dotdotdot $increment
               }
               eval $eval
               set current_display_value [expr $current_display_value-$display_increment]
@@ -66,7 +66,7 @@ namespace eval ::countdown {
       # returns: 
       #    - nothing
       ###########################################
-        run_eval $count $unit $eval
+        ::countdown:run_eval $count $unit $eval
     }
 
     proc dotdotdot {count} {
