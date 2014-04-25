@@ -23,11 +23,16 @@ proc child_thread_iteration {router} {
     import_userpass [dict get $options "userpass_file"]
     # do stuff
     set commands_textblock [dict get $options commands_textblock]
-    set returncode [catch {connectssh $router} output]
-    if {$returncode == 0} {
-        set returncode [catch {send_config $router $commands_textblock "set" "confirmed"} output]
+    test::subcase "Configure $router"
+    test::apply_config $router $commands_textblock "set" "confirmed"
+    test::assert "commit complete"
+    test::assert "configuration check succeeds"
+    set pass [test::end_analyze]
+    if {$pass} {
+        set returncode 0
+    } else {
+        set returncode 1
     }
-    iter_output $output
     #child thread proc needs to call iter_thread_finish as final action with return code as only arg
     iter_thread_finish $returncode
 }
@@ -51,7 +56,7 @@ import_userpass [lindex $argv 0]
 
 #start a log file based on yaml filename(.results.txt)
 set filepath [lindex $argv 1]
-init_logfile "$filepath.results.txt"
+init_logfile "/var/tmp/[file tail $argv0].results.txt"
 
 #create the working list of routers by matching rtr expressions against ewan config file list
 h1 "Routers"
@@ -69,20 +74,7 @@ print [string trim $commands_textblock]
 nag_user "--\nReview Configuration...\n Press ENTER to Continue -- or -- Press CTRL-C to Cancel."
 
 #execute commands on routers
-test::start "Apply Configs to Routers"
 #process queue concurrently, sending the return value of [stdin_gen $queue_item] to each thread instance
 concurrency::process_queue $routers_list "stdin_gen"
-
-foreach router $routers_list {
-    test::subcase "Configure $router"
-    test::analyze_textblock "send_config output for $router" [concurrency::get_result $router]
-    set returncode [concurrency::get_returncode $router]
-    test::assert "commit complete"
-    test::assert "configuration check succeeds"
-    test::end_analyze
-    test::analyze_textblock "send_config returncode" $returncode
-    test::assert "0"
-    test::end_analyze
-}
-test::finish
-
+concurrency::report_detail
+concurrency::report_pass_fail

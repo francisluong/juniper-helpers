@@ -676,6 +676,30 @@ namespace eval ::juniperconnect {
         #send commit
         switch -glob -nocase -- $confirmed_simulate {
             "*confirm*" {
+                #perform commit check
+                send "commit check\r"
+                expect {
+                    {re0:} {
+                        append output $expect_out(buffer)
+                        exp_continue
+                    }
+                    {re1:} {
+                        append output $expect_out(buffer)
+                        exp_continue
+                    }
+                    "configuration check succeeds" {
+                        append output $expect_out(buffer)
+                        exp_continue
+                    }
+                    -re $prompt {
+                        append output $expect_out(buffer)
+                        #final prompt is absorbed
+                    }
+                    timeout {
+                        return -code error "EXPECT TIMEOUT($timeout): $procname: waiting for final prompt"
+                    }
+                }
+                #issue commit confirmed
                 set minutes $juniperconnect::options(commit_confirmed_timeout_min)
                 send "commit confirmed $minutes and-quit\r"
             }
