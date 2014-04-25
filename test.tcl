@@ -54,10 +54,10 @@ namespace eval ::test {
         set test::lastmode "subcase"
     }
 
-    proc analyze_cli {router commands_textblock} {
-        return [test::analyze_output $router $commands_textblock]
+    proc analyze_cli {router commands_textblock {rpc 0}} {
+        return [test::analyze_output $router $commands_textblock $rpc]
     }
-    proc analyze_output {router commands_textblock} {
+    proc analyze_output {router commands_textblock {rpc 0}} {
         variable analyze_buffer 
         set outparts {}
         if {$test::lastmode ne "analyze"} {
@@ -76,6 +76,9 @@ namespace eval ::test {
         }
         set analyze_buffer [juniperconnect::send_textblock $router $commands_textblock]
         variable full_analyze_buffer $analyze_buffer
+        if {$rpc ne "0"} {
+            set analyze_buffer [juniperconnect::prep_netconf_output $analyze_buffer]
+        }
         set test::lastmode "analyze"
     }
 
@@ -214,11 +217,12 @@ namespace eval ::test {
     }
 
     proc xassert {xpath {assertion "present"}  {value1 ""} {value2 ""}} {
+        variable analyze_buffer
         if {$test::lastmode ne "assert"} {
             output::print [output::hr "-" 4]
             output::print "> Verification of Assertions:"
         }
-        set domdoc [dom parse $test::analyze_buffer]
+        set domdoc [dom parse $analyze_buffer]
         set rpc_reply [$domdoc documentElement]
         set node_set [$rpc_reply selectNodes $xpath]
         set outparts [list "* xpath: $xpath"]

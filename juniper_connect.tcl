@@ -8,7 +8,7 @@ package require yaml 0.3.6
 package require homeless
 
 namespace eval ::juniperconnect {
-    namespace export connectssh disconnectssh send_textblock send_config build_rpc send_rpc grep_output import_userpass
+    namespace export connectssh disconnectssh send_textblock send_config build_rpc send_rpc grep_output import_userpass prep_netconf_output
 
     variable version 1.0
     variable session_array
@@ -847,9 +847,7 @@ namespace eval ::juniperconnect {
         #send netconf rpc to the router and return the nc_output
         set procname "send_rpc"
 
-        #initialize return nc_output
-        variable nc_output
-        set nc_output {}
+        set this_nc_output {}
 
         set timeout [juniperconnect::timeout]
         set mode "netconf"
@@ -873,15 +871,15 @@ namespace eval ::juniperconnect {
         #clear echo for outgoing rpc
         expect $end_of_message {}
 
-        #loop through return nc_output until end_of_message received
+        #loop through return this_nc_output until end_of_message received
         expect {
             $end_of_message {
                 #got end_of_message - exit condition for expect-loop
-                append nc_output $expect_out(buffer)
+                append this_nc_output $expect_out(buffer)
             }
             -re "<.*>" {
                 #this resets the timeout timer when we find any tag/element
-                append nc_output $expect_out(buffer)
+                append this_nc_output $expect_out(buffer)
                 exp_continue
             }
             timeout {
@@ -889,29 +887,50 @@ namespace eval ::juniperconnect {
                 #because of the for-loop this sucker may just keep going, but it's possible the cli has siezed up
             }
         }
-        #set nc_output [string trim [lindex [split $nc_output "\]"] 0]]
-        set nc_output [nrange $nc_output 1 end-1]
-        set doc [dom parse $nc_output]
-        $doc xslt $juniperconnect::xslt_remove_namespace cleandoc
         log_user 1
+        set this_nc_output [nrange $this_nc_output 1 end-1]
         switch -- $style {
-            default -
-            "strip" {
-                return [$cleandoc asXML]
-            }
-            "raw" {
-                return $nc_output
-            }
             "ascii" {
                 set rpc_ascii [add_ascii_format_to_rpc $rpc]
                 set ascii_output [juniperconnect::send_rpc $address $rpc_ascii]
-                set ascii_doc [dom parse $ascii_output]
-                set output [$ascii_doc selectNodes "//output"]
-                set rpc_reply [$cleandoc firstChild]
-                $rpc_reply appendChild $output 
-                return [$cleandoc asXML]
+                return [[namespace current]::prep_netconf_output $this_nc_output $style $ascii_output]
+            }
+            default {
+                return [[namespace current]::prep_netconf_output $this_nc_output $style]
             }
         }
+    }
+
+    proc prep_netconf_output {netconf_output {style "strip"} {ascii_output ""}} {
+        variable xslt_remove_namespace
+        set netconf_output [lindex [grep_until "rpc-reply" "/rpc-reply" $netconf_output] 0]
+        set this_doc [dom parse $netconf_output]
+        $this_doc xslt $xslt_remove_namespace cleandoc
+        switch -- $style {
+            default -
+            "strip" {
+            }
+            "raw" {
+                set cleandoc $this_doc
+            }
+            "ascii" {
+                if {$ascii_output ne ""} {
+                    set ascii_doc [dom parse $ascii_output]
+                    set outputnode [$ascii_doc selectNodes "//output"]
+                    set rpc_reply [$cleandoc firstChild]
+                    $rpc_reply appendChild $outputnode
+                }
+            }
+        }
+        set result [$cleandoc asXML]
+        if {[info exists outputnode]} {
+            $outputnode delete
+        }
+        $cleandoc delete
+        $this_doc delete
+        variable nc_output
+        set nc_output $result
+        return $result
     }
 
     proc grep_output {expression} {

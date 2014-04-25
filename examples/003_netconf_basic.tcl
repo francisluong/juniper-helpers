@@ -28,4 +28,9 @@ test::start "Verify Chassis is of type Firefly or MX960"
     test::xassert "software-information/package-information\[1]/comment/text()" regexp "JUNOS"
     test::end_analyze "ascii"
 
+    test::subcase "Verify Version is JUNOS (rpc reply from cli)"
+    test::analyze_cli $router "show version | display xml" rpc
+    test::xassert "software-information/package-information\[1]/comment/text()" regexp "JUNOS"
+    test::end_analyze 
+
 test::finish
