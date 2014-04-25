@@ -45,7 +45,10 @@ init_logfile "/var/tmp/results"
 
 #main test instance
 #process queue concurrently, sending the return value of [stdin_gen $queue_item] to each thread instance
+h1 "Process Queue"
 concurrency::process_queue $argv "stdin_gen"
+
+h1 "Report Results"
 concurrency::report_detail
 concurrency::report_pass_fail
 

@@ -75,6 +75,9 @@ nag_user "--\nReview Configuration...\n Press ENTER to Continue -- or -- Press C
 
 #execute commands on routers
 #process queue concurrently, sending the return value of [stdin_gen $queue_item] to each thread instance
+h1 "Process Queue"
 concurrency::process_queue $routers_list "stdin_gen"
+
+h1 "Report Results"
 concurrency::report_detail
 concurrency::report_pass_fail
