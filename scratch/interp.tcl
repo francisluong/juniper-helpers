@@ -1,13 +1,13 @@
 #!/usr/bin/env tclsh
 
-if {[lindex $argv 0] ne "SLAVE"} {
-  puts [clock format [clock seconds]]
-  exec [info script] "SLAVE" &
-  puts [clock format [clock seconds]]
-  
-} else {
-  interp create waiter
-  interp eval waiter {after 5000}
-  interp eval waiter {return "returnvalue"}
+#time limited execution
+set slave [interp create]
+interp limit $slave time -seconds [clock add [clock seconds] 5 seconds]
+interp eval $slave {
+    set x 0
+    while {1} {
+        puts "$x"
+        after 1000
+        incr x
+    }
 }
-
