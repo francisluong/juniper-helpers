@@ -2,15 +2,15 @@ package provide countdown 1.0
 
 namespace eval ::countdown {
 
-    proc run_eval {count {unit "seconds"} eval} {
+    proc run_eval {evalbody count {unit "seconds"}} {
       ###########################################
       # abstract: sleeps for a total of $count milliseconds providing CLI feedback every $increment milliseconds
-      #    further, runs [$eval] every $increment
+      #    further, runs [$evalbody] every $increment
       #
       # inputs: 
       #    - count - total sleep duration in milliseconds
       #    - increment - interval in milliseconds that countdown remain will be provided to CLI
-      #    - eval - tcl eval string - may need to escape some characters to get this to work
+      #    - evalbody - tcl eval string - may need to escape some characters to get this to work
       # returns: 
       #    - nothing
       ###########################################
@@ -19,6 +19,7 @@ namespace eval ::countdown {
               "msec" -
               "milliseconds" {
                 set divisor 1
+                #default increment to 1 second
                 set increment 1000
               }
               default -
@@ -27,7 +28,8 @@ namespace eval ::countdown {
                 #even though we default to seconds, the calculations are all done in ms
                 set divisor 1000
                 set count [expr $count * $divisor]
-                set increment [expr 10 * $divisor]
+                #default increment to 1 second
+                set increment [expr $divisor]
               }
           }
           set buffering [fconfigure stdout -buffering]
@@ -41,11 +43,11 @@ namespace eval ::countdown {
               puts -nonewline $current_display_value
               set index [expr $count-$current_click_offset]
               if {$index<$increment} {
-                  ::countdown:dotdotdot $index
+                  ::countdown::dotdotdot $index
               } else {
-                  ::countdown:dotdotdot $increment
+                  ::countdown::dotdotdot $increment
               }
-              eval $eval
+              eval $evalbody
               set current_display_value [expr $current_display_value-$display_increment]
               set current_clicks [clock clicks -milliseconds]
               set current_click_offset [expr $current_clicks - $timer_start_ms]
@@ -54,7 +56,7 @@ namespace eval ::countdown {
           fconfigure stdout -buffering $buffering
     }  
 
-    proc wait {count {unit "seconds"} {eval ""}} {
+    proc wait {count {unit "seconds"} {evalbody ""}} {
       ###########################################
       # abstract: sleeps for a total of $count seconds providing CLI feedback every {$increment 10} milliseconds
       #    further, runs [$eval] every $increment
@@ -62,11 +64,11 @@ namespace eval ::countdown {
       # inputs: 
       #    - count - total sleep duration in milliseconds
       #    - increment - interval in milliseconds that countdown remain will be provided to CLI
-      #    - eval - tcl eval string - may need to escape some characters to get this to work
+      #    - evalbody - tcl eval string - may need to escape some characters to get this to work
       # returns: 
       #    - nothing
       ###########################################
-        ::countdown:run_eval $count $unit $eval
+        ::countdown:run_eval $evalbody $count $unit
     }
 
     proc dotdotdot {count} {
