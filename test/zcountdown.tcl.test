@@ -32,3 +32,5 @@ test wait_1000_ms {
     set finish [clock clicks -milliseconds]
     return [expr ($finish - $start - 1000) < 10]
 } -result "1"
+
+cleanupTests

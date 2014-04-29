@@ -1,0 +1,24 @@
+#!/usr/bin/env tclsh8.5
+
+package require tcltest
+namespace import tcltest::*
+
+#software under test
+package require output
+
+test output_print_1 {
+    Test: print
+} -body {
+    output::print "TeSt paTTern"
+} -result "    TeSt paTTern"
+
+output::printline
+
+test output_printline {
+    Test: printline
+} -body {
+    output::printline
+} -result "--------------------------------------------------------"
+
+
+cleanupTests

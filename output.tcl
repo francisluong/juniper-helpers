@@ -73,14 +73,16 @@ namespace eval ::output {
                 }
             }
         }
+        return $this_text
     }
 
-    proc printline {text {indent_space_count "default"}} {
+    proc printline {{indent_space_count "default"}} {
         if {$indent_space_count eq "default"} {
             variable default_indent_count
             set indent_space_count $default_indent_count
         }
-        output [output::hr "-" $indent_space_count]
+        set line [output::hr "-" $indent_space_count]
+        return [output::print $line 0]
     }
 
     proc hr {dashmark {indent_space_count 0}} {
