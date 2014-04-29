@@ -68,7 +68,7 @@ namespace eval ::countdown {
       # returns: 
       #    - nothing
       ###########################################
-        ::countdown:run_eval $evalbody $count $unit
+        ::countdown::run_eval $evalbody $count $unit
     }
 
     proc dotdotdot {count} {
@@ -80,12 +80,10 @@ namespace eval ::countdown {
       # returns: 
       #    - nothing
       ###########################################
-
         set increment [expr $count/3]
         for {set index 0} {$index<3} {set index [expr $index+1]} {
             after $increment
             puts -nonewline {.}
         }
-
     }
 }

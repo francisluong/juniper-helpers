@@ -1,0 +1,34 @@
+#!/usr/bin/env tclsh8.5
+
+package require tcltest
+namespace import tcltest::*
+
+#software under test
+package require countdown
+
+test dotdotdot {
+    Test: dotdotdot
+} -body {
+    set start [clock seconds]
+    countdown::dotdotdot 1000
+    set finish [clock seconds]
+    return [expr $finish - $start]
+} -result "1"
+
+test wait_3_sec {
+    Test: wait 3 sec
+} -body {
+    set start [clock seconds]
+    countdown::wait 3
+    set finish [clock seconds]
+    return [expr $finish - $start]
+} -result "3"
+
+test wait_1000_ms {
+    Test: wait 3 sec
+} -body {
+    set start [clock clicks -milliseconds]
+    countdown::wait 1000 ms
+    set finish [clock clicks -milliseconds]
+    return [expr ($finish - $start - 1000) < 10]
+} -result "1"
