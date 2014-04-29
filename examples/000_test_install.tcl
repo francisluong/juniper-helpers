@@ -1,5 +1,6 @@
 #!/usr/bin/env tclsh
 
+puts "Tcl Version: $tcl_version"
 puts "Tcl Package Path on your computer:"
 foreach item $tcl_pkgPath {
     puts " - $item"
@@ -18,6 +19,16 @@ package require output
 package require homeless
 set library_path [file dir [lindex [package ifneeded JuniperConnect 1.0] end]]
 h1 "LIBRARY PATH: $library_path"
+print "Tcl Version: $tcl_version"
+
+h2 "Expect"
+if {[catch {package require Expect} expect_version] > 0} {
+    puts stderr "Unable to verify installation of Expect"
+    exit
+} else {
+    print "Confirmed installation of Expect: $expect_version"
+    print [file dir [lindex [package ifneeded Expect 5.45] end]]
+}
 
 h2 "tcllib"
 if {[catch {package require yaml 0.3.6} yaml_version] > 0} {
