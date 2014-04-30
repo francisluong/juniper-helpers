@@ -222,32 +222,36 @@ namespace eval ::test {
             output::print [output::hr "-" 4]
             output::print "> Verification of Assertions:"
         }
+        set this_pass 1
         set domdoc [dom parse $analyze_buffer]
         set rpc_reply [$domdoc documentElement]
         set node_set [$rpc_reply selectNodes $xpath]
         set outparts [list "* xpath: $xpath"]
+        if {[llength $node_set] == 0} {
+            #no matching XML nodes
+            set this_pass 0
+            lappend outparts "* EMPTY node result set: '$node_set'"
+        }
         switch -nocase -- $assertion {
             "present" {
                 set description "XPATH matches one or more nodes"
                 if {[llength $node_set] > 0} {
-                    set this_pass 1
                     foreach node $node_set {
                         lappend outparts "   ([$node toXPath])"
                     }
-                } else {
-                    set this_pass 0
                 }
             }
             "regexp" {
                 set description "XPATH text matches regexp: '$value1'"
-                set this_pass 1
                 foreach node $node_set {
                     set this_value [$node data]
+                    lappend outparts "* node data: '$this_value'"
                     set grep_result [textproc::grep $value1 $this_value]
                     if {$grep_result == ""} {
+                        #no matches - fail
                         set this_pass 0
                     } else {
-                        lappend outparts "   ($this_value)"
+                        #match success
                     }
                 }
             }
@@ -266,7 +270,6 @@ namespace eval ::test {
                 #value2 = integer: compare the line count to this value
                 set compare_value $value2
                 set description "value for node matching XPATH $disposition $compare_value"
-                set this_pass 1
                 foreach node $node_set {
                     set this_value [$node data]
                     set this_node_pass [eval "expr $this_value $disposition $compare_value"]
