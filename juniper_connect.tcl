@@ -903,7 +903,8 @@ namespace eval ::juniperconnect {
 
     proc prep_netconf_output {netconf_output {style "strip"} {ascii_output ""}} {
         variable xslt_remove_namespace
-        set netconf_output [lindex [grep_until "rpc-reply" "/rpc-reply" $netconf_output] 0]
+        set netconf_output [textproc::grep_until "rpc-reply" "/rpc-reply" $netconf_output]
+        set netconf_output [lindex $netconf_output 0]
         set this_doc [dom parse $netconf_output]
         $this_doc xslt $xslt_remove_namespace cleandoc
         switch -- $style {
