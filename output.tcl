@@ -135,11 +135,19 @@ namespace eval ::output {
         set output::output_buffer ""
     }
 
-    proc buffer_print {{clear ""}} {
-        output::print [textproc::njoin $output::output_buffer]
+    proc buffer_print {{indent_space_count "default"} {clear ""}} {
+        output::print [textproc::njoin $output::output_buffer] $indent_space_count
         if {[string match -nocase "clear" $clear]} {
             output::buffer_clear
         }
+    }
+
+    proc buffer_get {{clear ""}} {
+        set buffer_contents [textproc::njoin $output::output_buffer]
+        if {[string match -nocase "clear" $clear]} {
+            output::buffer_clear
+        }
+        return $buffer_contents
     }
 
     proc pdict { dictVarName {indent 1} {prefixString "    "} {separator " => "} } {
