@@ -201,6 +201,28 @@ namespace eval ::test {
         set test::lastmode "limit"
     }
 
+    proc xml_scope {xpath_expression {node_index "0"}} {
+        if {$test::lastmode ne "limit"} {
+            output::print [output::hr "-" 4]
+        }
+        output::print "Limit Scope of output as follows:"
+        output::print "* XPATH Expression: '$xpath_expression'" 6
+        variable analyze_buffer
+        set domdoc [dom parse $analyze_buffer]
+        set rpc_reply [$domdoc documentElement]
+        set node_set [$rpc_reply selectNodes $xpath_expression]
+        if {[llength $node_set] == 0} {
+            #return empty document
+            set analyze_buffer ""
+        } else {
+            #return xml document 
+            set node [lindex $node_set 0]
+            set analyze_buffer [$node asXML]
+        }
+        set test::lastmode "limit"
+        return $node
+    }
+
     proc analyze_netconf {router rpc} {
         variable analyze_buffer 
         if {$test::lastmode ne "analyze"} {

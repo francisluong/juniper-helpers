@@ -33,4 +33,10 @@ test::start "Verify Chassis is of type Firefly or MX960"
     test::xassert "software-information/package-information\[1]/comment/text()" regexp "JUNOS"
     test::end_analyze 
 
+    test::subcase "Get Interfaces Subtree of Configuration - verify unit 0 family inet address present"
+    test::analyze_netconf $router [build_rpc "get-configuration"]
+    test::xml_scope "configuration/interfaces"
+    test::xassert "/interfaces/interface/unit\[name='0']/family/inet/address/name"
+    test::end_analyze
+
 test::finish

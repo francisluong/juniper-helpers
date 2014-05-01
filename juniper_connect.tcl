@@ -918,6 +918,10 @@ namespace eval ::juniperconnect {
                 if {$ascii_output ne ""} {
                     set ascii_doc [dom parse $ascii_output]
                     set outputnode [$ascii_doc selectNodes "//output"]
+                    #fallback to first child node if select returns empty set
+                    if {$outputnode eq ""} {
+                        set outputnode [$ascii_doc firstChild]
+                    }
                     set rpc_reply [$cleandoc firstChild]
                     $rpc_reply appendChild $outputnode
                 }
