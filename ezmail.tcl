@@ -26,6 +26,7 @@ namespace eval ::ezmail {
     variable from_email_address "nobody@nobody.com"
     variable body_text {}
     variable mime_token_stack {}
+    variable attachment_names_list {}
 
     proc init {from_email_address} {
         set ezmail::from_email_address $from_email_address
@@ -34,8 +35,10 @@ namespace eval ::ezmail {
     proc start_message {tempfile_name subject_text} {
         variable body_text
         variable mime_token_stack 
+        variable attachment_names_list 
         set body_text {}
         set mime_token_stack {}
+        set attachment_names_list  {}
         set ezmail::subject "$subject_text -- [clock format [clock seconds]]"
     }
 
@@ -49,43 +52,58 @@ namespace eval ::ezmail {
 
     proc add_attachment {textblock attachment_filename} {
         variable mime_token_stack
+        variable attachment_names_list 
         set attachment_token [mime::initialize \
             -canonical "text/plain; name=\"$attachment_filename\"" \
             -encoding "base64" \
             -string $textblock ]
         lappend mime_token_stack $attachment_token
+        lappend attachment_names_list $attachment_filename
     }
 
     proc _send_single {target_email_address multipart_token} {
-        puts "smtp result:[ \
+        puts "SMTP result:'[ \
             smtp::sendmessage $multipart_token \
             -header [list From [string trim $ezmail::from_email_address]] \
             -header [list To [string trim $target_email_address]] \
             -header [list Subject [string trim $ezmail::subject]] \
-        ]"
+        ]'"
     }
 
     proc send {target_email_list} {
+        variable mime_token_stack
+        variable from_email_address
+        variable subject
+        variable body_text
+        variable attachment_names_list 
         #build mime multipart
         set body_token [mime::initialize \
             -canonical "text/plain" \
             -encoding "base64" \
-            -string $ezmail::body_text]
-        variable mime_token_stack
+            -string $body_text]
         set mime_token_stack [linsert $mime_token_stack 0 $body_token]
         set multipart_token [mime::initialize \
             -canonical multipart/mixed \
             -parts $mime_token_stack]
         #send e-mails
+        puts "EZMAIL: Sending E-mails"
+        puts [string repeat - 60]
+        puts "    From: $from_email_address"
         foreach target_email $target_email_list {
-            puts "To: $target_email"
+            puts -nonewline "    To: $target_email - "
             [namespace current]::_send_single $target_email $multipart_token
         }
-        puts "Subject: $ezmail::subject"
-        puts "Email Content:"
-        puts $ezmail::body_text
+        puts "    Subject: $subject"
+        puts "    Email Body:"
+        foreach line [split $body_text "\n"] {
+            puts "      $line"
+        }
+        puts "    Attachments:"
+        foreach attachfile $attachment_names_list {
+            puts "      - $attachfile"
+        }
         #clean up
-        set ezmail::body_text {}
+        set body_text {}
         mime::finalize $multipart_token -subordinates all
         set mime_token_stack {}
     }
