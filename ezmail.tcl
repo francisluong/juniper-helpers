@@ -11,7 +11,7 @@
 # Setting Up
 # ==========
 # set your from_email_address using ezmail::init
-# if smtp server is not localhost... TBD
+# if smtp server is not localhost... TBD... I will add it later
 
 package provide ezmail 1.0
 package require Tcl 8.5
@@ -37,8 +37,6 @@ namespace eval ::ezmail {
         set body_text {}
         set mime_token_stack {}
         set ezmail::subject "$subject_text -- [clock format [clock seconds]]"
-        package require mime
-        package require smtp
     }
 
     proc add_body {textblock} {
@@ -58,14 +56,16 @@ namespace eval ::ezmail {
         lappend mime_token_stack $attachment_token
     }
 
-    proc send_single {target_email_address multipart_token} {
-        smtp::sendmessage $multipart_token \
+    proc _send_single {target_email_address multipart_token} {
+        puts "smtp result:[ \
+            smtp::sendmessage $multipart_token \
             -header [list From [string trim $ezmail::from_email_address]] \
             -header [list To [string trim $target_email_address]] \
-            -header [list Subject [string trim $ezmail::subject]]
+            -header [list Subject [string trim $ezmail::subject]] \
+        ]"
     }
 
-    proc send_email {target_email_list} {
+    proc send {target_email_list} {
         #build mime multipart
         set body_token [mime::initialize \
             -canonical "text/plain" \
@@ -79,11 +79,11 @@ namespace eval ::ezmail {
         #send e-mails
         foreach target_email $target_email_list {
             puts "To: $target_email"
-            send_single $target_email $multipart_token
+            [namespace current]::_send_single $target_email $multipart_token
         }
         puts "Subject: $ezmail::subject"
         puts "Email Content:"
-        puts_slow [indent $ezmail::body_text 2]
+        puts $ezmail::body_text
         #clean up
         set ezmail::body_text {}
         mime::finalize $multipart_token -subordinates all

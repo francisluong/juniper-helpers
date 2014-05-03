@@ -11,6 +11,7 @@
 package ifneeded JuniperConnect 1.0 [list source [file join $dir juniper_connect.tcl]]
 package ifneeded concurrency 1.0 [list source [file join $dir concurrency.tcl]]
 package ifneeded countdown 1.0 [list source [file join $dir countdown.tcl]]
+package ifneeded ezmail 1.0 [list source [file join $dir ezmail.tcl]]
 package ifneeded gen 1.1 [list source [file join $dir gen.tcl]]
 package ifneeded homeless 1.0 [list source [file join $dir homeless.tcl]]
 package ifneeded output 1.1 [list source [file join $dir output.tcl]]
