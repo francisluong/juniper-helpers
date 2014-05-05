@@ -37,11 +37,13 @@ namespace eval ::test {
             }
             lappend outparts "** $subcase --> $outcome"
         }
+        lappend outparts "Summary Test Result --> $overall_pass"
         #lappend outparts "--" "Test Result: $overall_pass"
         output::h2 "Test Result Summary --> $overall_pass"
         output::print [textproc::njoin $outparts]
         #print closing HR
         output::print "\n[output::hr "="]" 0
+        return $overall_pass
     }
 
     proc subcase {description} {
