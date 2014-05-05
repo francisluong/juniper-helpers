@@ -82,7 +82,7 @@ namespace eval ::output {
             set indent_space_count $default_indent_count
         }
         set line [output::hr "-" $indent_space_count]
-        return [output::print $line 0]
+        return [output::print $line $indent_space_count]
     }
 
     proc hr {dashmark {indent_space_count 0}} {

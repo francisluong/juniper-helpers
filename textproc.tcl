@@ -1,6 +1,7 @@
 package provide textproc 1.0
 package require textutil::split
 package require Tcl     8.5
+package require tdom
 
 namespace eval ::textproc {
     namespace export grep grep_until nsplit njoin nrange column split_on_empty_line
@@ -208,6 +209,19 @@ namespace eval ::textproc {
         return $result
     }
 
+    proc get_xml_text {xmltext xpath_statement} {
+        if {![string match "*/text()" $xpath_statement]} {
+            set xpath_statement "[string trimright $xpath_statement "/"]/text()"
+        }
+        set domdoc [dom parse $xmltext]
+        set docroot [$domdoc documentElement]
+        set node_set [$docroot selectNodes $xpath_statement]
+        set result_list {}
+        foreach node $node_set {
+            lappend result_list [$node data]
+        }
+        return $result_list
+    }
 
 }
 
