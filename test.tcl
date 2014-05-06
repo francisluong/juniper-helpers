@@ -12,24 +12,40 @@ namespace eval ::test {
     variable analyze_buffer {}
     variable full_analyze_buffer {}
     variable subcase_list {}
+    variable overall_pass {}
 
     proc start {testname} {
         variable pass
+        variable overall_pass
         array unset pass 
         array set pass {}
+        set overall_pass {}
         output::h1 "Start Test: $testname"
     }
 
     proc finish {} {
+        variable overall_pass
+        output::h2 "Test Result Summary --> $overall_pass"
+        output::print [test::pass_fail_summary]
+        #print closing HR
+        output::print "\n[output::hr "="]" 0
         #disconnect ALL router sessions
         foreach address [array names juniperconnect::session_array] {
             disconnectssh $address
         }
+        return $overall_pass
+    }
+
+    proc summary {} { return [test::pass_fail_summary] }
+    proc pass_fail_summary {} {
+        variable subcase_list
+        variable pass
+        variable overall_pass
         #print test results
         set outparts {}
         set overall_pass "PASS"
-        foreach subcase $test::subcase_list {
-            set this_pass $test::pass($subcase)
+        foreach subcase $subcase_list {
+            set this_pass $pass($subcase)
             set outcome "PASS"
             if {!$this_pass} {
                 set outcome "FAIL"
@@ -38,12 +54,7 @@ namespace eval ::test {
             lappend outparts "** $subcase --> $outcome"
         }
         lappend outparts "Summary Test Result --> $overall_pass"
-        #lappend outparts "--" "Test Result: $overall_pass"
-        output::h2 "Test Result Summary --> $overall_pass"
-        output::print [textproc::njoin $outparts]
-        #print closing HR
-        output::print "\n[output::hr "="]" 0
-        return $overall_pass
+        return [textproc::njoin $outparts]
     }
 
     proc subcase {description} {
