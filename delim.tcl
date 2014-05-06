@@ -34,7 +34,7 @@ namespace eval ::delim {
     proc split_line {line_text split_chars} {
         #split lines handling double-quoted sections
         #TBD
-        return [split $line_text $split_chars]
+        return [split [string trim $line_text] $split_chars]
     }
 
     proc group_by_column {delim_dict key_column_number_from_zero value_column_number} {
