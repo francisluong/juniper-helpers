@@ -175,6 +175,7 @@ namespace eval concurrency {
             }
             lappend outparts "** $queue_item --> $outcome"
         }
+        lappend outparts "Summary Test Result --> $overall_pass"
         output::h2 "Test Result Summary --> $overall_pass"
         output::print [textproc::njoin $outparts]
         #print closing HR
