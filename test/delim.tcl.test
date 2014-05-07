@@ -1,0 +1,17 @@
+#!/usr/bin/env tclsh
+
+package require tcltest
+namespace import tcltest::*
+
+#software under test
+package require delim
+
+test delim_split_line {
+    delim::split_line
+} -body {
+    delim::split_line "1,2,\"3,4\",\"5\n6\"" ","
+} -result [list 1 2 "3,4" "5\n6"]
+
+
+
+cleanupTests

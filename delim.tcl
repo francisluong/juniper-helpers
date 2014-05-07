@@ -1,4 +1,5 @@
 package provide delim 1.0
+package require csv
 
 namespace eval ::delim {
     #namespace export 
@@ -6,7 +7,7 @@ namespace eval ::delim {
     variable byrow {}
     variable bycol {}
 
-    proc import {delimited_table_text split_chars} {
+    proc import {delimited_table_text split_char} {
         set byrow {}
         set bycol {}
         array set columns {}
@@ -31,10 +32,9 @@ namespace eval ::delim {
         return $delim_dict
     }
 
-    proc split_line {line_text split_chars} {
-        #split lines handling double-quoted sections
-        #TBD
-        return [split [string trim $line_text] $split_chars]
+    proc split_line {line_text split_char} {
+        #split lines handling double-quoted sections - already handled by tcllib
+        return [csv::split $line_text $split_char]
     }
 
     proc group_by_column {delim_dict key_column_number_from_zero value_column_number} {
