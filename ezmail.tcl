@@ -77,8 +77,13 @@ namespace eval ::ezmail {
         variable body_text
         variable attachment_names_list 
         #build mime multipart
+        if {[string match "*<html>*" $body_text]} {
+            set canonical "text/html"
+        } else {
+            set canonical "text/plain"
+        }
         set body_token [mime::initialize \
-            -canonical "text/plain" \
+            -canonical $canonical \
             -encoding "base64" \
             -string $body_text]
         set mime_token_stack [linsert $mime_token_stack 0 $body_token]
@@ -94,7 +99,7 @@ namespace eval ::ezmail {
             [namespace current]::_send_single $target_email $multipart_token
         }
         puts "    Subject: $subject"
-        puts "    Email Body:"
+        puts "    Email Body ($canonical):"
         foreach line [split $body_text "\n"] {
             puts "      $line"
         }

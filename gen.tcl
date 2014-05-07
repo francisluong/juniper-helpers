@@ -177,5 +177,14 @@ namespace eval ::gen {
         return $result_dict
     }
 
+    proc datetime {{clock_seconds ""}} {
+        if {$clock_seconds eq ""} {
+            set clock_seconds [clock seconds]
+        }
+        set format_string "%G-%m%d-%H%M"
+        set formatted_timestamp [clock format $clock_seconds -format $format_string]
+        return $formatted_timestamp
+    }
+
 }
 namespace import gen::*
