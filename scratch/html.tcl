@@ -58,9 +58,16 @@ namespace eval ::html {
         <body>"
     }
 
-    proc finish {} {
+    proc finish {{clear ""}} {
         variable buffer
         lappend buffer "</body></html>"
+        if {[string match -nocase "clear" $clear]} {
+            set temp $buffer
+            set buffer {}
+            return [textproc::njoin $temp]
+        } else {
+            return [textproc::njoin $buffer]
+        }
     }
 
     proc table_init {} {
