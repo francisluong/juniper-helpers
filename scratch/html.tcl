@@ -83,5 +83,68 @@ namespace eval ::html {
         lappend buffer "</tr>"
     }
 
+    proc _tagit {textblock tag} {
+        variable buffer
+        lappend buffer "<$tag>"
+        lappend htmlparts "<$tag>"
+        lappend buffer "    $textblock"
+        lappend buffer "</$tag>"
+    }
+
+    proc pre {textblock} {
+        set tag "pre"
+        return [html::_tagit $textblock $tag]
+    }
+
+    proc h1 {textblock} {
+        set tag "h1"
+        return [html::_tagit $textblock $tag]
+    }
+
+    proc h2 {textblock} {
+        set tag "h2"
+        return [html::_tagit $textblock $tag]
+    }
+
+    proc h3 {textblock} {
+        set tag "h3"
+        return [html::_tagit $textblock $tag]
+    }
+
+    proc h4 {textblock} {
+        set tag "h4"
+        return [html::_tagit $textblock $tag]
+    }
+
+    proc p {textblock} {
+        set tag "p"
+        return [html::_tagit $textblock $tag]
+    }
+
+    proc ol {input_list {tag "ol"}} {
+        return [html::ul $input_list $tag]
+    }
+
+    proc ul {input_list {tag "ul"}} {
+        variable buffer
+        set htmlparts {}
+        lappend buffer "<$tag>"
+        lappend htmlparts "<$tag>"
+        foreach item $input_list {
+            lappend htmlparts [html::li $item]
+        }
+        lappend buffer "</$tag>"
+        lappend htmlparts "</$tag>"
+        return [textproc::njoin $htmlparts]
+    }
+
+    proc li {list_item_text} {
+        variable buffer
+        set tag "li"
+        set thistext "<$tag>$list_item_text</$tag>"
+        lappend buffer $thistext
+        return $thistext
+    }
+
 }
 #namespace import html::*
