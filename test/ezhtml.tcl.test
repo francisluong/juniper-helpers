@@ -1,0 +1,179 @@
+#!/usr/bin/env tclsh
+
+package require tcltest
+namespace import tcltest::*
+
+#software under test
+package require ezhtml
+
+test ezhtml__init {
+    ezhtml::init
+} -body {
+    [string trim ezhtml::init]
+} -result "<html>
+<head><style>body,p,h1,h2,h3,h4,table,td,th,ul,ol,textarea,input {
+            font-family:verdana,helvetica,arial,sans-serif;
+        }
+        body {
+            font-size:13px;
+        }
+        h1 {font-size:28px;margin-top:0px;font-weight:normal}
+        h2 {font-size:22px;margin-top:10px;margin-bottom:10px;font-weight:normal}
+        h3 {font-size:17px;font-weight:normal}
+        h4 {font-size:12px;}
+        h5 {font-size:11px;}
+        h6 {font-size:10px;}
+        h1,h2,h3,h4,h5,h6 {
+            background-color:transparent;color:#000000;
+        }
+        table {
+            border-collapse:collapse;
+            width:100%;
+        }
+        th {
+            color:#ffffff;
+            background-color:#555555;
+            border:1px solid #555555;
+            padding:3px;
+            vertical-align: top;
+            text-align:left;
+
+        }
+        td {
+            border:1px solid #d4d4d4;
+            padding:5px;
+            padding-top:7px;
+            padding-bottom:7px;
+            vertical-align:top;
+        }</style></head><body></body>
+</html>"
+
+test ezhtml__h1 {
+    ezhtml::h1
+} -body {
+    ezhtml::init
+    ezhtml::h1 "test"
+} -result "<h1>test</h1>"
+
+
+test ezhtml__pre {
+    ezhtml::pre
+} -body {
+    ezhtml::init
+    ezhtml::pre "test>"
+} -result "<pre>test&gt;</pre>"
+
+
+test ezhtml__p {
+    ezhtml::p
+} -body {
+    ezhtml::init
+    ezhtml::p "123P"
+} -result "<p>123P</p>"
+
+
+test ezhtml__ul {
+    ezhtml::ul
+} -body {
+    ezhtml::init
+    ezhtml::ul [list "reason" "purpose" "self-esteem"]
+} -result "<ul>
+<li>reason</li><li>purpose</li><li>self-esteem</li>
+</ul>"
+
+
+test ezhtml__ol {
+    ezhtml::ol
+} -body {
+    ezhtml::init
+    ezhtml::ol [list "reason" "purpose" "self-esteem"]
+} -result "<ol>
+<li>reason</li><li>purpose</li><li>self-esteem</li>
+</ol>"
+
+test ezhtml__table {
+    ezhtml::table full gamut
+} -body {
+    ezhtml::init
+    ezhtml::table_init
+    ezhtml::th [list "Letter" "Number"]
+    ezhtml::tr [list a 1]
+    ezhtml::tr [list z 26]
+    ezhtml::table_finish
+} -result "<table border=\"1\">
+<tr>
+<th>Letter</th><th>Number</th>
+</tr><tr>
+<td>a</td><td>1</td>
+</tr><tr>
+<td>z</td><td>26</td>
+</tr>
+</table>"
+
+test ezhtml__full_doc {
+    ezhtml full doc
+} -body {
+    ezhtml::init "Full Doc"
+    ezhtml::h1 "Header 1"
+    ezhtml::p "This is some text. And here are some important things:"
+    ezhtml::ul [list "reason" "purpose" "self-esteem"]
+    ezhtml::table_init
+    ezhtml::th [list "Letter" "Number"]
+    ezhtml::tr [list a 1]
+    ezhtml::tr [list z 26]
+    ezhtml::table_finish
+    ezhtml::finish
+} -result "<html>
+<head>
+<title>Full Doc</title><style>body,p,h1,h2,h3,h4,table,td,th,ul,ol,textarea,input {
+            font-family:verdana,helvetica,arial,sans-serif;
+        }
+        body {
+            font-size:13px;
+        }
+        h1 {font-size:28px;margin-top:0px;font-weight:normal}
+        h2 {font-size:22px;margin-top:10px;margin-bottom:10px;font-weight:normal}
+        h3 {font-size:17px;font-weight:normal}
+        h4 {font-size:12px;}
+        h5 {font-size:11px;}
+        h6 {font-size:10px;}
+        h1,h2,h3,h4,h5,h6 {
+            background-color:transparent;color:#000000;
+        }
+        table {
+            border-collapse:collapse;
+            width:100%;
+        }
+        th {
+            color:#ffffff;
+            background-color:#555555;
+            border:1px solid #555555;
+            padding:3px;
+            vertical-align: top;
+            text-align:left;
+
+        }
+        td {
+            border:1px solid #d4d4d4;
+            padding:5px;
+            padding-top:7px;
+            padding-bottom:7px;
+            vertical-align:top;
+        }</style>
+</head><body>
+<h1>Header 1</h1><p>This is some text. And here are some important things:</p><ul>
+<li>reason</li><li>purpose</li><li>self-esteem</li>
+</ul><table border=\"1\">
+<tr>
+<th>Letter</th><th>Number</th>
+</tr><tr>
+<td>a</td><td>1</td>
+</tr><tr>
+<td>z</td><td>26</td>
+</tr>
+</table>
+</body>
+</html>"
+
+
+cleanupTests
