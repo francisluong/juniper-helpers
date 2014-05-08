@@ -558,11 +558,11 @@ namespace eval ::juniperconnect {
             #NOT loose
             expect {
                 "commit confirmed will be rolled back in" {
-                    return -code error "ERROR: Juniper router $router has pending rollback"
+                    return -code error "ERROR: Juniper router $address has pending rollback"
                     exp_continue
                 }
                 "The configuration has been changed but not committed" {
-                    return -code error "ERROR: Juniper router $router has uncommited changes - exitting"
+                    return -code error "ERROR: Juniper router $address has uncommited changes - exitting"
                     exp_continue
                 }
                 "Entering configuration mode" {
