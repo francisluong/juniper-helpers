@@ -14,7 +14,7 @@ namespace eval ::delim {
         #process delimited text into byrow and bycol namespace variables
         set rownum 0
         foreach line [split [string trim $delimited_table_text] "\n"] {
-            set linesplit [delim::split_line $line $split_chars]
+            set linesplit [delim::split_line $line $split_char]
             lappend byrow $linesplit
             set colnum 0
             foreach item $linesplit {
