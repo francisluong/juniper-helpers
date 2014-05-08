@@ -217,10 +217,15 @@ namespace eval ::textproc {
         set docroot [$domdoc documentElement]
         set node_set [$docroot selectNodes $xpath_statement]
         set result_list {}
-        foreach node $node_set {
-            lappend result_list [$node data]
+        if {[llength $node_set] == 1} {
+            set node [lindex $node_set 0]
+            return [$node data]
+        } else {
+            foreach node $node_set {
+                lappend result_list [$node data]
+            }
+            return $result_list
         }
-        return $result_list
     }
 
 }
