@@ -10,7 +10,7 @@ package require homeless
 package require concurrency
 
 namespace eval ::juniperconnect {
-    namespace export connectssh disconnectssh send_textblock send_config build_rpc send_rpc grep_output import_userpass prep_netconf_output
+    namespace export connectssh disconnectssh send_commands send_textblock send_config build_rpc send_rpc grep_output import_userpass prep_netconf_output
 
     variable version 1.0
     variable session_array
