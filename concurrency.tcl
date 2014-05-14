@@ -83,8 +83,17 @@ namespace eval concurrency {
     variable tmp_folder "/var/tmp"
     variable is_thread_iteration 0
     variable queue_item {}
-    variable ofilename {}
     variable stdin_text {}
+    variable options_dict {}
+    variable tcl_file {}
+    variable output_filename {}
+    variable output_filepath {}
+
+    #this is used to generate global variables to yaml --> thread stdin
+    #   - send userpass database and username
+    #   - send original argv0
+    #   - use concurrency::data to add arbitrary key/value pairs
+    variable serial_data_dict {}
 
     proc init {thread_iteration_procname} {
         # call this early in your application... 
@@ -95,25 +104,42 @@ namespace eval concurrency {
         variable iteration_argv_index
         #if this is an iteration, run it and exit
         if {[lindex $argv $iteration_argv_index] eq $iteration_match_text} {
-            #read stdin
+            #read stdin and parse yaml into options_dict
             variable stdin_text [read stdin]
+            variable options_dict [yaml::yaml2dict $stdin_text]
+            #read in userpass data if keys exist in $options_dict
+            if {[dict exists $options_dict "concurrency" "userpass_dict"]} {
+                array set juniperconnect::r_db [dict get $options_dict "concurrency" "userpass_dict"]
+                set username [dict get $options_dict "concurrency" "userpass_username"]
+                juniperconnect::change_rdb_user $username
+            }
             #setup some variables
             variable is_thread_iteration 1
             variable queue_item [lindex $argv 1]
-            variable ofilename [[namespace current]::_output_filename $queue_item]
+            variable output_filename [dict get $options_dict "concurrency" "output_filename"]
+            variable output_filepath [dict get $options_dict "concurrency" "output_filepath"]
+            puts "output_filename: $output_filename"
+            puts "output_filepath: $output_filepath"
             #call thread_iteration and exit 
             $thread_iteration_procname $queue_item
             exit
+        # else - not a thread!!!
+        } else {
+            #initialize things
+            variable input_queue
+            variable current_queue
+            variable finished_queue
+            variable serial_data_dict
+            set input_queue {}
+            set current_queue {}
+            set finished_queue {}
+            set serial_data_dict {}
+            #probably won't need this
+            set [namespace current]::thread_iteration_procname $thread_iteration_procname
         }
-        #initialize things
-        set concurrency::input_queue {}
-        set concurrency::current_queue {}
-        set concurrency::finished_queue {}
-        #probably won't need this
-        set concurrency::thread_iteration_procname $thread_iteration_procname
     }
 
-    proc process_queue {input_queue {stdin_gen_procname ""}} {
+    proc process_queue {input_queue {stdin_gen_procname ""} {tcl_script_filepath "default"}} {
         # call this when we are all setup and we want to start the run
         #initialize
         set concurrency::input_queue {}
@@ -129,7 +155,7 @@ namespace eval concurrency {
             set queue_item [[namespace current]::_next_item]
             while {$queue_item != -1} {
                 #started a new thread... try to start more until we get a return of -1
-                [namespace current]::_main_thread_start $queue_item $stdin_gen_procname
+                [namespace current]::_main_thread_start $queue_item $stdin_gen_procname $tcl_script_filepath
                 set queue_item [[namespace current]::_next_item]
             }
             #perform wait unless complete
@@ -184,25 +210,37 @@ namespace eval concurrency {
 
     proc iter_thread_start {} {
         variable queue_item
-        set outfile [[namespace current]::_output_filepath $queue_item]
+        variable output_filepath
+        variable output_filename
         if {$concurrency::debug eq 1} {
-            puts "iter_thread_start: outfile: $outfile"
+            puts "iter_thread_start: outfile: $output_filepath"
         }
         #initialize logfile
-        output::init_logfile $outfile
+        output::init_logfile $output_filepath
+        output::print "$output_filename - START"
     }
 
     proc iter_thread_finish {returncode} {
         variable queue_item
         #output flag to indicate thread_iteration is complete
-        set ofilename [[namespace current]::_output_filename $queue_item]
-        [namespace current]::iter_output "\n$ofilename - RETURNCODE: $returncode"
+        variable output_filename
+        [namespace current]::iter_output "\n$output_filename - RETURNCODE: $returncode"
         if {$concurrency::debug eq 1} {
-            set outfile [[namespace current]::_output_filepath $queue_item]
-            puts "\niter_thread_finish: outfile: $outfile"
+            variable output_filepath
+            puts "\niter_thread_finish: outfile: $output_filepath"
         }
         #exit script execution
         exit
+    }
+
+    proc data {key value} {
+        variable serial_data_dict
+        set reserved_values_list [list "concurrency"]
+        if {[lsearch -exact $reserved_values_list $key] == -1} {
+            dict set serial_data_dict $key $value
+        } else {
+            return -code error "[namespace current]::data ERROR: key '$key' is in reserved key list"
+        }
     }
 
     proc iter_get_stdin {} {
@@ -246,24 +284,42 @@ namespace eval concurrency {
         return $this_item
     }
 
-    proc _main_thread_start {queue_item {stdin_gen_procname ""}} {
+    proc _main_thread_start {queue_item {stdin_gen_procname ""} {tcl_script_filepath "default"}} {
+        variable debug
         #runfile - path to thread script
         #queue_item - the text of the concurrency queue item
-        puts "  Start: $queue_item -- [[namespace current]::_output_filepath $queue_item]"
-        variable iteration_match_text
         set outfile [[namespace current]::_output_filepath $queue_item]
+        puts "  Start: $queue_item -- $outfile"
+        variable iteration_match_text
         file delete -force $outfile
+        variable serial_data_dict
+        set options $serial_data_dict
+        if {[info exists juniperconnect::r_db]} {
+            dict set options "concurrency" "userpass_dict" [array get juniperconnect::r_db]
+            dict set options "concurrency" "userpass_username"  $juniperconnect::r_username
+        }
+        dict set options "concurrency" "output_filename" [concurrency::_output_filename $queue_item]
+        dict set options "concurrency" "output_filepath" [concurrency::_output_filepath $queue_item]
+        dict set options "concurrency" "queue_item" $queue_item
         if {$stdin_gen_procname ne ""} {
-            set text_to_stdin [eval $stdin_gen_procname $queue_item]
+            set generated_yaml [yaml::yaml2dict [eval $stdin_gen_procname $queue_item]]
+            if {$debug} {
+                output::pdict options
+                output::pdict generated_yaml
+            }
+            set text_to_stdin [dict merge $options $generated_yaml]
         } else {
-            set text_to_stdin ""
+            set text_to_stdin [yaml::dict2yaml $options]
+        }
+        if {$tcl_script_filepath eq "default"} {
+            set tcl_script_filepath [info script]
         }
         if {$concurrency::debug eq 0} {
-            exec [info script] $iteration_match_text $queue_item $outfile << $text_to_stdin >& /dev/null &
+            exec $tcl_script_filepath $iteration_match_text $queue_item $outfile << $text_to_stdin >& /dev/null &
         } else {
             #DO NOT background execute
             output::h2 "_main_thread_start $queue_item (debug/not-concurrent)"
-            puts [exec [info script] $iteration_match_text $queue_item $outfile << $text_to_stdin ]
+            puts [exec $tcl_script_filepath $iteration_match_text $queue_item $outfile << $text_to_stdin ]
         }
     }
 
@@ -279,7 +335,7 @@ namespace eval concurrency {
         #get last line
         set last_line [lindex [nsplit $filetext] end]
         #if last line begins with $ofilename, thread_iteration is complete
-        if { [string match "*$ofilename*" $last_line] } {
+        if { [string match "*$ofilename - RETURNCODE*" $last_line] } {
             set finished 1
             set index [lsearch -exact $concurrency::current_queue $queue_item]
             if {$index != -1} {
@@ -337,10 +393,17 @@ namespace eval concurrency {
     }
 
     proc _output_filepath {queue_item} {
-        set format_string "%G-%m%d"
-        set today [clock format [clock seconds] -format $format_string]
+        global tcl_platform
+        #set format_string "%G-%m%d"
+        #set today [clock format [clock seconds] -format $format_string]
         set ofilename [[namespace current]::_output_filename $queue_item]
-        return "$concurrency::tmp_folder/$today.$ofilename.txt"
+        if {[info exists tcl_platform(user)]} {
+            set user $tcl_platform(user)
+        } else {
+            set user ""
+        }
+        return "$concurrency::tmp_folder/$user.$ofilename.txt"
+        #return "$concurrency::tmp_folder/$today.$ofilename.$user.txt"
     }
 
 }
