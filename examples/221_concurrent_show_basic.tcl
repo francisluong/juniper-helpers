@@ -13,7 +13,7 @@ proc run_iteration {router} {
     iter_thread_start
     set options $concurrency::options_dict
     output::pdict options
-    set commands_list [dict get $options commands_textblock]
+    set commands_list [dict get $options commands_list]
     connectssh $router
     set output [send_commands $router $commands_list]
     iter_output $output
@@ -35,7 +35,7 @@ set commands_textblock "
     show chassis hardware
 "
 #add commands to thread data
-concurrency::data commands_textblock [split [string trim $commands_textblock] "\n"]
+concurrency::data commands_list [split [string trim $commands_textblock] "\n"]
 
 #basic output
 import_userpass [lindex $argv 0]
