@@ -1,3 +1,4 @@
+#!/usr/bin/env tclsh
 package provide JuniperConnect 1.0
 package require textproc 
 package require Expect 5.43
@@ -6,6 +7,7 @@ package require tdom 0.8.3
 package require base64
 package require yaml 0.3.6
 package require homeless
+package require concurrency
 
 namespace eval ::juniperconnect {
     namespace export connectssh disconnectssh send_textblock send_config build_rpc send_rpc grep_output import_userpass prep_netconf_output
@@ -138,7 +140,7 @@ namespace eval ::juniperconnect {
         variable r_password
         set r_db(__lastuser) $r_username
         set r_username $username
-        set r_password $rdb($username)
+        set r_password $r_db($username)
     }
 
     proc restore_lastuser {} {
@@ -952,12 +954,82 @@ namespace eval ::juniperconnect {
         return $result
     }
 
-    proc quiet {} {
+    proc quiet {{level "quiet"}} {
         variable options
-        set options(outputlevel) "quiet"
+        set options(outputlevel) $level
+    }
+
+    #======================
+    # Concurrency Hooks
+    #======================
+
+    proc _concurrency_iteration {address} {
+        #child needs to call iter_thread_start as first action
+        concurrency::iter_thread_start
+        set options $concurrency::options_dict
+        if {$concurrency::debug} {
+            output::pdict options
+        }
+        # get the "action"
+        set action [dict get $options "action"]
+        set pass 1
+        switch -- $action {
+            "send_config" {
+                set router [dict get $options router]
+                set commands_textblock [dict get $options commands_textblock]
+                set merge_set_override [dict get $options merge_set_override]
+                set confirmed_simulate [dict get $options confirmed_simulate]
+                juniperconnect::connectssh $router
+                set output [juniperconnect::send_config $router $commands_textblock \
+                    $merge_set_override $confirmed_simulate]
+                concurrency::iter_output $output
+                if {![string match "*commit complete*" $output]} {
+                    set pass 0
+                }
+                juniperconnect::disconnectssh $router
+            }
+            "send_textblock" {
+                set router [dict get $options router]
+                set commands_textblock [dict get $options commands_textblock]
+                juniperconnect::connectssh $router
+                set output [juniperconnect::send_textblock $router $commands_textblock]
+                concurrency::iter_output $output
+                juniperconnect::disconnectssh $router
+            }
+            default {
+            }
+        }
+        #invert pass to get returncode
+        if {$pass} {
+            set returncode 0
+        } else {
+            set returncode 1
+        }
+        #child thread proc needs to call iter_thread_finish as final action with return code as only arg
+        concurrency::iter_thread_finish $returncode
+    }
+
+    proc send_textblock_concurrent {routers_list commands_textblock {debug "0"}} {
+        package require output
+        set concurrency::debug $debug
+        concurrency::init juniperconnect::concurrency_init
+        concurrency::data "commands_textblock" $commands_textblock
+        concurrency::data "action" "send_textblock"
+        set library_path [lindex [package ifneeded JuniperConnect $juniperconnect::version] end]
+        concurrency::process_queue $routers_list "juniperconnect::_concurrency_ipc_gen" $library_path
+        return [array get concurrency::results_array]
+    }
+
+    proc _concurrency_ipc_gen {address}  {
+        dict set options "router" $address
+        #pack into yaml and return
+        return [yaml::dict2yaml $options]
     }
 
 }
 
 namespace import juniperconnect::*
-
+if {[string match "*juniper_connect.tcl" $argv0]} {
+    package require output
+    concurrency::init "juniperconnect::_concurrency_iteration"
+}
