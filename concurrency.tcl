@@ -55,6 +55,7 @@ package provide concurrency 1.0
 package require base32
 package require homeless
 package require countdown
+package require output
 
 namespace eval concurrency {
     namespace export iter_thread_start iter_thread_finish iter_get_stdin iter_output
