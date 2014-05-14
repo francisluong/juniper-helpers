@@ -990,9 +990,9 @@ namespace eval ::juniperconnect {
             }
             "send_textblock" {
                 set router [dict get $options router]
-                set commands_textblock [dict get $options commands_textblock]
+                set commands_list [dict get $options commands_textblock]
                 juniperconnect::connectssh $router
-                set output [juniperconnect::send_textblock $router $commands_textblock]
+                set output [juniperconnect::send_commands $router $commands_list]
                 concurrency::iter_output $output
                 juniperconnect::disconnectssh $router
             }
@@ -1013,7 +1013,7 @@ namespace eval ::juniperconnect {
         package require output
         set concurrency::debug $debug
         concurrency::init juniperconnect::concurrency_init
-        concurrency::data "commands_textblock" $commands_textblock
+        concurrency::data "commands_textblock" [textproc::nsplit [string trim $commands_textblock]]
         concurrency::data "action" "send_textblock"
         set library_path [lindex [package ifneeded JuniperConnect $juniperconnect::version] end]
         concurrency::process_queue $routers_list "juniperconnect::_concurrency_ipc_gen" $library_path
