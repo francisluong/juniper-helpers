@@ -108,10 +108,12 @@ namespace eval concurrency {
             variable stdin_text [read stdin]
             variable options_dict [yaml::yaml2dict $stdin_text]
             #read in userpass data if keys exist in $options_dict
-            if {[dict exists $options_dict "concurrency" "userpass_dict"]} {
+            if {[dict exists $options_dict "concurrency" "userpass_dict"] && [info exists juniperconnect::r_db]} {
                 array set juniperconnect::r_db [dict get $options_dict "concurrency" "userpass_dict"]
                 set username [dict get $options_dict "concurrency" "userpass_username"]
-                juniperconnect::change_rdb_user $username
+                if {$username ne ""} {
+                    juniperconnect::change_rdb_user $username
+                }
             }
             #setup some variables
             variable is_thread_iteration 1
