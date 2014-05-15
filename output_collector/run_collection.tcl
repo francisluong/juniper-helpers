@@ -2,6 +2,8 @@
 
 package require oc
 
+#set concurrency::debug 1
+set concurrency::max_threads 20
 
 #usage
 if {$argc < 2} {
@@ -10,6 +12,7 @@ if {$argc < 2} {
 } 
 #read in userpass file
 oc::init 
+import_userpass [lindex $argv 0]
 
 #read in config.yml
 set filepath_config_yml [lindex $argv 1]
