@@ -191,6 +191,10 @@ namespace eval ::juniperconnect {
         set ssh_mismatch_msg "ERROR: FATAL: Mismatched SSH host key for $address"
         if {$username == "-1"} {
             set username $juniperconnect::r_username
+            if {$username eq ""} {
+                puts stderr "juniperconnnect::connectssh ERROR: username is not set!\nEither specify username and password or import_userpass."
+                exit
+            }
         }
         if {$password == "-1"} {
             set password $juniperconnect::r_password
