@@ -22,7 +22,7 @@ if {$argc < 3} {
 proc child_thread_iteration {router} {
     #child needs to call iter_thread_start as first action
     iter_thread_start
-    set options [yaml::yaml2dict [iter_get_stdin]]
+    set options [concurrency::iter_get_stdin_dict]
     set test [dict get $options test]
     if {$test} {
         set confirmed_simulate "simulate"
@@ -58,9 +58,8 @@ proc stdin_gen {router} {
     #pass commands_textblock
     global commands_textblock
     dict set options "commands_textblock" [njoin [dict get $router_commands_dict $router]]
-    dict set options "router" $router
     dict set options "test" $test
-    return [yaml::dict2yaml $options]
+    return $options
 }
 
 concurrency::init "child_thread_iteration"
@@ -94,12 +93,12 @@ if {$realargs > 3} {
 
 
 #import delim filename... delim file should be formatted as <router,command>
-set filepath [lindex $argv 1]
+set csvfilepath [lindex $argv 1]
 set split_char [lindex $argv 2]
 #start a log file based on delim filename(.results.txt)
-init_logfile "$filepath.results.txt"
+init_logfile "[file tail $csvfilepath].results.txt"
 
-set delim_content [string trim [read_file $filepath]]
+set delim_content [string trim [read_file $csvfilepath]]
 #perform sanity check
 set sanity_firstline [lindex [split $delim_content "\n"] 0]
 set sanity_router [lindex [split $sanity_firstline $split_char] $column(router)]

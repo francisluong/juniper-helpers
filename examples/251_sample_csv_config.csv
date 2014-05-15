@@ -1,0 +1,2 @@
+r1,set apply-macro key1 value1
+r1,"set apply-macro key2 ""value 2"""

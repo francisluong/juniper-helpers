@@ -11,7 +11,6 @@ namespace eval ::oc {
 
     variable options_dict {}
     variable to_stdin_dict {}
-    variable path_to_userpass_file {}
 
     proc load_config {filepath_config_yml} {
         variable options_dict
@@ -85,10 +84,8 @@ namespace eval ::oc {
         }
     }
 
-    proc init {in_path_to_userpass_file} {
+    proc init {} {
         concurrency::init "oc::child_thread_iteration"
-        variable path_to_userpass_file 
-        set path_to_userpass_file $in_path_to_userpass_file
     }
 
     proc run_collection {} {
@@ -108,20 +105,15 @@ namespace eval ::oc {
 
     #optional stdin generator proc... this is suppled to concurrency::process_queue 
     proc stdin_gen {router} {
-        variable path_to_userpass_file
         variable to_stdin_dict
-        #pass path to userpass file to child as "userpass_file"
-        dict set to_stdin_dict "userpass_file" $path_to_userpass_file
-        return [yaml::dict2yaml $to_stdin_dict]
+        return $to_stdin_dict
     }
 
     proc child_thread_iteration {router} {
         #child needs to call iter_thread_start as first action
         iter_thread_start
-        set options [yaml::yaml2dict [iter_get_stdin]]
+        set options [concurrency::iter_get_stdin_dict]
         dict with options {
-            #read in userpass data
-            import_userpass [dict get $options "userpass_file"]
             #connect and get output
             if {[info exists "netconf"]} {
                 connectssh $router netconf

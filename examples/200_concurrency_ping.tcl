@@ -16,7 +16,7 @@ if {$argc < 1} {
 proc run_iteration {ping_target} {
     #child needs to call iter_thread_start as first action
     iter_thread_start
-    set options [yaml::yaml2dict [iter_get_stdin]]
+    set options [concurrency::iter_get_stdin_dict]
     set count [dict get $options "count"]
     test::subcase "Ping $ping_target"
     set returncode [ catch {exec ping -c $count $ping_target} output ]
@@ -32,7 +32,7 @@ proc stdin_gen {ping_target} {
     global count
     dict set options "count" $count
     incr count 2
-    return [yaml::dict2yaml $options]
+    return $options
 }
 #first value of count
 set count 5

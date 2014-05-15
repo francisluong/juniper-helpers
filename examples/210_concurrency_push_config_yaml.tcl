@@ -18,9 +18,7 @@ if {$argc < 3} {
 proc child_thread_iteration {router} {
     #child needs to call iter_thread_start as first action
     iter_thread_start
-    set options [yaml::yaml2dict [iter_get_stdin]]
-    #read in userpass data
-    import_userpass [dict get $options "userpass_file"]
+    set options [concurrency::iter_get_stdin_dict]
     # do stuff
     set commands_textblock [dict get $options commands_textblock]
     test::subcase "Configure $router"
@@ -46,7 +44,7 @@ proc stdin_gen {router} {
     global commands_textblock
     dict set options "commands_textblock" $commands_textblock
     dict set options "router" $router
-    return [yaml::dict2yaml $options]
+    return $options
 }
 
 concurrency::init "child_thread_iteration"
