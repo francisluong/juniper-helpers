@@ -17,8 +17,45 @@ output::printline
 test output_printline {
     Test: printline
 } -body {
-    output::printline
-} -result "--------------------------------------------------------"
+    output::printline 0
+} -result [string repeat - $output::width]
+
+test output_hr {
+    Test: hr
+} -body {
+    output::hr "="
+} -result [string repeat = $output::width]
+
+
+test output_h1 {
+    Test: h1
+} -body {
+    output::h1 "h1test"
+} -result "
+[string repeat = $output::width]
+H1TEST
+[string repeat = $output::width]"
+
+test output_h2 {
+    Test: h2
+} -body {
+    output::h2 "h2test"
+} -result "
+  ----------------------------------------------------------
+  h2test
+  ----------------------------------------------------------"
+
+test output_blockanchor {
+    Test: blockanchor
+} -body {
+    output::blockanchor "blockanchor\ntest\na\nb\nc"
+} -result ">>>>
+blockanchor
+test
+a
+b
+c
+<<<<"
 
 
 cleanupTests

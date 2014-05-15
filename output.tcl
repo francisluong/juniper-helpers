@@ -41,13 +41,13 @@ namespace eval ::output {
 
 
     proc h1 {text} {
-        set this_text [output::format_header $text "=" 0 1]
-        output::print $this_text 0
+        set this_text [output::format_header $text "=" 0 "uppercase"]
+        return [output::print $this_text 0]
     }
 
     proc h2 {text} {
         set this_text [output::format_header $text "-" 2]
-        output::print $this_text 0
+        return [output::print $this_text 0]
     }
 
     proc print {text {indent_space_count "default"}} {
@@ -58,8 +58,8 @@ namespace eval ::output {
             variable default_indent_count
             set indent_space_count $default_indent_count
         }
-        set this_text [output::indent $text $indent_space_count]
         if {$text ne ""} {
+            set this_text [output::indent $text $indent_space_count]
             if {$logfile_active} {
                 set filepath $logfile
                 set fname [open $filepath a]
@@ -92,7 +92,7 @@ namespace eval ::output {
     }
 
     proc format_header {text dashmark {indent_space_count 0} {uppercase 0}} {
-        if {$uppercase} {
+        if {$uppercase ne "0"} {
             set text [string toupper $text]
         }
         set line [output::hr $dashmark $indent_space_count]
@@ -107,7 +107,13 @@ namespace eval ::output {
     proc indent {text num_spaces} {
         set newtext {}
         foreach line [textproc::nsplit $text] {
-            lappend newtext "[string repeat " " $num_spaces]$line"
+            #don't indent empty lines
+            if {$line eq ""} {
+                lappend newtext ""
+            #but do indent the ones that have content
+            } else {
+                lappend newtext "[string repeat " " $num_spaces]$line"
+            }
         }
         return [join $newtext "\n"]
     }
