@@ -1,0 +1,108 @@
+$ ~/juniper-helpers/examples/250_push_config_from_csv.tcl ~/userpass ~/juniper-helpers/examples/251_sample_csv_config.csv ","
+
+============================================================
+ROUTERS
+============================================================
+  
+  ----------------------------------------------------------
+  -- FINAL ROUTER LIST ------------------
+  ----------------------------------------------------------
+     - r1
+
+============================================================
+CONFIG
+============================================================
+    r1,set apply-macro key1 value1
+    r1,"set apply-macro key2 ""value 2"""
+    ---
+    set apply-macro key1 value1
+    set apply-macro key2 "value 2"
+    ---
+    CSV Linecount: 2 vs. Commands count: 2
+     ==> COUNTS ARE EQUAL
+
+============================================================
+START TEST: APPLY CONFIGS TO ROUTERS
+============================================================
+
+============================================================
+REPORT RESULTS
+============================================================
+  
+  ----------------------------------------------------------
+  Thread Output: r1
+  ----------------------------------------------------------
+    250_push_config_from_csv.tcl.OIYQ - START
+      
+      ----------------------------------------------------------
+      Subcase: Configure r1
+      ----------------------------------------------------------
+        --------------------------------------------------------
+        Apply Configuration to r1:
+          + set apply-macro key1 value1
+          + set apply-macro key2 "value 2"
+        --------------------------------------------------------
+        > Verification of Assertions:
+          -  Confirmed: 'configuration check succeeds' is present
+          -  Confirmed: 'commit complete' is present
+        --------------------------------------------------------
+        > Relevant CLI/RPC Output:
+          lab@R1>lab@R1> configure exclusive 
+          May 14 19:56:07
+          warning: uncommitted changes will be discarded on exit
+          Entering configuration mode[edit]
+          lab@R1#load set terminal 
+          May 14 19:56:07
+          [Type ^D at a new line to end input]
+          set apply-macro key1 value1
+          set apply-macro key2 "value 2"
+          ^Dload complete[edit]
+          lab@R1# show | compare 
+          May 14 19:56:08
+          [edit]
+          +  apply-macro key1 {
+          +      value1;
+          +  }
+          +  apply-macro key2 {
+          +      "value 2";
+          +  }
+          
+          [edit]
+          lab@R1# commit check 
+          May 14 19:56:09
+          configuration check succeeds
+          
+          [edit]
+          lab@R1# commit confirmed 5 and-quit 
+          May 14 19:56:10
+          commit confirmed will be automatically rolled back in 5 minutes unless confirmed
+          commit complete
+          Exiting configuration mode
+          
+          # commit confirmed will be rolled back in 5 minutes
+          lab@R1># commit confirmed will be rolled back in 5 minutes
+          lab@R1> configure exclusive 
+          May 14 19:56:12
+          warning: uncommitted changes will be discarded on exit
+          Entering configuration mode# commit confirmed will be rolled back in 5 minutes
+          [edit]
+          lab@R1# show | compare 
+          
+          # commit confirmed will be rolled back in 5 minutes
+          [edit]
+          lab@R1# commit and-quit 
+          May 14 19:56:14
+          commit complete
+          Exiting configuration mode
+    
+    250_push_config_from_csv.tcl.OIYQ - RETURNCODE: 0
+
+============================================================
+  
+  ----------------------------------------------------------
+  Test Result Summary --> PASS
+  ----------------------------------------------------------
+    ** r1 --> PASS
+    Summary Test Result --> PASS
+
+============================================================

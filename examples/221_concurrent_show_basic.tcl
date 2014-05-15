@@ -11,7 +11,7 @@ package require JuniperConnect
 proc run_iteration {router} {
     #child needs to call iter_thread_start as first action
     iter_thread_start
-    set options $concurrency::options_dict
+    set options [concurrency::iter_get_stdin_dict]
     output::pdict options
     set commands_list [dict get $options commands_list]
     connectssh $router

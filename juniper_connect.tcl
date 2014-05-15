@@ -191,6 +191,10 @@ namespace eval ::juniperconnect {
         set ssh_mismatch_msg "ERROR: FATAL: Mismatched SSH host key for $address"
         if {$username == "-1"} {
             set username $juniperconnect::r_username
+            if {$username eq ""} {
+                puts stderr "juniperconnnect::connectssh ERROR: username is not set!\nEither specify username and password or import_userpass."
+                exit
+            }
         }
         if {$password == "-1"} {
             set password $juniperconnect::r_password
@@ -407,7 +411,7 @@ namespace eval ::juniperconnect {
     proc send_textblock {address commands_textblock} {
         set textblock [string trim $commands_textblock]
         set commands_list [textproc::nsplit $textblock]
-        return [juniperconnect::send_commands $address $commands_list]
+        return [[namespace current]::send_commands $address $commands_list]
     }
 
     proc send_commands {address commands_list} {
@@ -420,7 +424,7 @@ namespace eval ::juniperconnect {
         variable output
         set output {}
 
-        set timeout [juniperconnect::timeout]
+        set timeout [[namespace current]::timeout]
         set spawn_id $juniperconnect::session_array($address)
 
         #suppress output if outputlevel is set to quiet
@@ -432,7 +436,7 @@ namespace eval ::juniperconnect {
         #send initial carriage-return then expect first prompt
         _verify_initial_send_prompt $address
         #loop through commands list
-        juniperconnect::_send_commands_loop $address $commands_list
+        [namespace current]::_send_commands_loop $address $commands_list
         set output [string trimright [textproc::nrange $output 0 end-1]]
         set output [join [split $output "\r"] ""]
         log_user 1
@@ -966,7 +970,7 @@ namespace eval ::juniperconnect {
     proc _concurrency_iteration {address} {
         #child needs to call iter_thread_start as first action
         concurrency::iter_thread_start
-        set options $concurrency::options_dict
+        set options [concurrency::iter_get_stdin_dict]
         if {$concurrency::debug} {
             output::pdict options
         }
@@ -990,9 +994,9 @@ namespace eval ::juniperconnect {
             }
             "send_textblock" {
                 set router [dict get $options router]
-                set commands_list [dict get $options commands_textblock]
+                set commands_textblock [dict get $options commands_textblock]
                 juniperconnect::connectssh $router
-                set output [juniperconnect::send_commands $router $commands_list]
+                set output [juniperconnect::send_textblock $router $commands_textblock]
                 concurrency::iter_output $output
                 juniperconnect::disconnectssh $router
             }
@@ -1013,7 +1017,7 @@ namespace eval ::juniperconnect {
         package require output
         set concurrency::debug $debug
         concurrency::init juniperconnect::concurrency_init
-        concurrency::data "commands_textblock" [textproc::nsplit [string trim $commands_textblock]]
+        concurrency::data "commands_textblock" [string trim $commands_textblock]
         concurrency::data "action" "send_textblock"
         set library_path [lindex [package ifneeded JuniperConnect $juniperconnect::version] end]
         concurrency::process_queue $routers_list "juniperconnect::_concurrency_ipc_gen" $library_path
@@ -1023,7 +1027,7 @@ namespace eval ::juniperconnect {
     proc _concurrency_ipc_gen {address}  {
         dict set options "router" $address
         #pack into yaml and return
-        return [yaml::dict2yaml $options]
+        return $options
     }
 
 }

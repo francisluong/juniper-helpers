@@ -47,8 +47,9 @@
 # 
 # Stdin Gen Proc (optional)
 # =================================
-# this proc will take queue_item as an argument and return text to be 
-# presented to stdin for the thread iteration proc
+# this proc will take queue_item as an argument and return a dict
+# which will be serialized inot yaml and
+# presented to stdin for the child thread iteration proc
 #
 
 package provide concurrency 1.0
@@ -58,7 +59,7 @@ package require countdown
 package require output
 
 namespace eval concurrency {
-    namespace export iter_thread_start iter_thread_finish iter_get_stdin iter_output
+    namespace export iter_thread_start iter_thread_finish iter_get_stdin_dict iter_output
 
     variable max_threads 5
     variable wait_seconds 2
@@ -246,9 +247,9 @@ namespace eval concurrency {
         }
     }
 
-    proc iter_get_stdin {} {
-        variable stdin_text
-        return $stdin_text
+    proc iter_get_stdin_dict {} {
+        variable options_dict
+        return $options_dict
     }
 
     proc iter_output {outtext {indent_space_count "0"}} {
@@ -305,14 +306,18 @@ namespace eval concurrency {
         dict set options "concurrency" "output_filepath" [concurrency::_output_filepath $queue_item]
         dict set options "concurrency" "queue_item" $queue_item
         if {$stdin_gen_procname ne ""} {
-            set generated_yaml [yaml::yaml2dict [eval $stdin_gen_procname $queue_item]]
+            set generated_dict [eval $stdin_gen_procname $queue_item]
             if {$debug} {
                 output::pdict options
-                output::pdict generated_yaml
+                output::pdict generated_dict
             }
-            set text_to_stdin [dict merge $options $generated_yaml]
+            set text_to_stdin [yaml::dict2yaml [dict merge $options $generated_dict]]
         } else {
             set text_to_stdin [yaml::dict2yaml $options]
+        }
+        if {$debug} {
+            output::h2 "YAML to stdin"
+            output::print $text_to_stdin
         }
         if {$tcl_script_filepath eq "default"} {
             set tcl_script_filepath [info script]

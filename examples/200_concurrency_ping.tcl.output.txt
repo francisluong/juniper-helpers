@@ -1,59 +1,111 @@
-# ~/juniper-helpers/examples/200_concurrency_ping.tcl 127.0.0.1 192.168.1.30
+$ ~/juniper-helpers/examples/200_concurrency_ping.tcl 127.0.0.1 192.168.1.30 192.168.1.10
 
 ============================================================
-START TEST: PING ALL TARGETS
+PROCESS QUEUE
+============================================================
+
+============================================================
+REPORT RESULTS
 ============================================================
   
   ----------------------------------------------------------
-  Subcase: Ping 127.0.0.1
+  Thread Output: 127.0.0.1
   ----------------------------------------------------------
-    Analyzing textblock: Ping output for 127.0.0.1
-    --------------------------------------------------------
-    > Verification of Assertions:
-      -  Confirmed: '0% packet loss' is present
-    --------------------------------------------------------
-    > Relevant CLI/RPC Output:
-      PING 127.0.0.1 (127.0.0.1) 56(84) bytes of data.
-          64 bytes from 127.0.0.1: icmp_req=1 ttl=64 time=0.022 ms
-          64 bytes from 127.0.0.1: icmp_req=2 ttl=64 time=0.021 ms
-          64 bytes from 127.0.0.1: icmp_req=3 ttl=64 time=0.034 ms
-          64 bytes from 127.0.0.1: icmp_req=4 ttl=64 time=0.042 ms
-          64 bytes from 127.0.0.1: icmp_req=5 ttl=64 time=0.042 ms
+    200_concurrency_ping.tcl.GEZDOLRQFYYC4MI - START
+      
+      ----------------------------------------------------------
+      Subcase: Ping 127.0.0.1
+      ----------------------------------------------------------
+        --------------------------------------------------------
+        Analyzing textblock: Ping output for 127.0.0.1
+        --------------------------------------------------------
+        > Verification of Assertions:
+          -  Confirmed: '0% packet loss' is present
+        --------------------------------------------------------
+        > Relevant CLI/RPC Output:
+          PING 127.0.0.1 (127.0.0.1) 56(84) bytes of data.
+          64 bytes from 127.0.0.1: icmp_seq=1 ttl=64 time=0.023 ms
+          64 bytes from 127.0.0.1: icmp_seq=2 ttl=64 time=0.050 ms
+          64 bytes from 127.0.0.1: icmp_seq=3 ttl=64 time=0.035 ms
+          64 bytes from 127.0.0.1: icmp_seq=4 ttl=64 time=0.035 ms
+          64 bytes from 127.0.0.1: icmp_seq=5 ttl=64 time=0.037 ms
           
           --- 127.0.0.1 ping statistics ---
-          5 packets transmitted, 5 received, 0% packet loss, time 3999ms
-          rtt min/avg/max/mdev = 0.021/0.032/0.042/0.009 ms
-          
-          GEZDOLRQFYYC4MI= - RETURNCODE: 0
+          5 packets transmitted, 5 received, 0% packet loss, time 3998ms
+          rtt min/avg/max/mdev = 0.023/0.036/0.050/0.008 ms
+    
+    200_concurrency_ping.tcl.GEZDOLRQFYYC4MI - RETURNCODE: 0
   
   ----------------------------------------------------------
-  Subcase: Ping 192.168.1.30
+  Thread Output: 192.168.1.30
   ----------------------------------------------------------
-    Analyzing textblock: Ping output for 192.168.1.30
-    --------------------------------------------------------
-    > Verification of Assertions:
-      -  Confirmed: '0% packet loss' is present
-    --------------------------------------------------------
-    > Relevant CLI/RPC Output:
-      PING 192.168.1.30 (192.168.1.30) 56(84) bytes of data.
-          64 bytes from 192.168.1.30: icmp_req=1 ttl=64 time=0.011 ms
-          64 bytes from 192.168.1.30: icmp_req=2 ttl=64 time=0.033 ms
-          64 bytes from 192.168.1.30: icmp_req=3 ttl=64 time=0.020 ms
-          64 bytes from 192.168.1.30: icmp_req=4 ttl=64 time=0.018 ms
-          64 bytes from 192.168.1.30: icmp_req=5 ttl=64 time=0.025 ms
-          64 bytes from 192.168.1.30: icmp_req=6 ttl=64 time=0.038 ms
-          64 bytes from 192.168.1.30: icmp_req=7 ttl=64 time=0.040 ms
+    200_concurrency_ping.tcl.GE4TELRRGY4C4MJOGMYA - START
+      
+      ----------------------------------------------------------
+      Subcase: Ping 192.168.1.30
+      ----------------------------------------------------------
+        --------------------------------------------------------
+        Analyzing textblock: Ping output for 192.168.1.30
+        --------------------------------------------------------
+        > Verification of Assertions:
+          -  Confirmed: '0% packet loss' is present
+        --------------------------------------------------------
+        > Relevant CLI/RPC Output:
+          PING 192.168.1.30 (192.168.1.30) 56(84) bytes of data.
+          64 bytes from 192.168.1.30: icmp_seq=1 ttl=64 time=0.025 ms
+          64 bytes from 192.168.1.30: icmp_seq=2 ttl=64 time=0.046 ms
+          64 bytes from 192.168.1.30: icmp_seq=3 ttl=64 time=0.038 ms
+          64 bytes from 192.168.1.30: icmp_seq=4 ttl=64 time=0.039 ms
+          64 bytes from 192.168.1.30: icmp_seq=5 ttl=64 time=0.047 ms
+          64 bytes from 192.168.1.30: icmp_seq=6 ttl=64 time=0.045 ms
+          64 bytes from 192.168.1.30: icmp_seq=7 ttl=64 time=0.043 ms
           
           --- 192.168.1.30 ping statistics ---
-          7 packets transmitted, 7 received, 0% packet loss, time 5998ms
-          rtt min/avg/max/mdev = 0.011/0.026/0.040/0.011 ms
+          7 packets transmitted, 7 received, 0% packet loss, time 5999ms
+          rtt min/avg/max/mdev = 0.025/0.040/0.047/0.009 ms
+    
+    200_concurrency_ping.tcl.GE4TELRRGY4C4MJOGMYA - RETURNCODE: 0
+  
+  ----------------------------------------------------------
+  Thread Output: 192.168.1.10
+  ----------------------------------------------------------
+    200_concurrency_ping.tcl.GE4TELRRGY4C4MJOGEYA - START
+      
+      ----------------------------------------------------------
+      Subcase: Ping 192.168.1.10
+      ----------------------------------------------------------
+        --------------------------------------------------------
+        Analyzing textblock: Ping output for 192.168.1.10
+        --------------------------------------------------------
+        > Verification of Assertions:
+          -  Confirmed: '0% packet loss' is present
+        --------------------------------------------------------
+        > Relevant CLI/RPC Output:
+          PING 192.168.1.10 (192.168.1.10) 56(84) bytes of data.
+          64 bytes from 192.168.1.10: icmp_seq=1 ttl=128 time=0.217 ms
+          64 bytes from 192.168.1.10: icmp_seq=2 ttl=128 time=0.291 ms
+          64 bytes from 192.168.1.10: icmp_seq=3 ttl=128 time=0.272 ms
+          64 bytes from 192.168.1.10: icmp_seq=4 ttl=128 time=0.291 ms
+          64 bytes from 192.168.1.10: icmp_seq=5 ttl=128 time=0.284 ms
+          64 bytes from 192.168.1.10: icmp_seq=6 ttl=128 time=0.300 ms
+          64 bytes from 192.168.1.10: icmp_seq=7 ttl=128 time=0.300 ms
+          64 bytes from 192.168.1.10: icmp_seq=8 ttl=128 time=0.317 ms
+          64 bytes from 192.168.1.10: icmp_seq=9 ttl=128 time=0.308 ms
           
-          GE4TELRRGY4C4MJOGMYA==== - RETURNCODE: 0
+          --- 192.168.1.10 ping statistics ---
+          9 packets transmitted, 9 received, 0% packet loss, time 7998ms
+          rtt min/avg/max/mdev = 0.217/0.286/0.317/0.033 ms
+    
+    200_concurrency_ping.tcl.GE4TELRRGY4C4MJOGEYA - RETURNCODE: 0
+
+============================================================
   
   ----------------------------------------------------------
   Test Result Summary --> PASS
   ----------------------------------------------------------
-    ** Subcase: Ping 127.0.0.1 --> PASS
-    ** Subcase: Ping 192.168.1.30 --> PASS
+    ** 127.0.0.1 --> PASS
+    ** 192.168.1.30 --> PASS
+    ** 192.168.1.10 --> PASS
+    Summary Test Result --> PASS
 
 ============================================================
