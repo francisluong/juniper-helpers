@@ -1,0 +1,71 @@
+$ ~/juniper-helpers/examples/221_concurrent_show_basic.tcl ~/userpass r1 192.168.1.31
+>> Router List: r1 192.168.1.31
+>> Command: show version
+    show chassis hardware
+
+============================================================
+PROCESS QUEUE
+============================================================
+Queue Start
+  Queues (in/curr/fin): 2/0/0
+  Start: r1 -- /var/tmp/fluong.221_concurrent_show_basic.tcl.OIYQ.txt
+  Start: 192.168.1.31 -- /var/tmp/fluong.221_concurrent_show_basic.tcl.GE4TELRRGY4C4MJOGMYQ.txt
+    Queues (in/curr/fin): 0/2/0
+    >> current: r1 192.168.1.31
+    Queues (in/curr/fin): 0/0/2
+Queue Finish
+
+============================================================
+R1: SHOW VERSION
+    SHOW CHASSIS HARDWARE
+============================================================
+    221_concurrent_show_basic.tcl.OIYQ - START
+    lab@R1>
+
+    lab@R1> show version
+    May 15 19:39:51
+    Hostname: R1
+    Model: firefly-perimeter
+    JUNOS Software Release [12.1X46-D10.2]
+
+    lab@R1> show chassis hardware
+    May 15 19:39:51
+    Hardware inventory:
+    Item             Version  Part number  Serial number     Description
+    Chassis                                dd4b876c4e0a      FIREFLY-PERIMETER
+    Midplane
+    System IO
+    Routing Engine                                           FIREFLY-PERIMETER RE
+    FPC 0                                                    Virtual FPC
+      PIC 0                                                  Virtual GE
+    Power Supply 0
+
+    221_concurrent_show_basic.tcl.OIYQ - RETURNCODE: 0
+
+============================================================
+192.168.1.31: SHOW VERSION
+    SHOW CHASSIS HARDWARE
+============================================================
+    221_concurrent_show_basic.tcl.GE4TELRRGY4C4MJOGMYQ - START
+    lab@R1>
+
+    lab@R1> show version
+    May 15 19:39:51
+    Hostname: R1
+    Model: firefly-perimeter
+    JUNOS Software Release [12.1X46-D10.2]
+
+    lab@R1> show chassis hardware
+    May 15 19:39:51
+    Hardware inventory:
+    Item             Version  Part number  Serial number     Description
+    Chassis                                dd4b876c4e0a      FIREFLY-PERIMETER
+    Midplane
+    System IO
+    Routing Engine                                           FIREFLY-PERIMETER RE
+    FPC 0                                                    Virtual FPC
+      PIC 0                                                  Virtual GE
+    Power Supply 0
+
+    221_concurrent_show_basic.tcl.GE4TELRRGY4C4MJOGMYQ - RETURNCODE: 0
+
