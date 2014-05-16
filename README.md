@@ -141,11 +141,11 @@ Library Packages
 
 Basic SSH and NetConf - package require JuniperConnect
 --------------------------------------------------------
-This uses Expect and a call to OpenSSH to connect to a router using either CLI or NetConf.  Send commands, get output.  See examples/001\* 002\* 003\*
+This uses Expect and a call to OpenSSH to connect to a router using either CLI or NetConf.  Send commands, get output.  See [examples/001\* 002\* 003\*](https://github.com/francisluong/juniper-helpers/tree/master/examples).
 
 Test Cases - package require test
 --------------------------------------
-This is a high-level testing framework for connecting with routers, performing actions, getting outputs, and verifying them.  See examples/001_basic.tcl for a brief example.
+This is a high-level testing framework for connecting with routers, performing actions, getting outputs, and verifying them.  See [examples/001_basic.tcl](https://github.com/francisluong/juniper-helpers/blob/master/examples/001_basic.tcl) for a brief example.
 
 Text Processing - package require textproc
 --------------------------------------------
@@ -176,7 +176,7 @@ Concurrency - package require concurrency
 Provides a framework for writing scripts that work through a list of routers and send commands to each... except it's more general than that.  The queue can be a list of anything.  You can pass a dict to each child script, and even generate different values for each child.  The master script handles spawning up to some maximum number of concurrent scripts and working through the queue until it is empty.  Results are picked up by the master script for easy reporting.  
 Also, this script avoids the need for having the child script in a separate file by having concurrency::init intelligently branch if it is the master thread or a child.
 
-See examples/2xx\*.
+See [examples/2xx\*](https://github.com/francisluong/juniper-helpers/tree/master/examples).
 
 
 Other Content
