@@ -70,9 +70,30 @@ Step 3.
 Try to run examples/000_test_install.tcl. Output of examples/000_test_install.tcl should look something like this:
 
 ```
+Tcl Version: 8.6
+Tcl Package Path on your computer:
+ - /usr/local/lib/tcltk
+ - /usr/local/share/tcltk
+ - /usr/lib/tcltk/x86_64-linux-gnu
+ - /usr/lib/tcltk
+ - /usr/share/tcltk
+ - /usr/lib/tcltk/tcl8.6
+ - /usr/lib
+
+Attempting to access package JuniperConnect
+ - SUCCESS!
+
+
 ============================================================
 LIBRARY PATH: /HOME/FLUONG/JUNIPER-HELPERS
 ============================================================
+    Tcl Version: 8.6
+
+  ----------------------------------------------------------
+  Expect
+  ----------------------------------------------------------
+    Confirmed installation of Expect: 5.45
+    /usr/lib
 
   ----------------------------------------------------------
   tcllib
@@ -87,7 +108,7 @@ LIBRARY PATH: /HOME/FLUONG/JUNIPER-HELPERS
   ----------------------------------------------------------
   ssh
   ----------------------------------------------------------
-    Confirmed OpenSSH: OpenSSH_5.9p1 Debian-5ubuntu1.1, OpenSSL 1.0.1 14 Mar 2012
+    Confirmed OpenSSH: OpenSSH_6.6p1 Ubuntu-2ubuntu1, OpenSSL 1.0.1f 6 Jan 2014
 
   ----------------------------------------------------------
   Juniper-Helpers Library installation
@@ -95,11 +116,14 @@ LIBRARY PATH: /HOME/FLUONG/JUNIPER-HELPERS
     Confirmed Juniper-Helpers Library installation
     ---
     JuniperConnect 1.0  ==> found at /home/fluong/juniper-helpers/juniper_connect.tcl
+    concurrency 1.0     ==> found at /home/fluong/juniper-helpers/concurrency.tcl
     countdown 1.0       ==> found at /home/fluong/juniper-helpers/countdown.tcl
-    gen 1.0     ==> found at /home/fluong/juniper-helpers/gen.tcl
+    delim 1.0   ==> found at /home/fluong/juniper-helpers/delim.tcl
+    ezhtml 1.0  ==> found at /home/fluong/juniper-helpers/ezhtml.tcl
+    ezmail 1.0  ==> found at /home/fluong/juniper-helpers/ezmail.tcl
+    gen 1.1     ==> found at /home/fluong/juniper-helpers/gen.tcl
     homeless 1.0        ==> found at /home/fluong/juniper-helpers/homeless.tcl
-    output 1.0  ==> found at /home/fluong/juniper-helpers/output.tcl
-    rpc 1.0     ==> found at /home/fluong/juniper-helpers/rpc.tcl
+    output 1.1  ==> found at /home/fluong/juniper-helpers/output.tcl
     test 1.0    ==> found at /home/fluong/juniper-helpers/test.tcl
     textproc 1.0        ==> found at /home/fluong/juniper-helpers/textproc.tcl
 ```
@@ -111,6 +135,9 @@ Library Packages
  - gen - create lists and generate configuration from YAML files
  - textproc - text handling helpers
  - output - output formatting and logging
+ - concurrency - harness for launching parallel scripts and working through a queue of them
+ - ezhtml - provides a simplified interface into tdom to generate html, useful for e-mail generation
+ - ezmail - provides a simplified interface for smtp and mime to generate e-mails and attachments
 
 Basic SSH and NetConf - package require JuniperConnect
 --------------------------------------------------------
