@@ -155,13 +155,28 @@ I will include sufficient text processing helpers to make it really easy to extr
   - given a text block, return a list of strings derived from each line corresponding to a column number given a field separator (ala crude awk)
   - given a textblock, if the textblock matches a regular expression, return 1 - else return 0
 
-Generate Config - package require gen
+ConfigGen - package require gen
 ----------------------------------------
-Generate router configs.  Particularly, large ones with repeating sections.  See examples/100*
+Generate router configs.  Particularly, large ones with repeating sections.  See [examples/100_yaml_config_template.tcl](https://github.com/francisluong/juniper-helpers/blob/master/examples/100_yaml_config_template.tcl)
 
-Output - package require output
----------------------------------
+File and Screen Output - package require output
+-------------------------------------------------
 Create log files, output to log and screen.  Make stuff look pretty and presentable.
+
+Easy HTML - package require ezhtml
+-------------------------------------
+Incrementally build an HTML document.  Useful for generating a formatted body of an e-mail or a web page.
+
+Easy Mail - package require ezmail
+-------------------------------------
+Incrementally build an e-mail and send it, with attachments!!!.  Useful for sending off the results of your script.
+
+Concurrency - package require concurrency
+------------------------------------------
+Provides a framework for writing scripts that work through a list of routers and send commands to each... except it's more general than that.  The queue can be a list of anything.  You can pass a dict to each child script, and even generate different values for each child.  The master script handles spawning up to some maximum number of concurrent scripts and working through the queue until it is empty.  Results are picked up by the master script for easy reporting.  
+Also, this script avoids the need for having the child script in a separate file by having concurrency::init intelligently branch if it is the master thread or a child.
+
+See examples/2xx\*.
 
 
 Other Content
