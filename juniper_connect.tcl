@@ -491,22 +491,36 @@ namespace eval ::juniperconnect {
                     }
                     send "$line\r"
                 }
-                #send CTRL-d
-                send "\004"
+                #send CTRL-d every second until we get a prompt or we hit the timeout_max
+                send "\r\004"
+                set timeout_max $timeout
+                set timeout 1
+                set this_iter 0
                 expect {
                     "load complete" {
                         append output [string trimleft $expect_out(buffer)]
-                        exp_continue
                     }
+                    timeout {
+                        incr this_iter
+                        if {$this_iter >= $timeout_max} {
+                            return -code error "$procname: TIMEOUT($timeout) waiting for 'load complete'"
+                        } else {
+                            send "\004"
+                            exp_continue
+                        }
+                    }
+                }
+                #revert timeout
+                set timeout [juniperconnect::timeout]
+                expect {
                     -re $prompt {
                         append output [string trimleft $expect_out(buffer)]
                         #absorb final prompt
                     }
                     timeout {
-                        return -code error "$procname: TIMEOUT($timeout) waiting for 'load complete'"
+                        return -code error "$procname: TIMEOUT($timeout) waiting for prompt after 'load complete'"
                     }
                 }
-                set timeout [juniperconnect::timeout]
             }
             "cli" {
                 #default mode... act like send_commands
