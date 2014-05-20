@@ -1015,12 +1015,16 @@ namespace eval ::juniperconnect {
 
     proc send_textblock_concurrent {routers_list commands_textblock {debug "0"}} {
         package require output
-        set concurrency::debug $debug
+        set oldcdebug $concurrency::debug
+        if {$debug} {
+            set concurrency::debug $debug
+        }
         concurrency::init juniperconnect::concurrency_init
         concurrency::data "commands_textblock" [string trim $commands_textblock]
         concurrency::data "action" "send_textblock"
         set library_path [lindex [package ifneeded JuniperConnect $juniperconnect::version] end]
         concurrency::process_queue $routers_list "juniperconnect::_concurrency_ipc_gen" $library_path
+            set concurrency::debug $oldcdebug
         return [array get concurrency::results_array]
     }
 

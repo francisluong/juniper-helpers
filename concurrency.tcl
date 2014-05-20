@@ -125,7 +125,11 @@ namespace eval concurrency {
             puts "output_filename: $output_filename"
             puts "output_filepath: $output_filepath"
             #call thread_iteration and exit 
-            $thread_iteration_procname $queue_item
+            set catch_result [catch {$thread_iteration_procname $queue_item} catch_output]
+            if {$catch_result > 0} {
+                [namespace current]::iter_output $catch_output
+                [namespace current]::iter_thread_finish $catch_result
+            }
             exit
         # else - not a thread!!!
         } else {
@@ -322,7 +326,7 @@ namespace eval concurrency {
         if {$tcl_script_filepath eq "default"} {
             set tcl_script_filepath [info script]
         }
-        if {$concurrency::debug eq 0} {
+        if {!$debug} {
             exec $tcl_script_filepath $iteration_match_text $queue_item $outfile << $text_to_stdin >& /dev/null &
         } else {
             #DO NOT background execute
