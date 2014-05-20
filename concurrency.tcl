@@ -183,8 +183,12 @@ namespace eval concurrency {
         #how do I pass data back to the guy who called process_queue?
     }
 
-    proc report_detail {} {
+    proc report_detail {{print_to_stdout "1"}} {
         variable finished_queue
+        set old_output_quiet_stdout $output::quiet_stdout
+        if {!$print_to_stdout} {
+            set output::quiet_stdout 1
+        }
         #print test results
         foreach queue_item $finished_queue {
             set this_result [[namespace current]::get_result $queue_item]
@@ -193,10 +197,15 @@ namespace eval concurrency {
         }
         #print closing HR
         output::print "\n[output::hr "="]" 0
+        set output::quiet_stdout $old_output_quiet_stdout
     }
 
-    proc report_pass_fail {} {
+    proc report_pass_fail {{print_to_stdout "1"}} {
         variable finished_queue
+        set old_output_quiet_stdout $output::quiet_stdout
+        if {!$print_to_stdout} {
+            set output::quiet_stdout 1
+        }
         #print test result codes
         set outparts {}
         set overall_pass "PASS"
@@ -214,6 +223,7 @@ namespace eval concurrency {
         output::print [textproc::njoin $outparts]
         #print closing HR
         output::print "\n[output::hr "="]" 0
+        set output::quiet_stdout $old_output_quiet_stdout
     }
 
     proc iter_thread_start {} {
