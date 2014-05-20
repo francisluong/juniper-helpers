@@ -72,6 +72,8 @@ namespace eval ::output {
                     after 1
                 }
             }
+        } else {
+            set this_text $text
         }
         return $this_text
     }
