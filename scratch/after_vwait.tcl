@@ -3,6 +3,22 @@
 package require output
 output::init_logfile "/var/tmp/results"
 
+proc count {seconds} {
+    global forever
+    for {set x 0} {$x < $seconds} {incr x} {
+        output::print "$x"
+        after 1000
+    }
+    output::print "PASS"
+    set forever 1
+}
+
+after 8000 exit
+count 10
+vwait forever
+exit
+
+
 
 #time limited execution should pass
 set value "GLOBAL VALUE"
