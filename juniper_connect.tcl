@@ -189,12 +189,17 @@ namespace eval ::juniperconnect {
         set send_slow {1 .1}
         set retries 10
         set ssh_mismatch_msg "ERROR: FATAL: Mismatched SSH host key for $address"
-        if {$username == "-1"} {
+        #parse address and set username if needed
+        set address_full $address
+        if {$username != "-1"} {
+        } elseif {[string match "*@*" $address]} {
+            lassign [split $address "@"] username address
+        } else {
             set username $juniperconnect::r_username
-            if {$username eq ""} {
-                puts stderr "juniperconnnect::connectssh ERROR: username is not set!\nEither specify username and password or import_userpass."
-                exit
-            }
+        }
+        if {$username eq ""} {
+            puts stderr "juniperconnnect::connectssh ERROR: username is not set!\nEither specify username and password or import_userpass."
+            exit
         }
         if {$password == "-1"} {
             set password $juniperconnect::r_password
@@ -207,7 +212,6 @@ namespace eval ::juniperconnect {
                     spawn ssh $username@$address
                 }
                 "netconf" {
-                    log_user 0
                     spawn ssh $username@$address -p 830 -s "netconf"
                 }
                 default {
@@ -246,7 +250,7 @@ namespace eval ::juniperconnect {
                     append output $expect_out(buffer)
                     return -code error "ERROR: juniperconnect::connectssh: no hostkey alg\n$output"
                 }
-                "Host key verification failed." {
+                -re "host key .*( verification failed|differs).*" {
                     append output $expect_out(buffer)
                     return -code error "$ssh_mismatch_msg\n$output"
                 }
@@ -327,7 +331,7 @@ namespace eval ::juniperconnect {
                 if {$options(outputlevel) ne "quiet" } {
                     puts "\njuniperconnect::connectssh $address success"
                 }
-                set session_array($address) $spawn_id
+                set session_array($address_full) $spawn_id
                 send "set cli screen-length 0\n"
                 expect -re $prompt {send "set cli screen-width 1024\n"}
                 expect -re $prompt {send "set cli timestamp\n"}
@@ -344,7 +348,7 @@ namespace eval ::juniperconnect {
                 send $ncclient_hello_out
                 expect $end_of_message {}
                 #session array storage for netconf... separate one?
-                set session_array(nc:$address) $spawn_id
+                set session_array(nc:$address_full) $spawn_id
             }
             default {
                 return -code error "[info proc]: ERROR: unexpected value for style: '$style'"

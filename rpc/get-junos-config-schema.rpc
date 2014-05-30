@@ -1,0 +1,7 @@
+<rpc>
+    <get-xnm-information> 
+        <type>xml-schema</type> 
+        <namespace>junos-configuration</namespace> 
+    </get-xnm-information> 
+</rpc>
+]]>]]>

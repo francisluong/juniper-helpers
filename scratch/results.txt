@@ -1,0 +1,37 @@
+
+============================================================
+START TEST: SAMPLE TEST
+============================================================
+
+  ----------------------------------------------------------
+  Subcase: Verify FPC 0 is Present
+  ----------------------------------------------------------
+    --------------------------------------------------------
+    Analyzing 192.168.1.31 output for the following commands:
+      + show chassis hardware
+    --------------------------------------------------------
+    > Verification of Assertions:
+      -  Confirmed: 'FPC 0' is present
+    --------------------------------------------------------
+    > Relevant CLI/RPC Output:
+      lab@R1> 
+
+      lab@R1> show chassis hardware 
+      May 30 07:37:46
+      Hardware inventory:
+      Item             Version  Part number  Serial number     Description
+      Chassis                                dd4b876c4e0a      FIREFLY-PERIMETER
+      Midplane        
+      System IO       
+      Routing Engine                                           FIREFLY-PERIMETER RE
+      FPC 0                                                    Virtual FPC
+        PIC 0                                                  Virtual GE
+      Power Supply 0
+
+  ----------------------------------------------------------
+  Test Result Summary --> 
+  ----------------------------------------------------------
+    ** Subcase: Verify FPC 0 is Present --> PASS
+    Summary Test Result --> PASS
+
+============================================================
