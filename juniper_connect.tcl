@@ -547,20 +547,29 @@ namespace eval ::juniperconnect {
     #======================
 
     proc _verify_initial_send_prompt {address {capture_output 1}} {
-        set spawn_id $juniperconnect::session_array($address)
-        set timeout [juniperconnect::timeout]
-        set prompt $juniperconnect::rp_prompt_array(Juniper)
+        set procname "_verify_initial_send_prompt"
+        variable session_array
+        variable timeout
+        variable rp_prompt_array
+        variable output
+        set spawn_id $session_array($address)
+        set timeout [[namespace current]::timeout]
+        set prompt $rp_prompt_array(Juniper)
         send "\n"
         expect {
             -re $prompt {
                 if {$capture_output} {
-                    variable output
                     append output [string trimleft $expect_out(buffer)]
                 }
                 #absorb final prompt
             }
+            -re ".*(\r|\n)" {
+                #this resets the timeout timer using newline-continues
+                append output $expect_out(buffer)
+                exp_continue
+            }
             timeout {
-                return -code error "ERROR: $procname: TIMEOUT waiting for initial prompt"
+                return -code error "ERROR: $procname: TIMEOUT waiting for prompt"
             }
         }
     }
@@ -688,41 +697,15 @@ namespace eval ::juniperconnect {
         set prompt $juniperconnect::rp_prompt_array(Juniper)
         set spawn_id $juniperconnect::session_array($address)
         set timeout $juniperconnect::options(commit_timeout_sec)
-        send "show | compare\r"
-        expect {
-            -re $prompt {
-                append output $expect_out(buffer)
-            }
-            timeout {
-                return -code error "ERROR: $procname: timeout waiting for initial prompt"
-            }
-        }
+        [namespace current]::_send_commands_loop $address [textproc::nsplit "
+            show | compare | count
+            show | compare
+        "]
         #send commit
         switch -glob -nocase -- $confirmed_simulate {
             "*confirm*" {
                 #perform commit check
-                send "commit check\r"
-                expect {
-                    {re0:} {
-                        append output $expect_out(buffer)
-                        exp_continue
-                    }
-                    {re1:} {
-                        append output $expect_out(buffer)
-                        exp_continue
-                    }
-                    "configuration check succeeds" {
-                        append output $expect_out(buffer)
-                        exp_continue
-                    }
-                    -re $prompt {
-                        append output $expect_out(buffer)
-                        #final prompt is absorbed
-                    }
-                    timeout {
-                        return -code error "EXPECT TIMEOUT($timeout): $procname: waiting for final prompt"
-                    }
-                }
+                [namespace current]::_send_commands_loop $address [list "commit check"]
                 #issue commit confirmed
                 set minutes $juniperconnect::options(commit_confirmed_timeout_min)
                 send "commit confirmed $minutes and-quit\r"
@@ -730,7 +713,7 @@ namespace eval ::juniperconnect {
             "*check*" -
             "*test*" -
             "*simulate*" {
-                send "commit check\r"
+                #do nothing
             } 
             default {
                 send "commit and-quit\r"
@@ -741,30 +724,8 @@ namespace eval ::juniperconnect {
             "*check*" -
             "*test*" -
             "*simulate*" {
-                expect {
-                    {re0:} {
-                        append output $expect_out(buffer)
-                        exp_continue
-                    }
-                    {re1:} {
-                        append output $expect_out(buffer)
-                        exp_continue
-                    }
-                    "configuration check succeeds" {
-                        append output $expect_out(buffer)
-                        exp_continue
-                    }
-                    -re $prompt {
-                        append output $expect_out(buffer)
-                        #send rollback and quit-configuration
-                        set commands_list [list "rollback" "quit config"]
-                        juniperconnect::_send_commands_loop $address $commands_list
-                        #final prompt is absorbed
-                    }
-                    timeout {
-                        return -code error "EXPECT TIMEOUT($timeout): $procname: waiting for final prompt"
-                    }
-                }
+                set commands_list [list "commit check" "rollback" "quit config"]
+                juniperconnect::_send_commands_loop $address $commands_list
             } 
             "*confirm*" -
             default {
