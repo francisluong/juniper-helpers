@@ -22,20 +22,31 @@ if {$argc < 3} {
 proc child_thread_iteration {router} {
     #child needs to call iter_thread_start as first action
     iter_thread_start
-    set options [concurrency::iter_get_stdin_dict]
+    set options [iter_get_stdin_dict]
     set test [dict get $options test]
     if {$test} {
         set confirmed_simulate "simulate"
     } else {
         set confirmed_simulate "confirmed"
     }
-    #read in userpass data
-    import_userpass [dict get $options "userpass_file"]
     # do stuff
     set commands_textblock [dict get $options commands_textblock]
     test::subcase "Configure $router"
     test::apply_config $router $commands_textblock "set" $confirmed_simulate
-    test::assert "configuration check succeeds"
+    #check if show | compare produced zero lines
+    set expression "Count: 0 lines"
+    set grep_result [textproc::grep $expression $test::analyze_buffer]
+    if {$grep_result ne ""} {
+        set show_compare_zero 1
+    } else {
+        set show_compare_zero 0
+    }
+    #verify configuration check if not empty config
+    if {!$show_compare_zero} {
+        test::assert "configuration check succeeds"
+    }
+    #verify error is not seen
+    test::assert "(error|fail)" "not present"
     if {!$test} {
         test::assert "commit complete"
     }
@@ -53,11 +64,10 @@ proc child_thread_iteration {router} {
 #optional stdin generator proc... this is suppled to concurrency::process_queue 
 proc stdin_gen {router} {
     global argv router_commands_dict test
-    #pass path to userpass file to child as "userpass_file"
-    dict set options "userpass_file" [lindex $argv 0]
     #pass commands_textblock
     global commands_textblock
     dict set options "commands_textblock" [njoin [dict get $router_commands_dict $router]]
+    dict set options "router" $router
     dict set options "test" $test
     return $options
 }
@@ -101,8 +111,8 @@ init_logfile "[file tail $csvfilepath].results.txt"
 set delim_content [string trim [read_file $csvfilepath]]
 #perform sanity check
 set sanity_firstline [lindex [split $delim_content "\n"] 0]
-set sanity_router [lindex [split $sanity_firstline $split_char] $column(router)]
-set sanity_config [lindex [split $sanity_firstline $split_char] $column(config)]
+set sanity_router [lindex [csv::split $sanity_firstline $split_char] $column(router)]
+set sanity_config [lindex [csv::split $sanity_firstline $split_char] $column(config)]
 set sanity_pass 1
 if {![regexp "^(set|delete|deactivate|activate|annotate|replace) .*" $sanity_config]} {
     set sanity_pass 0
@@ -159,5 +169,5 @@ test::start "Apply Configs to Routers"
 concurrency::process_queue $routers_list "stdin_gen"
 
 h1 "Report Results"
-concurrency::report_detail
+concurrency::report_detail 1
 concurrency::report_pass_fail
