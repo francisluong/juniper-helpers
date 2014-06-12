@@ -40,17 +40,17 @@ namespace eval ::output {
     }
 
 
-    proc h1 {text} {
-        set this_text [output::format_header $text "=" 0 "uppercase"]
-        return [output::print $this_text 0]
+    proc h1 {text {indent_space_count "0"} {screenonly "0"}} {
+        set this_text [output::format_header $text "=" $indent_space_count "uppercase"]
+        return [output::print $this_text $indent_space_count $screenonly]
     }
 
-    proc h2 {text} {
-        set this_text [output::format_header $text "-" 2]
-        return [output::print $this_text 0]
+    proc h2 {text {indent_space_count "2"} {screenonly "0"}} {
+        set this_text [output::format_header $text "-" $indent_space_count]
+        return [output::print $this_text $indent_space_count $screenonly]
     }
 
-    proc print {text {indent_space_count "default"}} {
+    proc print {text {indent_space_count "default"} {screenonly "0"}} {
         variable logfile_active
         variable logfile
         variable quiet_stdout
@@ -60,7 +60,7 @@ namespace eval ::output {
         }
         if {$text ne ""} {
             set this_text [output::indent $text $indent_space_count]
-            if {$logfile_active} {
+            if {$logfile_active && $screenonly == "0"} {
                 set filepath $logfile
                 set fname [open $filepath a]
                 puts $fname $this_text
@@ -78,13 +78,13 @@ namespace eval ::output {
         return $this_text
     }
 
-    proc printline {{indent_space_count "default"}} {
+    proc printline {{indent_space_count "default"} {screenonly "0"}} {
         if {$indent_space_count eq "default"} {
             variable default_indent_count
             set indent_space_count $default_indent_count
         }
         set line [output::hr "-" $indent_space_count]
-        return [output::print $line $indent_space_count]
+        return [output::print $line $indent_space_count $screenonly]
     }
 
     proc hr {dashmark {indent_space_count 0}} {
