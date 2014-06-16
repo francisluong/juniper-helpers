@@ -48,6 +48,8 @@ namespace eval ::juniperconnect {
     #netconf msgid storage
     variable netconf_msgid 1000
 
+    variable netconf_port 830
+
     #client capabilities
     variable ncclient_hello_out {
         <hello>
@@ -212,7 +214,8 @@ namespace eval ::juniperconnect {
                     spawn ssh $username@$address
                 }
                 "netconf" {
-                    spawn ssh $username@$address -p 830 -s "netconf"
+                    variable netconf_port
+                    spawn ssh $username@$address -p $netconf_port -s "netconf"
                 }
                 default {
                     return -code error "[info proc]: ERROR: unexpected value for style: '$style'"
