@@ -367,7 +367,7 @@ namespace eval ::juniperconnect {
         set prompt $rp_prompt_array(Juniper)
         switch -- $style {
             "netconf" {
-                if {[string match "nc:*" $index]} {
+                if {[string match "nc:*" $address]} {
                     set index $address
                 } else {
                     set index "nc:$address"
