@@ -795,13 +795,13 @@ namespace eval ::juniperconnect {
     #NETCONF SPECIFIC
     #======================
 
-    proc add_to_rpc {input_xml_text path_statement_textblock {indent "none"}} {
+    proc add_to_rpc {input_xml_text path_statement_textblock {indent "0"}} {
         #syntactic sugar for build_rpc to add additional elements
         # since there's no clean way to go up in level
         return [[namespace current]::build_rpc $path_statement_textblock $indent $input_xml_text]
     }
 
-    proc build_rpc {path_statement_textblock {indent "none"} {input_xml_text ""}} {
+    proc build_rpc {path_statement_textblock {indent "0"} {input_xml_text ""}} {
         variable netconf_msgid
         set this_msgid $netconf_msgid
         incr netconf_msgid
@@ -813,7 +813,7 @@ namespace eval ::juniperconnect {
             set rpc [dom parse $input_xml_text]
         }
         set root [$rpc documentElement]
-        $root setAttribute "message-id" "$this_msgid [clock format [clock seconds]]"
+        $root setAttribute "message-id" $this_msgid
         foreach path_statement [nsplit $path_statement_textblock] {
             set path_statement [string trim $path_statement]
             set current_node $root
@@ -887,12 +887,16 @@ namespace eval ::juniperconnect {
         variable end_of_message
 
         #send rpc and end sequence
-        set send_slow {1 .1}
-        send [string trim $rpc]
-        send $end_of_message
-        send "\n"
-        #clear echo for outgoing rpc
+        set send_slow {10 .001}
+        if {$options(outputlevel) ne "quiet"} {
+            puts "\n[[dom parse $rpc] asXML -indent 4]\n"
+        }
+        log_user 0
+        send "[string trim $rpc]$end_of_message\n"
         expect $end_of_message {}
+        if {$options(outputlevel) ne "quiet"} {
+            log_user 1
+        }
 
         #loop through return this_nc_output until end_of_message received
         expect {
@@ -912,6 +916,9 @@ namespace eval ::juniperconnect {
         }
         log_user 1
         set this_nc_output [nrange $this_nc_output 1 end-1]
+        #puts "==="
+        #puts $this_nc_output
+        #puts "==="
         switch -- $style {
             "ascii" {
                 set rpc_ascii [add_ascii_format_to_rpc $rpc]
