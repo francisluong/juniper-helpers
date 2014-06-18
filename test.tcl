@@ -93,6 +93,7 @@ namespace eval ::test {
             set analyze_buffer [juniperconnect::prep_netconf_output $analyze_buffer]
         }
         set test::lastmode "analyze"
+        return $analyze_buffer
     }
 
     proc apply_config {router commands_textblock {merge_set_override "cli"} {confirmed_simulate "0"}} {
@@ -131,6 +132,7 @@ namespace eval ::test {
         output::print "Analyzing textblock: $description"
         set analyze_buffer $textblock_contents
         set test::lastmode "analyze"
+        return $analyze_buffer
     }
 
     proc assert {expression {assertion "present"} {value1 ""} {value2 ""}} {
@@ -249,6 +251,7 @@ namespace eval ::test {
         set analyze_buffer [juniperconnect::send_rpc $router $rpc "ascii"]
         variable full_analyze_buffer $analyze_buffer
         set test::lastmode "analyze"
+        return $analyze_buffer
     }
 
     proc xassert {xpath {assertion "present"}  {value1 ""} {value2 ""}} {
@@ -306,7 +309,7 @@ namespace eval ::test {
                 set compare_value $value2
                 set description "value for node matching XPATH $disposition $compare_value"
                 foreach node $node_set {
-                    set this_value [$node data]
+                    set this_value [string trim [$node data]]
                     set this_node_pass [eval "expr $this_value $disposition $compare_value"]
                     if {!$this_node_pass} {
                         set this_pass 0

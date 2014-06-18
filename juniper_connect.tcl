@@ -367,12 +367,19 @@ namespace eval ::juniperconnect {
         set prompt $rp_prompt_array(Juniper)
         switch -- $style {
             "netconf" {
-                set address "nc:$address"
+                if {[string match "nc:*" $index]} {
+                    set index $address
+                } else {
+                    set index "nc:$address"
+                }
+            }
+            default {
+                set index $address
             }
         }
-        set spawn_id $session_array($address)
+        set spawn_id $session_array($index)
         if {$spawn_id ne ""} {
-            if {[string match "nc:*" $address]} {
+            if {[string match "nc:*" $index]} {
                 #close NETCONF session
                 set address [lindex [split $address ":"] end]
                 juniperconnect::send_rpc $address [juniperconnect::build_rpc "close-session"]
@@ -382,12 +389,12 @@ namespace eval ::juniperconnect {
                 send "exit\n"
                 expect -re $prompt {}
             }
-            puts "\njuniperconnect::disconnect"
+            puts "\njuniperconnect::disconnect ($address/$index)"
             #close/wait for expect session
             catch {exp_close}
             catch {exp_wait}
             #clear the value stored in the session array
-            set session_array($address) ""
+            unset session_array($index)
         }
     }
 
@@ -801,7 +808,14 @@ namespace eval ::juniperconnect {
             foreach element_list [split $path_statement "/"] {
                 foreach element [split $element_list ","] {
                     #probably will need to add logic to handle attributes and text
-                    if {[string match "*=*" $element]} {
+                    if {[string match "@*" $element]} {
+                        #add attribute to current node
+                        set this_element [string trimleft $element "@"]
+                        lassign [split $this_element "="] tag value
+                        set value [string trim $value {'\"}]
+                        $current_node setAttribute $tag $value
+                    } elseif {[string match "*=*" $element]} {
+                        #add node and text
                         lassign [split $element "="] tag value
                         set value [string trim $value {'\"}]
                         #need to also create a text node and attach it
@@ -809,12 +823,14 @@ namespace eval ::juniperconnect {
                         $current_node appendChild $new_node
                         set text_node [$rpc createTextNode $value]
                         $new_node appendChild $text_node
+                        set current_node $new_node
                     } else {
+                        #new child node element
                         set new_node [$rpc createElement $element]
                         $current_node appendChild $new_node
+                        set current_node $new_node
                     }
                 }
-                set current_node $new_node
             }
         }
         variable end_of_message
