@@ -1,0 +1,38 @@
+#!/usr/bin/env tclsh
+
+package require tcltest
+namespace import tcltest::*
+
+#software under test
+package require JuniperConnect
+package require tdom
+
+#proc build_rpc
+test build_rpc_001 {
+    Test: Build basic rpc "get-config"
+} -body {
+    set doc [dom parse [juniperconnect::build_rpc "get-config"]]
+    set result_node_set [$doc selectNodes "rpc/get-config"]
+    set pass [expr ![string match "" $result_node_set]]
+} -result "1"
+
+test build_rpc_002 {
+    Test: Build rpc: get-config/source/candidate
+} -body {
+    set doc [dom parse [juniperconnect::build_rpc "get-config/source/candidate"]]
+    set result_node_set [$doc selectNodes "rpc/get-config/source/candidate"]
+    set pass [expr ![string match "" $result_node_set]]
+} -result "1"
+
+test build_rpc_003 {
+    Test: Build rpc: get-config/source/candidate and add get-config/filter,@type='subtree'/configuration/protocols/bgp
+} -body {
+    set doc [juniperconnect::build_rpc "get-config/source/candidate"]
+    set doc [dom parse [juniperconnect::add_to_rpc $doc "get-config/filter,@type='subtree'/configuration/protocols/bgp"]]
+    set bgp_result_set [$doc selectNodes "//bgp"]
+    set result_node_set [$doc selectNodes "rpc/get-config/source/candidate"]
+    set pass [expr ![string match "" $result_node_set] && ![string match "" $bgp_result_set]]
+} -result "1"
+
+
+cleanupTests

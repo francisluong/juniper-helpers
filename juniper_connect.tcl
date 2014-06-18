@@ -10,7 +10,7 @@ package require homeless
 package require concurrency
 
 namespace eval ::juniperconnect {
-    namespace export connectssh disconnectssh send_commands send_textblock send_config build_rpc send_rpc grep_output import_userpass prep_netconf_output
+    namespace export connectssh disconnectssh send_commands send_textblock send_config build_rpc add_to_rpc send_rpc grep_output import_userpass prep_netconf_output
 
     variable version 1.0
     variable session_array
@@ -795,11 +795,23 @@ namespace eval ::juniperconnect {
     #NETCONF SPECIFIC
     #======================
 
-    proc build_rpc {path_statement_textblock {indent "none"}} {
+    proc add_to_rpc {input_xml_text path_statement_textblock {indent "none"}} {
+        #syntactic sugar for build_rpc to add additional elements
+        # since there's no clean way to go up in level
+        return [[namespace current]::build_rpc $path_statement_textblock $indent $input_xml_text]
+    }
+
+    proc build_rpc {path_statement_textblock {indent "none"} {input_xml_text ""}} {
         variable netconf_msgid
         set this_msgid $netconf_msgid
         incr netconf_msgid
-        set rpc [dom createDocument "rpc"]
+        if {$input_xml_text eq ""} {
+            #start a new document
+            set rpc [dom createDocument "rpc"]
+        } else {
+            #add to existing document
+            set rpc [dom parse $input_xml_text]
+        }
         set root [$rpc documentElement]
         $root setAttribute "message-id" "$this_msgid [clock format [clock seconds]]"
         foreach path_statement [nsplit $path_statement_textblock] {
@@ -825,10 +837,17 @@ namespace eval ::juniperconnect {
                         $new_node appendChild $text_node
                         set current_node $new_node
                     } else {
-                        #new child node element
-                        set new_node [$rpc createElement $element]
-                        $current_node appendChild $new_node
-                        set current_node $new_node
+                        #see if this element already exists
+                        set result_node_set [$current_node selectNodes $element]
+                        if {$result_node_set eq ""} {
+                            #new child node element
+                            set new_node [$rpc createElement $element]
+                            $current_node appendChild $new_node
+                            set current_node $new_node
+                        } else {
+                            #node exists... switch to node
+                            set current_node [lindex $result_node_set 0]
+                        }
                     }
                 }
             }
