@@ -25,12 +25,12 @@ test wait_3_sec {
 } -result "3"
 
 test wait_1000_ms {
-    Test: wait 3 sec
+    Test: wait 1000 ms
 } -body {
     set start [clock clicks -milliseconds]
     countdown::wait 1000 ms
     set finish [clock clicks -milliseconds]
-    return [expr ($finish - $start - 1000) < 10]
+    return [expr (wide($finish) - $start - 1000) < 50]
 } -result "1"
 
 cleanupTests

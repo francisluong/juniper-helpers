@@ -98,6 +98,43 @@ test split_on_empty_line_003_basic {
     textproc::split_on_empty_line "bob\na b c\n\n1 2 3"
 } -result [list "bob\na b c" "1 2 3"]
 
+test get_xml_text_001 {
+    get xml text basic
+} -body {
+    set xml_text "<node>text123</node>"
+    textproc::get_xml_text $xml_text "/node"
+} -result "text123"
+
+test get_xml_text_002_trim {
+    get xml text string trim
+} -body {
+    set xml_text "<node>  text123  </node>"
+    textproc::get_xml_text $xml_text "/node"
+} -result "text123"
+
+test get_xml_text_003_raw {
+    get xml text raw
+} -body {
+    set xml_text "<node>\ntext123\n</node>"
+    textproc::get_xml_text $xml_text "/node" "raw"
+} -result "\ntext123\n"
+
+test get_xml_text_004_multi {
+    get xml text multi-match
+} -body {
+    set xml_text "
+    <node>
+        <item>
+            <name>\ntext123\n</name>
+        </item>
+        <item>
+            <name>\ntext456\n</name>
+        </item>
+    </node>
+    "
+    textproc::get_xml_text $xml_text "//item/name"
+} -result [list text123 text456]
+
 
 
 

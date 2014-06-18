@@ -209,7 +209,7 @@ namespace eval ::textproc {
         return $result
     }
 
-    proc get_xml_text {xmltext xpath_statement} {
+    proc get_xml_text {xmltext xpath_statement {strim "strim"}} {
         if {![string match "*/text()" $xpath_statement]} {
             set xpath_statement "[string trimright $xpath_statement "/"]/text()"
         }
@@ -219,10 +219,20 @@ namespace eval ::textproc {
         set result_list {}
         if {[llength $node_set] == 1} {
             set node [lindex $node_set 0]
-            return [$node data]
+            if {$strim eq "strim"} {
+                set result [string trim [$node data]]
+            } else {
+                set result [$node data]
+            }
+            return $result
         } else {
             foreach node $node_set {
-                lappend result_list [$node data]
+                if {$strim eq "strim"} {
+                    set result [string trim [$node data]]
+                } else {
+                    set result [$node data]
+                }
+                lappend result_list $result
             }
             return $result_list
         }
