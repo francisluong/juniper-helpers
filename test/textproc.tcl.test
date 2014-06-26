@@ -135,7 +135,70 @@ test get_xml_text_004_multi {
     textproc::get_xml_text $xml_text "//item/name"
 } -result [list text123 text456]
 
+test grep_001 {
+    grep 001
+} -body {
+    set textblock "
+header,content
+line1,stuff
+line2,stuff
+bob,mary
+    "
+    textproc::grep "^(header|line).*" $textblock
+} -result "header,content
+line1,stuff
+line2,stuff"
 
+test grep_002 {
+    grep 002
+} -body {
+    set textblock "
+header,content
+line1,stuff
+line2,stuff
+bob,header
+    "
+    textproc::grep "line" $textblock
+} -result "line1,stuff
+line2,stuff"
 
+test grep_003 {
+    grep 003
+} -body {
+    set textblock "
+header,content
+line1,stuff
+line2,stuff
+bob,mary
+    "
+    textproc::grep "content" $textblock
+} -result "header,content"
 
+test grep_004 {
+    grep 004
+} -body {
+    set textblock "
+header,content
+line1,stuff
+line2,stuff
+bob,mary
+    "
+    textproc::grep "t" $textblock
+} -result "header,content
+line1,stuff
+line2,stuff"
+
+test grep_005_eol {
+    grep 005 - end of line marker
+} -body {
+    set textblock "
+header,content
+line1,stuff
+line2,stuff
+bob,mary
+    "
+    textproc::grep "t\$" $textblock
+} -result "header,content"
+
+puts {}
 cleanupTests

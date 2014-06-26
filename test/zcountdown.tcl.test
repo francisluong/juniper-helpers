@@ -33,4 +33,5 @@ test wait_1000_ms {
     return [expr (wide($finish) - $start - 1000) < 50]
 } -result "1"
 
+puts {}
 cleanupTests

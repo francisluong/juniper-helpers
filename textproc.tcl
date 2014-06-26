@@ -91,19 +91,11 @@ namespace eval ::textproc {
                 "ignore_case" {set ignore_case 1}
             }
         }
-        if {!$inverse} {
-            #if we're not doing inverse matching, we can just use regexp
-            if {[string index $expression 0] ne "^"} {
-                set expression "^.*$expression"
-            }
-            if {[string index $expression end] ne {$}} {
-                set expression "$expression.*\$"
-            }
-            if {$ignore_case} {
-                return [[namespace current]::njoin [regexp -all -inline -line -nocase $expression $textblock]]
-            } else {
-                return [[namespace current]::njoin [regexp -all -inline -line $expression $textblock]]
-            }
+        if {[string index $expression 0] ne "^"} {
+            set expression "^.*$expression"
+        }
+        if {[string index $expression end] ne {$}} {
+            set expression "$expression.*\$"
         }
         #inverse matching requires line-by-line
         set result {}
@@ -113,7 +105,12 @@ namespace eval ::textproc {
             } else {
                 set regexp_true [regexp -line -- $expression $line]
             }
-            if {!$regexp_true} {
+            if {$inverse} {
+                set print_this_line [expr !$regexp_true]
+            } else {
+                set print_this_line $regexp_true
+            }
+            if {$print_this_line} {
                 lappend result $line
             }
         }

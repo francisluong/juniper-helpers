@@ -176,4 +176,5 @@ test ezhtml__full_doc {
 </html>"
 
 
+puts {}
 cleanupTests

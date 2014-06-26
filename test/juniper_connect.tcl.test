@@ -35,4 +35,5 @@ test build_rpc_003 {
 } -result "1"
 
 
+puts {}
 cleanupTests
