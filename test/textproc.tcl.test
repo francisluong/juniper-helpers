@@ -200,5 +200,27 @@ bob,mary
     textproc::grep "t\$" $textblock
 } -result "header,content"
 
+test grep_006_inverse {
+    grep 006 - inverse match
+} -body {
+    set textblock "header,content
+line1,stuff
+line2,stuff
+bob,mary"
+    textproc::grep "stuff\$" $textblock "inverse"
+} -result "header,content
+bob,mary"
+
+test grep_007_nocase {
+    grep 007 - ignore case
+} -body {
+    set textblock "header,content
+line1,stuff
+line2,stuff
+bob,mary"
+    textproc::grep "STUFF\$" $textblock [list "inverse" "nocase"]
+} -result "header,content
+bob,mary"
+
 puts {}
 cleanupTests

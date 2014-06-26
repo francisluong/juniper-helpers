@@ -85,7 +85,8 @@ namespace eval ::textproc {
         set inverse 0
         set ignore_case 0
         foreach option $options_list {
-            switch -- $option {
+            switch -nocase -- $option {
+                "invert"  -
                 "inverse"  {set inverse 1}
                 "nocase" -
                 "ignore_case" {set ignore_case 1}
