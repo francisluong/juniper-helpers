@@ -19,7 +19,7 @@ package require output
 package require homeless
 set library_path [file dir [lindex [package ifneeded JuniperConnect 1.0] end]]
 h1 "LIBRARY PATH: $library_path"
-print "Tcl Version: $tcl_version"
+print "Tcl Version: $tcl_version ([info patchlevel])"
 
 h2 "Expect"
 if {[catch {package require Expect} expect_version] > 0} {
