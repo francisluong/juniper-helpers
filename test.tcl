@@ -4,6 +4,28 @@ package require JuniperConnect
 package require output 
 package require countdown
 
+# A Testing framework for Network Devices
+# can be used for lab testing or to validate field deployments
+
+# Objective: present a concise library that allows the author
+# to make declarations.  Each declaration will perform actions 
+# and will generate output to the logfile to result in a nicely
+# formatted ASCII report.
+
+# Here is a sample flow for using this framework
+#   test::start "Test Name"
+#   test::subcase "Subcase 1"
+#   test::analyze_cli "192.168.1.31" "show command"
+#   test::assert "regular expression" "present"
+#   test::end_analyze
+#   test::subcase "Subcase 2"
+#   test::analyze_netconf "192.168.1.31" "<rpc><get-chassis-inventory/></rpc>"
+#   test::xassert "//chassis"
+#   test::end_analyze
+#   test::finish
+
+
+
 namespace eval ::test {
     #namespace export 
     variable lastmode {}
@@ -14,6 +36,7 @@ namespace eval ::test {
     variable subcase_list {}
     variable overall_pass {}
 
+    # start a new test and output a banner with the test name
     proc start {testname} {
         variable pass
         variable overall_pass
@@ -23,6 +46,9 @@ namespace eval ::test {
         output::h1 "Start Test: $testname"
     }
 
+    # end the test... print a pass/fail test results summary
+    # to screen and logfile
+    # then disconnect all SSH sessions
     proc finish {} {
         variable overall_pass
         output::h2 "Test Result Summary --> $overall_pass"
@@ -36,6 +62,8 @@ namespace eval ::test {
         return $overall_pass
     }
 
+    # generate a pass/fail summary providing result for each subcase
+    #  and an overall result
     proc summary {} { return [test::pass_fail_summary] }
     proc pass_fail_summary {} {
         variable subcase_list
@@ -57,6 +85,7 @@ namespace eval ::test {
         return [textproc::njoin $outparts]
     }
 
+    # Start a new subcase
     proc subcase {description} {
         set subcase "Subcase: $description"
         output::h2 $subcase
@@ -67,6 +96,8 @@ namespace eval ::test {
         set test::lastmode "subcase"
     }
 
+    # issue a show command to a router and place the output in the validation
+    #  buffer for analysis
     proc analyze_cli {router commands_textblock {rpc 0}} {
         return [test::analyze_output $router $commands_textblock $rpc]
     }
@@ -96,6 +127,7 @@ namespace eval ::test {
         return $analyze_buffer
     }
 
+    # apply configuration to the network device
     proc apply_config {router commands_textblock {merge_set_override "cli"} {confirmed_simulate "0"}} {
         variable analyze_buffer
         juniperconnect::set_timeout 30
@@ -124,6 +156,7 @@ namespace eval ::test {
         juniperconnect::restore_timeout
     }
 
+    # import arbitrary text into the analysis buffer 
     proc analyze_textblock {description textblock_contents} {
         variable analyze_buffer 
         if {$test::lastmode ne "analyze"} {
@@ -135,6 +168,7 @@ namespace eval ::test {
         return $analyze_buffer
     }
 
+    # perform an assertion check against the validation buffer
     proc assert {expression {assertion "present"} {value1 ""} {value2 ""}} {
         if {$test::lastmode ne "assert"} {
             output::print [output::hr "-" 4]
@@ -199,6 +233,8 @@ namespace eval ::test {
         return $this_pass
     }
 
+    # reduce the scope of the validation buffer based on a start and stop 
+    #  expression
     proc limit_scope {start_expression {stop_expression {^$}} {options_list ""}} {
         if {$test::lastmode ne "limit"} {
             output::print [output::hr "-" 4]
@@ -212,10 +248,13 @@ namespace eval ::test {
         variable analyze_buffer
         #use grep_until to match the scoped section and choose the first block
         # set the result to analyze_buffer
-        set analyze_buffer [lindex [textproc::grep_until $start_expression $stop_expression $analyze_buffer $options_list] 0]
+        set analyze_buffer [lindex [textproc::grep_until $start_expression \
+            $stop_expression $analyze_buffer $options_list] 0]
         set test::lastmode "limit"
     }
 
+    # reduce the scope of the validation buffer for XML by retrieving
+    #  an XML subtree
     proc xml_scope {xpath_expression {node_index "0"}} {
         if {$test::lastmode ne "limit"} {
             output::print [output::hr "-" 4]
@@ -238,6 +277,8 @@ namespace eval ::test {
         return $node
     }
 
+    # issue a NetConf RPC to the router and place the output in the validation
+    #   buffer for analysis
     proc analyze_netconf {router rpc} {
         variable analyze_buffer 
         if {$test::lastmode ne "analyze"} {
@@ -254,6 +295,8 @@ namespace eval ::test {
         return $analyze_buffer
     }
 
+    # retrieve the results of an XPATH expression and perform checks against
+    #  the matching text nodes 
     proc xassert {xpath {assertion "present"}  {value1 ""} {value2 ""}} {
         variable analyze_buffer
         if {$test::lastmode ne "assert"} {
@@ -335,6 +378,7 @@ namespace eval ::test {
         return $this_pass
     }
 
+    # internal: verify that a boolean is well-formed
     proc sanity_boolean_disposition {assertion disposition} {
         set exp {(<|>|==|!=|<=|>=)}
         if {![regexp -- $exp $disposition]} {
@@ -344,6 +388,8 @@ namespace eval ::test {
         }
     }
 
+    # end an analysis block... dump output to the screen/log and return 
+    #  pass/fail
     proc end_analyze {{style "default"}} {
         variable analyze_buffer
         set output $analyze_buffer
@@ -384,6 +430,7 @@ namespace eval ::test {
         return $test::pass($test::current_subcase)
     }
 
+    # perform a wait during a test
     proc wait {wait_seconds} {
         output::print "[output::hr "-" 4]\nWaiting for $wait_seconds seconds..."
         countdown::wait $wait_seconds
