@@ -27,9 +27,14 @@ namespace eval ::ezmail {
     variable body_text {}
     variable mime_token_stack {}
     variable attachment_names_list {}
+    variable server {localhost}
 
-    proc init {from_email_address} {
+    proc init {from_email_address {server_override ""}} {
         set ezmail::from_email_address $from_email_address
+        if {$server_override ne ""} {
+            variable server
+            set server $server_override
+        }
     }
 
     proc start_message {tempfile_name subject_text} {
@@ -62,11 +67,13 @@ namespace eval ::ezmail {
     }
 
     proc _send_single {target_email_address multipart_token} {
+        variable server
         puts "SMTP result:'[ \
             smtp::sendmessage $multipart_token \
             -header [list From [string trim $ezmail::from_email_address]] \
             -header [list To [string trim $target_email_address]] \
             -header [list Subject [string trim $ezmail::subject]] \
+            -servers $server \
         ]'"
     }
 
