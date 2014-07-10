@@ -4,7 +4,7 @@ package require Expect
 
 namespace eval ::homeless {
     #homeless procs... I'll find a place for them later... all get imported into root namespace (I know...)
-    namespace export *
+    namespace export read_file prompt_user nag_user ding
 
     proc read_file {file_name_and_path} {
      ###########################################
