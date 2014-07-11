@@ -454,6 +454,9 @@ namespace eval ::juniperconnect {
         set output [string trimright [textproc::nrange $output 0 end-1]]
         set output [join [split $output "\r"] ""]
         log_user 1
+        #strip bells from output
+        set ding {\007}
+        regsub -all $ding $output "" output
         return $output
     }
 
