@@ -39,6 +39,7 @@ Mac OSX Install:
 
  - Install [macports](http://www.macports.org/install.php)
  - Download and install latest [tcllib](http://sourceforge.net/projects/tcllib/files/tcllib/) (1.15 at present)
+     * use 'sudo ./installer.tcl'
 
 Getting Started
 ---------------
