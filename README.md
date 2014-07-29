@@ -8,7 +8,7 @@ _WARNING: This repo is actively being developed.  Consider it informal for now._
 I intend for this to be a library of TCL/Expect for interaction with Juniper devices.  Here are some of the types of interaction I will account for:
   - login via cli or NetConf
   - perform configuration or send commands for output
-  - process output 
+  - process output
   - generate configurations
   - write tests to validate outputs
 
@@ -17,29 +17,35 @@ Prerequisites
  - TCL 8.5, and these libraries:
    * tcllib
    * tdom
-   * expect 
+   * expect
  - OpenSSH
 
 *Installing these packages*
 
-Ubuntu Install: 
+Ubuntu Install:
 
 ```
 sudo apt-get install -y tcl8.5 expect tcllib tdom openssh-client
 ```
- 
-Fedora/Redhat/Centos Install: 
+
+Fedora/Redhat/Centos Install:
 
 ```
 sudo yum install -y tcl expect tcllib tdom openssh
+
 ```
+
+Mac OSX Install:
+
+ - Install [macports](http://www.macports.org/install.php)
+ - Download and install latest [tcllib](http://sourceforge.net/projects/tcllib/files/tcllib/) (1.15 at present)
 
 Getting Started
 ---------------
 
 Here are simple steps for BASH on Ubuntu (other linux variants may require minor changes):
 
-Step 1. 
+Step 1.
 If you have root/sudo - Clone the repository into /usr/lib (or any path listed in $tcl_pkgPath)
 
 ```
@@ -47,7 +53,7 @@ cd /usr/lib
 sudo git clone https://github.com/francisluong/juniper-helpers.git
 ```
 
-Step 1. (Alternate) 
+Step 1. (Alternate)
 Or... If you DON'T have root/sudo - clone to a user folder and add the path of this git repo to TCLLIBPATH (perhaps in your ~/.bashrc)
 
 ```
@@ -56,7 +62,7 @@ cd ~/lib
 git clone https://github.com/francisluong/juniper-helpers.git
 export TCLLIBPATH=~/lib
 ```
-Step 2. 
+Step 2.
 Create a [userpass](https://github.com/francisluong/juniper-helpers/blob/master/examples/userpass) file
    * first line should be username
    * second line should have the password
@@ -66,7 +72,7 @@ username
 password
 ```
 
-Step 3. 
+Step 3.
 Try to run examples/000_test_install.tcl. Output of examples/000_test_install.tcl should look something like this:
 
 ```
@@ -173,7 +179,7 @@ Incrementally build an e-mail and send it, with attachments!!!.  Useful for send
 
 Concurrency - package require concurrency
 ------------------------------------------
-Provides a framework for writing scripts that work through a list of routers and send commands to each... except it's more general than that.  The queue can be a list of anything.  You can pass a dict to each child script, and even generate different values for each child.  The master script handles spawning up to some maximum number of concurrent scripts and working through the queue until it is empty.  Results are picked up by the master script for easy reporting.  
+Provides a framework for writing scripts that work through a list of routers and send commands to each... except it's more general than that.  The queue can be a list of anything.  You can pass a dict to each child script, and even generate different values for each child.  The master script handles spawning up to some maximum number of concurrent scripts and working through the queue until it is empty.  Results are picked up by the master script for easy reporting.
 Also, this script avoids the need for having the child script in a separate file by having concurrency::init intelligently branch if it is the master thread or a child.
 
 See [examples/2xx\*](https://github.com/francisluong/juniper-helpers/tree/master/examples).

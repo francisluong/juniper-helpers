@@ -1,6 +1,6 @@
 #!/usr/bin/env tclsh
 package provide JuniperConnect 1.0
-package require textproc 
+package require textproc
 package require Expect 5.43
 package require Tcl 8.5
 package require tdom 0.8.3
@@ -27,10 +27,10 @@ namespace eval ::juniperconnect {
     variable expect_timeout $expect_timeout_default
 
     #options variable
-    # - "outputlevel": 
+    # - "outputlevel":
     #     * normal (default) will allow expect sessions to be echoed to stdout
-    #     * quiet will suppress expect session output 
-    variable options 
+    #     * quiet will suppress expect session output
+    variable options
     array unset options
     set options(initialized) 0
 
@@ -41,7 +41,7 @@ namespace eval ::juniperconnect {
     variable nc_output {}
 
     #netconf hello message storage
-    variable netconf_hello 
+    variable netconf_hello
     array unset netconf_hello
     array set netconf_hello {}
 
@@ -111,7 +111,7 @@ namespace eval ::juniperconnect {
     variable r_password {}
 
     proc import_userpass {filepath} {
-        #open a file containing username and password (each on one line) 
+        #open a file containing username and password (each on one line)
         #assign all of these to the array r_db with index = username, value = password
         #also, set the first two lines as r_username and r_password
         if {[file readable $filepath]} {
@@ -295,7 +295,7 @@ namespace eval ::juniperconnect {
                     exp_close; exp_wait
                     after 2000
                 }
-                -re "(% Login invalid|Login incorrect|% Authentication failed.|ermission denied|Password Incorrect)" { 
+                -re "(% Login invalid|Login incorrect|% Authentication failed.|ermission denied|Password Incorrect)" {
                     append output $expect_out(buffer)
                     exp_continue
                 }
@@ -362,6 +362,7 @@ namespace eval ::juniperconnect {
     }
 
     proc disconnectssh {address {style "cli"}} {
+        #end the ssh session with the router
         variable session_array
         variable rp_prompt_array
         set prompt $rp_prompt_array(Juniper)
@@ -423,6 +424,8 @@ namespace eval ::juniperconnect {
     #======================
 
     proc send_textblock {address commands_textblock} {
+        #send multiple commands to the router as a single textblock.
+        # commands are separated by \n newlines
         set textblock [string trim $commands_textblock]
         set commands_list [textproc::nsplit $textblock]
         return [[namespace current]::send_commands $address $commands_list]
@@ -727,7 +730,7 @@ namespace eval ::juniperconnect {
             "*test*" -
             "*simulate*" {
                 #do nothing
-            } 
+            }
             default {
                 send "commit and-quit\r"
             }
@@ -739,7 +742,7 @@ namespace eval ::juniperconnect {
             "*simulate*" {
                 set commands_list [list "commit check" "rollback" "quit config"]
                 juniperconnect::_send_commands_loop $address $commands_list
-            } 
+            }
             "*confirm*" -
             default {
                 set commit_complete 0
@@ -750,7 +753,7 @@ namespace eval ::juniperconnect {
                         exp_continue
                     }
                     "error: configuration check-out failed" {
-                        return -code error "ERROR: Juniper configuration commit failed" 
+                        return -code error "ERROR: Juniper configuration commit failed"
                     }
                     {re0:} {
                         append output $expect_out(buffer)
@@ -978,7 +981,7 @@ namespace eval ::juniperconnect {
     proc get_hello {address} {
         set result {}
         variable netconf_hello
-        set index [lsearch [array names netconf_hello] $address] 
+        set index [lsearch [array names netconf_hello] $address]
         if {$index != -1} {
             set result $netconf_hello($address)
         }

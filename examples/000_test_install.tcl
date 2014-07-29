@@ -6,10 +6,11 @@ foreach item $tcl_pkgPath {
     puts " - $item"
 }
 puts "\nAttempting to access package JuniperConnect"
-if { [catch {package require JuniperConnect}] > 0 } {
+if { [catch {package require JuniperConnect} result] > 0 } {
     puts stderr " - Unable to verify successful installation of Juniper-Helpers"
     puts stderr " - Juniper Helpers needs to be a subfolder of a package path or you will need to set the environment variable TCLLIBPATH"
     puts stderr "      TCLLIBPATH=/path/to/juniper-helpers"
+    puts "Error: $result"
     exit
 } else {
     puts " - SUCCESS!\n"
